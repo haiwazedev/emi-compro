@@ -1,15 +1,9 @@
+import { AboutUsSection } from "@/components/about-us-section"
 import { HomeHero } from "@/components/home-hero"
 import { Navbar } from "@/components/navbar"
 import { StatsSection } from "@/components/stats-section"
 
 const sections = [
-  {
-    id: "about",
-    eyebrow: "About Us",
-    title: "Decades of Expertise in Sustainable Energy",
-    description:
-      "PT Energy Management Indonesia supports national energy efficiency programs and sustainability transformation across Indonesia.",
-  },
   {
     id: "services",
     eyebrow: "Services",
@@ -41,6 +35,7 @@ export default function Home() {
       <main>
         <HomeHero />
         <StatsSection />
+        <AboutUsSection />
 
         {sections.map((section) => (
           <section
