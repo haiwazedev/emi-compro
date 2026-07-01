@@ -1,3 +1,4 @@
+import { HomeHero } from "@/components/home-hero"
 import { Navbar } from "@/components/navbar"
 
 const sections = [
@@ -37,22 +38,7 @@ export default function Home() {
       <Navbar />
 
       <main>
-        <section
-          className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl scroll-mt-20 flex-col justify-center px-6 py-20 sm:px-8 lg:px-10"
-          id="home"
-        >
-          <p className="mb-4 text-sm font-bold uppercase text-brand-navbar-foreground/70">
-            PLN EMI
-          </p>
-          <h1 className="max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">
-            Sustainability solutions for Indonesia&apos;s energy future
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-brand-navbar-foreground/75">
-            A polished sticky navigation system is now in place for the landing
-            experience, with responsive desktop links and a glass-style mobile
-            sidebar.
-          </p>
-        </section>
+        <HomeHero />
 
         {sections.map((section) => (
           <section

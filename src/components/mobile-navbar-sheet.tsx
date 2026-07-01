@@ -21,12 +21,16 @@ export type NavLink = {
 
 type MobileNavbarSheetProps = {
   navLinks: NavLink[];
+  isHomeActive?: boolean;
 };
 
 const mobileLinkClassName =
   "relative w-fit text-xl font-semibold text-brand-navbar transition-colors after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-brand-navbar-action after:transition-transform hover:after:scale-x-100 hover:text-brand-navbar-action duration-700 after:duration-700";
 
-export function MobileNavbarSheet({ navLinks }: MobileNavbarSheetProps) {
+export function MobileNavbarSheet({
+  navLinks,
+  isHomeActive = false,
+}: MobileNavbarSheetProps) {
   const contactLink = navLinks.find((link) => link.label === "Contact");
   const regularLinks = navLinks.filter((link) => link.label !== "Contact");
 
@@ -35,7 +39,12 @@ export function MobileNavbarSheet({ navLinks }: MobileNavbarSheetProps) {
       <SheetTrigger asChild>
         <Button
           aria-label="Open navigation menu"
-          className="text-brand-navbar-foreground hover:bg-brand-navbar-action/50 hover:text-brand-navbar-foreground lg:hidden"
+          className={cn(
+            "hover:bg-brand-navbar-action/50 hover:text-brand-navbar-foreground group-hover/nav:text-brand-navbar-foreground lg:hidden",
+            isHomeActive
+              ? "text-home-foreground drop-shadow-sm"
+              : "text-brand-navbar-foreground"
+          )}
           size="icon-lg"
           variant="ghost"
         >
