@@ -22,6 +22,10 @@
   --color-home-subtitle-from: var(--home-subtitle-from);
   --color-home-subtitle-via: var(--home-subtitle-via);
   --color-home-subtitle-to: var(--home-subtitle-to);
+  --color-stats-background: var(--stats-background);
+  --color-stats-foreground: var(--stats-foreground);
+  --color-stats-muted: var(--stats-muted);
+  --color-stats-border: var(--stats-border);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -114,6 +118,10 @@
   --home-subtitle-from: #a3cef1;
   --home-subtitle-via: #e0f2fe;
   --home-subtitle-to: #fef3c7;
+  --stats-background: #ffffff;
+  --stats-foreground: #274c77;
+  --stats-muted: #6096ba;
+  --stats-border: #dbe7ef;
 }
 
 .dark {

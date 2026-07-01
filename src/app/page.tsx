@@ -1,5 +1,6 @@
 import { HomeHero } from "@/components/home-hero"
 import { Navbar } from "@/components/navbar"
+import { StatsSection } from "@/components/stats-section"
 
 const sections = [
   {
@@ -39,6 +40,7 @@ export default function Home() {
 
       <main>
         <HomeHero />
+        <StatsSection />
 
         {sections.map((section) => (
           <section
