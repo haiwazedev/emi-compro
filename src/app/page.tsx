@@ -1,4 +1,5 @@
 import { AboutUsSection } from "@/components/about-us-section";
+import { ClientsSection } from "@/components/clients-section";
 import { HomeHero } from "@/components/home-hero";
 import { Navbar } from "@/components/navbar";
 import { ServicesSection } from "@/components/services-section";
@@ -31,6 +32,7 @@ export default function Home() {
         <StatsSection />
         <AboutUsSection />
         <ServicesSection />
+        <ClientsSection />
 
         {sections.map((section) => (
           <section

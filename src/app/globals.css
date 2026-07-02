@@ -50,6 +50,17 @@
   --color-services-icon-blue: var(--services-icon-blue);
   --color-services-icon-green: var(--services-icon-green);
   --color-services-icon-yellow: var(--services-icon-yellow);
+  --color-clients-background: var(--clients-background);
+  --color-clients-foreground: var(--clients-foreground);
+  --color-clients-accent: var(--clients-accent);
+  --color-clients-muted: var(--clients-muted);
+  --color-clients-card: var(--clients-card);
+  --color-clients-card-hover: var(--clients-card-hover);
+  --color-clients-card-shadow: var(--clients-card-shadow);
+  --color-clients-badge-background: var(--clients-badge-background);
+  --color-clients-badge-foreground: var(--clients-badge-foreground);
+  --color-clients-badge-dot: var(--clients-badge-dot);
+  --color-clients-fade: var(--clients-fade);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -170,6 +181,17 @@
   --services-icon-blue: #2f65ed;
   --services-icon-green: #20ad55;
   --services-icon-yellow: #f5a400;
+  --clients-background: #ffffff;
+  --clients-foreground: #274c77;
+  --clients-accent: #6096ba;
+  --clients-muted: #8498b5;
+  --clients-card: #f8fafc;
+  --clients-card-hover: #fff;
+  --clients-card-shadow: rgb(39 76 119 / 12%);
+  --clients-badge-background: #e7ecef;
+  --clients-badge-foreground: #274c77;
+  --clients-badge-dot: #38b26b;
+  --clients-fade: #ffffff;
 }
 
 .dark {
@@ -228,8 +250,46 @@
   }
 }
 
+@keyframes clients-marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes clients-marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @layer utilities {
   .animate-home-badge-pulse {
     animation: home-badge-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-clients-marquee-left {
+    animation: clients-marquee-left 32s linear infinite;
+  }
+
+  .animate-clients-marquee-right {
+    animation: clients-marquee-right 34s linear infinite;
+  }
+
+  .clients-marquee-row:hover .clients-marquee-track,
+  .clients-marquee-row:focus-within .clients-marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-clients-marquee-left,
+  .animate-clients-marquee-right {
+    animation: none;
   }
 }
