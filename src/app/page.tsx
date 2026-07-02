@@ -2,6 +2,7 @@ import { AboutUsSection } from "@/components/about-us-section";
 import { ClientsSection } from "@/components/clients-section";
 import { ContactUsSection } from "@/components/contact-us-section";
 import { FaqSection } from "@/components/faq-section";
+import { Footer } from "@/components/footer";
 import { HomeHero } from "@/components/home-hero";
 import { Navbar } from "@/components/navbar";
 import { ServicesSection } from "@/components/services-section";
@@ -21,6 +22,8 @@ export default function Home() {
         <FaqSection />
         <ContactUsSection />
       </main>
+
+      <Footer />
     </div>
   );
 }

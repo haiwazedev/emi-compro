@@ -85,12 +85,15 @@
   --color-contact-whatsapp-hover: var(--contact-whatsapp-hover);
   --color-contact-whatsapp-foreground: var(--contact-whatsapp-foreground);
   --color-contact-email-background: var(--contact-email-background);
-  --color-contact-email-background-hover: var(
-    --contact-email-background-hover
-  );
+  --color-contact-email-background-hover: var(--contact-email-background-hover);
   --color-contact-email-border: var(--contact-email-border);
   --color-contact-email-border-hover: var(--contact-email-border-hover);
   --color-contact-email-foreground: var(--contact-email-foreground);
+  --color-footer-background: var(--footer-background);
+  --color-footer-foreground: var(--footer-foreground);
+  --color-footer-foreground-strong: var(--footer-foreground-strong);
+  --color-footer-logo-background: var(--footer-logo-background);
+  --color-footer-logo-foreground: var(--footer-logo-foreground);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -250,6 +253,11 @@
   --contact-email-border: rgb(255 255 255 / 22%);
   --contact-email-border-hover: rgb(255 255 255 / 34%);
   --contact-email-foreground: #ffffff;
+  --footer-background: #1a3352;
+  --footer-foreground: rgb(231 236 239 / 72%);
+  --footer-foreground-strong: rgb(231 236 239 / 86%);
+  --footer-logo-background: rgb(163 206 241 / 20%);
+  --footer-logo-foreground: #a3cef1;
 }
 
 .dark {
