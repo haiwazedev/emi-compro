@@ -71,6 +71,26 @@
   --color-faq-scrollbar-track: var(--faq-scrollbar-track);
   --color-faq-scrollbar-thumb: var(--faq-scrollbar-thumb);
   --color-faq-scrollbar-thumb-hover: var(--faq-scrollbar-thumb-hover);
+  --color-contact-background: var(--contact-background);
+  --color-contact-foreground: var(--contact-foreground);
+  --color-contact-muted: var(--contact-muted);
+  --color-contact-muted-soft: var(--contact-muted-soft);
+  --color-contact-icon-background: var(--contact-icon-background);
+  --color-contact-icon-foreground: var(--contact-icon-foreground);
+  --color-contact-grid: var(--contact-grid);
+  --color-contact-subtitle-from: var(--contact-subtitle-from);
+  --color-contact-subtitle-via: var(--contact-subtitle-via);
+  --color-contact-subtitle-to: var(--contact-subtitle-to);
+  --color-contact-whatsapp: var(--contact-whatsapp);
+  --color-contact-whatsapp-hover: var(--contact-whatsapp-hover);
+  --color-contact-whatsapp-foreground: var(--contact-whatsapp-foreground);
+  --color-contact-email-background: var(--contact-email-background);
+  --color-contact-email-background-hover: var(
+    --contact-email-background-hover
+  );
+  --color-contact-email-border: var(--contact-email-border);
+  --color-contact-email-border-hover: var(--contact-email-border-hover);
+  --color-contact-email-foreground: var(--contact-email-foreground);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -212,6 +232,24 @@
   --faq-scrollbar-track: #edf4f8;
   --faq-scrollbar-thumb: #c8d9e6;
   --faq-scrollbar-thumb-hover: #a9c3d8;
+  --contact-background: #274c77;
+  --contact-foreground: #ffffff;
+  --contact-muted: #b9cce0;
+  --contact-muted-soft: rgb(185 204 224 / 55%);
+  --contact-icon-background: rgb(163 206 241 / 18%);
+  --contact-icon-foreground: #a3cef1;
+  --contact-grid: rgb(163 206 241 / 5%);
+  --contact-subtitle-from: #a3cef1;
+  --contact-subtitle-via: #bcd9f1;
+  --contact-subtitle-to: #7fb0d2;
+  --contact-whatsapp: #22c55e;
+  --contact-whatsapp-hover: #16a34a;
+  --contact-whatsapp-foreground: #ffffff;
+  --contact-email-background: rgb(255 255 255 / 8%);
+  --contact-email-background-hover: rgb(255 255 255 / 14%);
+  --contact-email-border: rgb(255 255 255 / 22%);
+  --contact-email-border-hover: rgb(255 255 255 / 34%);
+  --contact-email-foreground: #ffffff;
 }
 
 .dark {
@@ -326,6 +364,13 @@
 
   .faq-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--faq-scrollbar-thumb-hover);
+  }
+
+  .contact-grid {
+    background-image:
+      linear-gradient(var(--contact-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--contact-grid) 1px, transparent 1px);
+    background-size: 86px 86px;
   }
 }
 
