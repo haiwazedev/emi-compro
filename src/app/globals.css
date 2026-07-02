@@ -36,6 +36,20 @@
   --color-about-badge-blue: var(--about-badge-blue);
   --color-about-badge-yellow: var(--about-badge-yellow);
   --color-about-image-shadow: var(--about-image-shadow);
+  --color-services-background: var(--services-background);
+  --color-services-card: var(--services-card);
+  --color-services-foreground: var(--services-foreground);
+  --color-services-muted: var(--services-muted);
+  --color-services-accent: var(--services-accent);
+  --color-services-tag-background: var(--services-tag-background);
+  --color-services-tag-background-hover: var(--services-tag-background-hover);
+  --color-services-tag-foreground: var(--services-tag-foreground);
+  --color-services-popup-background: var(--services-popup-background);
+  --color-services-popup-border: var(--services-popup-border);
+  --color-services-popup-shadow: var(--services-popup-shadow);
+  --color-services-icon-blue: var(--services-icon-blue);
+  --color-services-icon-green: var(--services-icon-green);
+  --color-services-icon-yellow: var(--services-icon-yellow);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -142,6 +156,20 @@
   --about-badge-blue: #6096ba;
   --about-badge-yellow: #f59e0b;
   --about-image-shadow: rgb(39 76 119 / 10%);
+  --services-background: #e7ecef;
+  --services-card: #ffffff;
+  --services-foreground: #274c77;
+  --services-muted: #7f94b2;
+  --services-accent: #6096ba;
+  --services-tag-background: #e8edf2;
+  --services-tag-background-hover: #dce7ef;
+  --services-tag-foreground: #274c77;
+  --services-popup-background: rgb(255 255 255 / 82%);
+  --services-popup-border: rgb(96 150 186 / 28%);
+  --services-popup-shadow: rgb(39 76 119 / 18%);
+  --services-icon-blue: #2f65ed;
+  --services-icon-green: #20ad55;
+  --services-icon-yellow: #f5a400;
 }
 
 .dark {

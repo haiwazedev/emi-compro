@@ -1,16 +1,10 @@
-import { AboutUsSection } from "@/components/about-us-section"
-import { HomeHero } from "@/components/home-hero"
-import { Navbar } from "@/components/navbar"
-import { StatsSection } from "@/components/stats-section"
+import { AboutUsSection } from "@/components/about-us-section";
+import { HomeHero } from "@/components/home-hero";
+import { Navbar } from "@/components/navbar";
+import { ServicesSection } from "@/components/services-section";
+import { StatsSection } from "@/components/stats-section";
 
 const sections = [
-  {
-    id: "services",
-    eyebrow: "Services",
-    title: "Sustainability solutions for measurable progress",
-    description:
-      "From decarbonization strategy to energy conservation, PLN EMI helps organizations reduce impact with practical, accountable programs.",
-  },
   {
     id: "faq",
     eyebrow: "FAQ",
@@ -25,7 +19,7 @@ const sections = [
     description:
       "Connect with PLN EMI to explore energy management, environmental compliance, and circularity opportunities.",
   },
-]
+];
 
 export default function Home() {
   return (
@@ -36,6 +30,7 @@ export default function Home() {
         <HomeHero />
         <StatsSection />
         <AboutUsSection />
+        <ServicesSection />
 
         {sections.map((section) => (
           <section
@@ -56,5 +51,5 @@ export default function Home() {
         ))}
       </main>
     </div>
-  )
+  );
 }
