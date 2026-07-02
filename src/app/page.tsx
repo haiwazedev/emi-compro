@@ -1,18 +1,12 @@
 import { AboutUsSection } from "@/components/about-us-section";
 import { ClientsSection } from "@/components/clients-section";
+import { FaqSection } from "@/components/faq-section";
 import { HomeHero } from "@/components/home-hero";
 import { Navbar } from "@/components/navbar";
 import { ServicesSection } from "@/components/services-section";
 import { StatsSection } from "@/components/stats-section";
 
 const sections = [
-  {
-    id: "faq",
-    eyebrow: "FAQ",
-    title: "Built for long-term operating clarity",
-    description:
-      "The navigation is ready for future content sections, including common customer questions, project highlights, and consultation pathways.",
-  },
   {
     id: "contact",
     eyebrow: "Contact",
@@ -33,6 +27,7 @@ export default function Home() {
         <AboutUsSection />
         <ServicesSection />
         <ClientsSection />
+        <FaqSection />
 
         {sections.map((section) => (
           <section

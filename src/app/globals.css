@@ -61,6 +61,16 @@
   --color-clients-badge-foreground: var(--clients-badge-foreground);
   --color-clients-badge-dot: var(--clients-badge-dot);
   --color-clients-fade: var(--clients-fade);
+  --color-faq-background: var(--faq-background);
+  --color-faq-foreground: var(--faq-foreground);
+  --color-faq-accent: var(--faq-accent);
+  --color-faq-muted: var(--faq-muted);
+  --color-faq-panel-border: var(--faq-panel-border);
+  --color-faq-card: var(--faq-card);
+  --color-faq-card-border: var(--faq-card-border);
+  --color-faq-scrollbar-track: var(--faq-scrollbar-track);
+  --color-faq-scrollbar-thumb: var(--faq-scrollbar-thumb);
+  --color-faq-scrollbar-thumb-hover: var(--faq-scrollbar-thumb-hover);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -192,6 +202,16 @@
   --clients-badge-foreground: #274c77;
   --clients-badge-dot: #38b26b;
   --clients-fade: #ffffff;
+  --faq-background: #ffffff;
+  --faq-foreground: #274c77;
+  --faq-accent: #6096ba;
+  --faq-muted: #7187a9;
+  --faq-panel-border: #dbe7ef;
+  --faq-card: #ffffff;
+  --faq-card-border: #e3edf4;
+  --faq-scrollbar-track: #edf4f8;
+  --faq-scrollbar-thumb: #c8d9e6;
+  --faq-scrollbar-thumb-hover: #a9c3d8;
 }
 
 .dark {
@@ -284,6 +304,28 @@
   .clients-marquee-row:hover .clients-marquee-track,
   .clients-marquee-row:focus-within .clients-marquee-track {
     animation-play-state: paused;
+  }
+
+  .faq-scrollbar {
+    scrollbar-color: var(--faq-scrollbar-thumb) var(--faq-scrollbar-track);
+    scrollbar-width: thin;
+  }
+
+  .faq-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .faq-scrollbar::-webkit-scrollbar-track {
+    background: var(--faq-scrollbar-track);
+  }
+
+  .faq-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--faq-scrollbar-thumb);
+    border-radius: 999px;
+  }
+
+  .faq-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--faq-scrollbar-thumb-hover);
   }
 }
 
