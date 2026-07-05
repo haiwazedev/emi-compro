@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",

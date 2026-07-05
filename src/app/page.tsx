@@ -1,12 +1,12 @@
-import { AboutUsSection } from "@/components/about-us-section";
-import { ClientsSection } from "@/components/clients-section";
-import { ContactUsSection } from "@/components/contact-us-section";
-import { FaqSection } from "@/components/faq-section";
-import { Footer } from "@/components/footer";
-import { HomeHero } from "@/components/home-hero";
-import { Navbar } from "@/components/navbar";
-import { ServicesSection } from "@/components/services-section";
-import { StatsSection } from "@/components/stats-section";
+import { AboutUsSection } from "@/module/about/components/about-us-section";
+import { ClientsSection } from "@/module/clients/components/clients-section";
+import { ContactUsSection } from "@/module/contact/components/contact-us-section";
+import { FaqSection } from "@/module/faq/components/faq-section";
+import { HomeHero } from "@/module/home/components/home-hero";
+import { Footer } from "@/module/layout/components/footer";
+import { Navbar } from "@/module/layout/components/navbar";
+import { ServicesSection } from "@/module/services/components/services-section";
+import { StatsSection } from "@/module/stats/components/stats-section";
 
 export default function Home() {
   return (
