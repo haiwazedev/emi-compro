@@ -48,7 +48,7 @@ export function ServiceTagPill({ tag }: ServiceTagPillProps) {
           asChild
           className={cn(
             tagClassName,
-            "cursor-pointer outline-none data-[state=open]:bg-services-foreground data-[state=open]:text-white",
+            "cursor-pointer outline-none data-[state=open]:bg-services-foreground data-[state=open]:text-neutral",
           )}
           variant="secondary"
         >

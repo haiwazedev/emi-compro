@@ -26,7 +26,7 @@ export function HeroIndicators({
                 slide.subtitle
               }`}
               className={cn(
-                "h-2.5 rounded-full bg-white/55 transition-all duration-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-home-primary-action focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950/40",
+                "h-2.5 rounded-full bg-neutral/55 transition-all duration-300 hover:bg-neutral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-home-primary-action focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950/40",
                 isActive ? "w-8 bg-home-primary-action" : "w-2.5",
               )}
               key={slide.image}

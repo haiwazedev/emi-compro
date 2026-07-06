@@ -17,11 +17,11 @@ type ServiceCardProps = {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <article className="relative rounded-2xl border border-white/80 bg-services-card p-8 shadow-sm transition ease-in-out duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none lg:grid lg:grid-cols-[5rem_minmax(0,1fr)] gap-2">
+    <article className="relative rounded-2xl border border-neutral/80 bg-services-card p-8 shadow-sm transition ease-in-out duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none lg:grid lg:grid-cols-[5rem_minmax(0,1fr)] gap-2">
       <div
         aria-hidden="true"
         className={cn(
-          "flex size-14 items-center justify-center rounded-2xl text-white shadow-lg shadow-services-muted/20",
+          "flex size-14 items-center justify-center rounded-2xl text-neutral shadow-lg shadow-services-muted/20",
           iconToneClassNames[service.iconTone],
         )}
       >

@@ -20,7 +20,7 @@ export function HeroContent({
     <div className="relative z-10 mx-auto flex min-h-svh max-w-7xl flex-col justify-center px-6 pb-28 pt-32 sm:px-8 sm:pb-32 sm:pt-36 lg:px-10">
       <div className="max-w-4xl">
         <Badge
-          className="h-auto rounded-full border-white/20 bg-white/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted shadow-lg backdrop-blur-md"
+          className="h-auto rounded-full border-neutral/20 bg-neutral/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted shadow-lg backdrop-blur-md"
           variant="outline"
         >
           <span className="size-2 rounded-full bg-home-badge-dot animate-home-badge-pulse mr-1" />
@@ -62,7 +62,7 @@ export function HeroContent({
           </Button>
           <Button
             asChild
-            className="h-12 rounded-full border-white/70 bg-white/5 px-6 text-sm font-bold text-home-foreground backdrop-blur-sm hover:bg-white/15 hover:text-home-foreground sm:px-7"
+            className="h-12 rounded-full border-neutral/70 bg-neutral/5 px-6 text-sm font-bold text-home-foreground backdrop-blur-sm hover:bg-neutral/15 hover:text-home-foreground sm:px-7"
             variant="outline"
           >
             <a href="#about">Learn More</a>

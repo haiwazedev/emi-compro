@@ -36,20 +36,19 @@ export function MobileNavbarSheet({
         <Button
           aria-label="Open navigation menu"
           className={cn(
-            "hover:bg-brand-navbar-action/50 hover:text-brand-navbar-foreground group-hover/nav:text-brand-navbar-foreground lg:hidden",
+            "hover:cursor-pointer bg-transparent hover:bg-transparent hover:text-accent lg:hidden",
             isHomeActive
               ? "text-home-foreground drop-shadow-sm"
               : "text-brand-navbar-foreground",
           )}
           size="icon-lg"
-          variant="ghost"
         >
           <MenuIcon className="size-6" />
         </Button>
       </SheetTrigger>
 
       <SheetContent
-        className="w-72 border-white/30 bg-brand-navbar-glass px-8 py-8 text-brand-navbar-foreground shadow-2xl backdrop-blur-xl"
+        className="w-72 border-neutral/30 bg-brand-navbar-glass px-8 py-8 text-brand-navbar-foreground shadow-2xl backdrop-blur-xl"
         side="right"
         showCloseButton={false}
         blurOverlay={false}

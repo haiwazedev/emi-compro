@@ -10,7 +10,7 @@ import { StatsSection } from "@/module/stats/components/stats-section";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-brand-navbar-foreground">
+    <div className="min-h-screen bg-neutral text-brand-navbar-foreground">
       <Navbar />
 
       <main>
