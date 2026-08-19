@@ -1,8 +1,9 @@
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import type { HomeSlide } from "@/module/home/content/home";
 import { cn } from "@/shared/lib/utils";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 
+import { ArrowRightIcon } from "lucide-react";
 import type { CopyTransitionState } from "../hooks/use-hero-carousel";
 
 type HeroContentProps = {
@@ -20,7 +21,7 @@ export function HeroContent({
     <div className="relative z-10 mx-auto flex min-h-svh max-w-7xl flex-col justify-center px-6 pb-28 pt-32 sm:px-8 sm:pb-32 sm:pt-36 lg:px-10">
       <div className="max-w-4xl">
         <Badge
-          className="h-auto rounded-full border-neutral/20 bg-neutral/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted shadow-lg backdrop-blur-md"
+          className="h-auto rounded-full border-neutral/20 bg-neutral/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted backdrop-blur-md"
           variant="outline"
         >
           <span className="size-2 rounded-full bg-home-badge-dot animate-home-badge-pulse mr-1" />
@@ -56,13 +57,16 @@ export function HeroContent({
         <div className="mt-9 flex flex-wrap gap-3 sm:gap-4">
           <Button
             asChild
-            className="h-12 rounded-full bg-home-primary-action px-6 text-sm font-bold text-home-primary-action-foreground shadow-xl hover:bg-home-foreground sm:px-7"
+            className="h-12 rounded-full bg-background px-6 text-sm font-bold text-home-primary-action-foreground hover:bg-home-foreground sm:px-7"
           >
-            <a href="#services">Explore Solutions</a>
+            <div className="flex gap-2 items-center">
+              <a href="#services">Explore Services</a>
+              <ArrowRightIcon />
+            </div>
           </Button>
           <Button
             asChild
-            className="h-12 rounded-full border-neutral/70 bg-neutral/5 px-6 text-sm font-bold text-home-foreground backdrop-blur-sm hover:bg-neutral/15 hover:text-home-foreground sm:px-7"
+            className="h-12 rounded-full border-neutral/70 bg-neutral/5 px-6 text-sm font-bold text-home-foreground hover:bg-neutral/15 hover:text-home-foreground sm:px-7"
             variant="outline"
           >
             <a href="#about">Learn More</a>

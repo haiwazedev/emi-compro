@@ -1,8 +1,11 @@
 # Rules
 
-- Keep code clean, simple, readable, maintainable, and human-friendly
+- Keep code clean, simple, minimal, readable, maintainable, and human-friendly
 - Prioritize clean code and refactor if possible
 - Prioritize using shadcn components if possible
 - Prioritize create or using existing tailwind variables instead of custom string value if possible
 - Prioritize SEO-friendly and performance-focused implementation
 - Prioritize flex layout rather than grid layout if possible
+- Only run `pnpm lint` and `pnpm build` for verification
+- Use general and well-known tailwind classes if possible
+- Avoid using fixed css size for width & height like w-20, h-40 if possible
