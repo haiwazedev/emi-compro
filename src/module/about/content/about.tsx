@@ -1,58 +1,69 @@
-import type { ReactNode } from "react";
-import type { IconName } from "lucide-react/dynamic";
-
 export type AboutBadge = {
   label: string;
-  icon: IconName;
-  iconClassName: string;
+  emoji: string;
+};
+
+export type AboutMetric = {
+  label: string;
+  value: number;
+  suffix: string;
+  description: string;
 };
 
 type AboutContent = {
   eyebrow: string;
   title: string;
   subtitle: string;
-  description: ReactNode[];
-  closing: string;
+  description: string;
 };
 
 export const aboutContent: AboutContent = {
-  eyebrow: "About Us",
-  title: "Decades of Expertise in",
-  subtitle: "Sustainable Energy",
-  description: [
-    <>
-      Since 1987,{" "}
-      <strong className="font-bold text-about-foreground">
-        PT Energy Management Indonesia (EMI)
-      </strong>{" "}
-      has supported national energy efficiency programs. As part of PLN Group
-      since 2021, we manage Green Instruments and Carbon Economic Value across
-      the group.
-    </>,
-    "We deliver practical solutions, from Sustainability Consulting, Energy Audits, and we can even help your company cut emissions through Renewable Energy Certificates (REC) and Greenhouse Gas Emission Reduction Certificates (SPE-GRK).",
-  ],
-  closing: "Let's move toward a cleaner, more sustainable future together!",
+  eyebrow: "SEKILAS EMI",
+  title: "Who",
+  subtitle: "We Are",
+  description:
+    "Since 1987, PT Energy Management Indonesia (Persero) has been supporting the national energy efficiency program. As part of the PLN Group since 2021, we manage Green Instruments and Carbon Economic Values across the entire group environment.",
 };
 
 export const aboutBadges: AboutBadge[] = [
   {
     label: "Sustainability",
-    icon: "leaf",
-    iconClassName: "text-about-badge-green",
+    emoji: "🌿",
   },
   {
     label: "Compliance",
-    icon: "shield-check",
-    iconClassName: "text-about-badge-blue",
+    emoji: "🛡️",
   },
   {
     label: "Energy Efficiency",
-    icon: "zap",
-    iconClassName: "text-about-badge-yellow",
+    emoji: "⚡",
   },
   {
     label: "Climate Action",
-    icon: "globe-2",
-    iconClassName: "text-about-badge-blue",
+    emoji: "🌐",
+  },
+];
+
+export const aboutMetrics: AboutMetric[] = [
+  {
+    label: "ESTABLISHED",
+    value: 1987,
+    suffix: "",
+    description:
+      "Nearly four decades supporting Indonesia's national energy efficiency program.",
+  },
+  {
+    label: "WHAT WE OFFER",
+    value: 5,
+    suffix: "",
+    description:
+      "Integrated service divisions from decarbonization to environmental compliance.",
+  },
+  {
+    label: "OUR NETWORK",
+    value: 150,
+    suffix: "+",
+    description:
+      "Clients served across industries — driving energy efficiency and sustainability together.",
   },
 ];

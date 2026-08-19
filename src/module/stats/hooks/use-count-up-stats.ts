@@ -2,21 +2,24 @@
 
 import * as React from "react";
 
-import { stats } from "@/module/stats/content/stats";
 import { useInViewOnce } from "@/shared/hooks/use-in-view-once";
 import { usePrefersReducedMotion } from "@/shared/hooks/use-prefers-reduced-motion";
 
 const COUNT_UP_DURATION = 1400;
-const targetValues = stats.map((stat) => stat.value);
-const zeroValues = stats.map(() => 0);
 
 const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3);
 const subscribeToHydration = () => () => {};
 const getHydratedSnapshot = () => true;
 const getServerHydratedSnapshot = () => false;
 
-export function useCountUpStats() {
+export function useCountUpStats<TElement extends Element = HTMLElement>(
+  targetValues: readonly number[],
+) {
   const hasAnimatedRef = React.useRef(false);
+  const zeroValues = React.useMemo(
+    () => targetValues.map(() => 0),
+    [targetValues],
+  );
   const hasHydrated = React.useSyncExternalStore(
     subscribeToHydration,
     getHydratedSnapshot,
@@ -24,20 +27,20 @@ export function useCountUpStats() {
   );
   const prefersReducedMotion = usePrefersReducedMotion();
   const { ref: sectionRef, hasEntered: hasEnteredViewport } =
-    useInViewOnce<HTMLElement>({
+    useInViewOnce<TElement>({
       enabled: hasHydrated && !prefersReducedMotion,
       rootMargin: "0px 0px -15% 0px",
       threshold: 0.25,
     });
   const hasEntered = hasEnteredViewport || prefersReducedMotion;
   const [displayedValues, setDisplayedValues] =
-    React.useState<number[]>(targetValues);
+    React.useState<number[]>([...targetValues]);
 
   React.useEffect(() => {
     if (prefersReducedMotion) {
       hasAnimatedRef.current = true;
       queueMicrotask(() => {
-        setDisplayedValues(targetValues);
+        setDisplayedValues([...targetValues]);
       });
       return;
     }
@@ -47,7 +50,7 @@ export function useCountUpStats() {
         setDisplayedValues(zeroValues);
       });
     }
-  }, [hasEntered, prefersReducedMotion]);
+  }, [hasEntered, prefersReducedMotion, targetValues, zeroValues]);
 
   React.useEffect(() => {
     if (!hasEntered || prefersReducedMotion || hasAnimatedRef.current) {
@@ -63,7 +66,7 @@ export function useCountUpStats() {
       const easedProgress = easeOutCubic(progress);
 
       setDisplayedValues(
-        stats.map((stat) => Math.round(stat.value * easedProgress)),
+        targetValues.map((value) => Math.round(value * easedProgress)),
       );
 
       if (progress < 1) {
@@ -72,7 +75,7 @@ export function useCountUpStats() {
       }
 
       hasAnimatedRef.current = true;
-      setDisplayedValues(targetValues);
+      setDisplayedValues([...targetValues]);
     };
 
     animationFrameId = window.requestAnimationFrame(animate);
@@ -80,12 +83,10 @@ export function useCountUpStats() {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [hasEntered, prefersReducedMotion]);
+  }, [hasEntered, prefersReducedMotion, targetValues]);
 
   return {
     displayedValues,
-    prefersReducedMotion,
-    sectionRef,
-    shouldReveal: !hasHydrated || hasEntered || prefersReducedMotion,
+    metricsRef: sectionRef,
   };
 }

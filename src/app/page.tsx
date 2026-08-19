@@ -6,7 +6,6 @@ import { HomeHero } from "@/module/home/components/home-hero";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { ServicesSection } from "@/module/services/components/services-section";
-import { StatsSection } from "@/module/stats/components/stats-section";
 
 export default function Home() {
   return (
@@ -15,7 +14,6 @@ export default function Home() {
 
       <main>
         <HomeHero />
-        <StatsSection />
         <AboutUsSection />
         <ServicesSection />
         <ClientsSection />
