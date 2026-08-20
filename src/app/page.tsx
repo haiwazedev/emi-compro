@@ -2,7 +2,6 @@ import { AboutUsSection } from "@/module/about/components/about-us-section";
 import { ArticlesSection } from "@/module/articles/components/articles-section";
 import { CommitmentSection } from "@/module/commitment/components/commitment-section";
 import { ContactUsSection } from "@/module/contact/components/contact-us-section";
-import { FaqSection } from "@/module/faq/components/faq-section";
 import { HomeHero } from "@/module/home/components/home-hero";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
@@ -21,7 +20,6 @@ export default function Home() {
         <PartnersSection />
         <ArticlesSection />
         <CommitmentSection />
-        <FaqSection />
         <ContactUsSection />
       </main>
 

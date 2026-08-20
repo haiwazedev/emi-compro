@@ -64,16 +64,6 @@
   --color-articles-card: var(--articles-card);
   --color-articles-card-border: var(--articles-card-border);
   --color-articles-shadow: var(--articles-shadow);
-  --color-faq-background: var(--faq-background);
-  --color-faq-foreground: var(--faq-foreground);
-  --color-faq-accent: var(--faq-accent);
-  --color-faq-muted: var(--faq-muted);
-  --color-faq-panel-border: var(--faq-panel-border);
-  --color-faq-card: var(--faq-card);
-  --color-faq-card-border: var(--faq-card-border);
-  --color-faq-scrollbar-track: var(--faq-scrollbar-track);
-  --color-faq-scrollbar-thumb: var(--faq-scrollbar-thumb);
-  --color-faq-scrollbar-thumb-hover: var(--faq-scrollbar-thumb-hover);
   --color-contact-background: var(--contact-background);
   --color-contact-foreground: var(--contact-foreground);
   --color-contact-muted: var(--contact-muted);
@@ -242,16 +232,6 @@
   --articles-media-slate-end: #5e899f;
   --articles-media-navy-start: #173a5c;
   --articles-media-navy-end: #204c75;
-  --faq-background: var(--neutral);
-  --faq-foreground: var(--primary);
-  --faq-accent: var(--secondary);
-  --faq-muted: #7187a9;
-  --faq-panel-border: #dbe7ef;
-  --faq-card: var(--neutral);
-  --faq-card-border: #e3edf4;
-  --faq-scrollbar-track: #edf4f8;
-  --faq-scrollbar-thumb: #c8d9e6;
-  --faq-scrollbar-thumb-hover: #a9c3d8;
   --contact-background: var(--accent);
   --contact-foreground: var(--neutral);
   --contact-muted: #b9cce0;
@@ -334,28 +314,6 @@
 @layer utilities {
   .animate-home-badge-pulse {
     animation: home-badge-pulse 2s ease-in-out infinite;
-  }
-
-  .faq-scrollbar {
-    scrollbar-color: var(--faq-scrollbar-thumb) var(--faq-scrollbar-track);
-    scrollbar-width: thin;
-  }
-
-  .faq-scrollbar::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .faq-scrollbar::-webkit-scrollbar-track {
-    background: var(--faq-scrollbar-track);
-  }
-
-  .faq-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--faq-scrollbar-thumb);
-    border-radius: 999px;
-  }
-
-  .faq-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--faq-scrollbar-thumb-hover);
   }
 
   .article-media-blue {
