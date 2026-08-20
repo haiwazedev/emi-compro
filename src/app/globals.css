@@ -51,17 +51,12 @@
   --color-services-nav-blue: var(--services-nav-blue);
   --color-services-nav-navy: var(--services-nav-navy);
   --color-services-nav-slate: var(--services-nav-slate);
-  --color-clients-background: var(--clients-background);
-  --color-clients-foreground: var(--clients-foreground);
-  --color-clients-accent: var(--clients-accent);
-  --color-clients-muted: var(--clients-muted);
-  --color-clients-card: var(--clients-card);
-  --color-clients-card-hover: var(--clients-card-hover);
-  --color-clients-card-shadow: var(--clients-card-shadow);
-  --color-clients-badge-background: var(--clients-badge-background);
-  --color-clients-badge-foreground: var(--clients-badge-foreground);
-  --color-clients-badge-dot: var(--clients-badge-dot);
-  --color-clients-fade: var(--clients-fade);
+  --color-partners-background: var(--partners-background);
+  --color-partners-foreground: var(--partners-foreground);
+  --color-partners-accent: var(--partners-accent);
+  --color-partners-muted: var(--partners-muted);
+  --color-partners-card: var(--partners-card);
+  --color-partners-card-border: var(--partners-card-border);
   --color-faq-background: var(--faq-background);
   --color-faq-foreground: var(--faq-foreground);
   --color-faq-accent: var(--faq-accent);
@@ -220,17 +215,12 @@
   --services-nav-blue: #245d83;
   --services-nav-navy: #183b5d;
   --services-nav-slate: #527e99;
-  --clients-background: var(--neutral);
-  --clients-foreground: var(--primary);
-  --clients-accent: var(--secondary);
-  --clients-muted: #8498b5;
-  --clients-card: var(--card);
-  --clients-card-hover: var(--neutral);
-  --clients-card-shadow: rgb(from var(--primary) r g b / 12%);
-  --clients-badge-background: var(--background);
-  --clients-badge-foreground: var(--primary);
-  --clients-badge-dot: #38b26b;
-  --clients-fade: var(--neutral);
+  --partners-background: var(--neutral);
+  --partners-foreground: var(--primary);
+  --partners-accent: var(--secondary);
+  --partners-muted: #8498b5;
+  --partners-card: var(--neutral);
+  --partners-card-border: var(--about-divider);
   --faq-background: var(--neutral);
   --faq-foreground: var(--primary);
   --faq-accent: var(--secondary);
@@ -323,40 +313,9 @@
   }
 }
 
-@keyframes clients-marquee-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes clients-marquee-right {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
 @layer utilities {
   .animate-home-badge-pulse {
     animation: home-badge-pulse 2s ease-in-out infinite;
-  }
-
-  .animate-clients-marquee-left {
-    animation: clients-marquee-left 32s linear infinite;
-  }
-
-  .animate-clients-marquee-right {
-    animation: clients-marquee-right 34s linear infinite;
-  }
-
-  .clients-marquee-row:hover .clients-marquee-track,
-  .clients-marquee-row:focus-within .clients-marquee-track {
-    animation-play-state: paused;
   }
 
   .faq-scrollbar {
@@ -394,8 +353,4 @@
     scroll-behavior: auto;
   }
 
-  .animate-clients-marquee-left,
-  .animate-clients-marquee-right {
-    animation: none;
-  }
 }
