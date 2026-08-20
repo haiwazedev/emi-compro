@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { HomeSlide } from "@/module/home/content/home";
+import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import type { CarouselApi } from "@/shared/ui/carousel";
@@ -68,40 +69,43 @@ export function HeroIndicators({
   slides,
 }: HeroIndicatorsProps) {
   return (
-    <div className="absolute inset-x-0 bottom-8 z-20 px-6 sm:px-8 lg:px-14">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
-        <div className="flex items-center gap-2 rounded-full px-3 py-2">
-          {slides.map((slide, index) => {
-            const isActive = index === activeIndex;
+    <SectionContainer
+      as="div"
+      className="absolute inset-x-0 bottom-8 z-20"
+      contentClassName="flex items-center justify-between gap-4"
+      variant="transparent"
+    >
+      <div className="flex items-center gap-2 rounded-full px-3 py-2">
+        {slides.map((slide, index) => {
+          const isActive = index === activeIndex;
 
-            return (
-              <HeroIndicatorDotButton
-                isActive={isActive}
-                key={slide.image}
-                label={`Show slide ${index + 1}: ${slide.mainTitle} ${
-                  slide.subtitle
-                }`}
-                onClick={() => api?.scrollTo(index)}
-              />
-            );
-          })}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <HeroIndicatorArrowButton
-            aria-label="Previous slide"
-            onClick={() => api?.scrollPrev()}
-          >
-            <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          </HeroIndicatorArrowButton>
-          <HeroIndicatorArrowButton
-            aria-label="Next slide"
-            onClick={() => api?.scrollNext()}
-          >
-            <ArrowRightIcon aria-hidden="true" className="size-4" />
-          </HeroIndicatorArrowButton>
-        </div>
+          return (
+            <HeroIndicatorDotButton
+              isActive={isActive}
+              key={slide.image}
+              label={`Show slide ${index + 1}: ${slide.mainTitle} ${
+                slide.subtitle
+              }`}
+              onClick={() => api?.scrollTo(index)}
+            />
+          );
+        })}
       </div>
-    </div>
+
+      <div className="flex items-center gap-2">
+        <HeroIndicatorArrowButton
+          aria-label="Previous slide"
+          onClick={() => api?.scrollPrev()}
+        >
+          <ArrowLeftIcon aria-hidden="true" className="size-4" />
+        </HeroIndicatorArrowButton>
+        <HeroIndicatorArrowButton
+          aria-label="Next slide"
+          onClick={() => api?.scrollNext()}
+        >
+          <ArrowRightIcon aria-hidden="true" className="size-4" />
+        </HeroIndicatorArrowButton>
+      </div>
+    </SectionContainer>
   );
 }

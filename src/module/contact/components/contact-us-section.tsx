@@ -2,16 +2,18 @@ import { Mail, Send } from "lucide-react";
 
 import { WhatsAppIcon } from "@/module/contact/components/whatsapp-icon";
 import { contactContent } from "@/module/contact/content/contact";
+import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
 
 export function ContactUsSection() {
   return (
-    <section
+    <SectionContainer
       aria-labelledby="contact-heading"
-      className="scroll-mt-20 bg-contact-background px-4 pb-16 pt-14 text-contact-foreground sm:px-6 lg:px-10 lg:pb-20"
+      className="pb-16 pt-14 text-contact-foreground lg:pb-20"
       id="contact"
+      variant="inverse"
     >
-      <div className="mx-auto flex max-w-7xl justify-center">
+      <div className="flex justify-center">
         <div className="flex w-full max-w-3xl flex-col items-center text-center">
           <div
             aria-hidden="true"
@@ -70,6 +72,6 @@ export function ContactUsSection() {
           </span>
         </div>
       </div>
-    </section>
+    </SectionContainer>
   );
 }

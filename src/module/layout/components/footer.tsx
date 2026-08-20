@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
 import type { FooterSocialIcon } from "@/module/layout/content/footer";
 import { footerContent } from "@/module/layout/content/footer";
+import { sectionContainerRailClassName } from "@/shared/components/section-container";
 
 function SocialIcon({ icon }: { icon: FooterSocialIcon }) {
   const iconClassName = "size-3.5 sm:size-4";
@@ -40,10 +41,10 @@ export function Footer() {
   return (
     <footer
       aria-label="Site footer"
-      className="bg-footer-background px-6 py-6 text-footer-foreground sm:py-10 lg:px-10 lg:py-12"
+      className="bg-footer-background py-6 text-footer-foreground sm:py-10 lg:py-12"
       id="footer"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={sectionContainerRailClassName}>
         <div className="flex flex-col items-center text-center">
           <a
             aria-label="Danantara Indonesia home"

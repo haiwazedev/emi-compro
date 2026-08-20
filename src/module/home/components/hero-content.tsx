@@ -1,4 +1,5 @@
 import type { HomeSlide } from "@/module/home/content/home";
+import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -18,7 +19,12 @@ export function HeroContent({
   displayedSlide,
 }: HeroContentProps) {
   return (
-    <div className="relative z-10 mx-auto flex min-h-svh max-w-7xl flex-col justify-center px-6 pb-28 pt-32 sm:px-8 sm:pb-32 sm:pt-36 lg:px-10">
+    <SectionContainer
+      as="div"
+      className="relative z-10"
+      contentClassName="flex min-h-svh flex-col justify-center pb-28 pt-32 sm:pb-32 sm:pt-36"
+      variant="transparent"
+    >
       <div className="max-w-4xl">
         <Badge
           className="h-auto rounded-full border-neutral/20 bg-neutral/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted backdrop-blur-md"
@@ -73,6 +79,6 @@ export function HeroContent({
           </Button>
         </div>
       </div>
-    </div>
+    </SectionContainer>
   );
 }
