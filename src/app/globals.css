@@ -44,6 +44,13 @@
   --color-services-icon-blue: var(--services-icon-blue);
   --color-services-icon-green: var(--services-icon-green);
   --color-services-icon-yellow: var(--services-icon-yellow);
+  --color-services-icon-slate: var(--services-icon-slate);
+  --color-services-shadow: var(--services-shadow);
+  --color-services-nav-accent: var(--services-nav-accent);
+  --color-services-nav-teal: var(--services-nav-teal);
+  --color-services-nav-blue: var(--services-nav-blue);
+  --color-services-nav-navy: var(--services-nav-navy);
+  --color-services-nav-slate: var(--services-nav-slate);
   --color-clients-background: var(--clients-background);
   --color-clients-foreground: var(--clients-foreground);
   --color-clients-accent: var(--clients-accent);
@@ -206,6 +213,13 @@
   --services-icon-blue: #2f65ed;
   --services-icon-green: #20ad55;
   --services-icon-yellow: #f5a400;
+  --services-icon-slate: #416b88;
+  --services-shadow: var(--primary);
+  --services-nav-accent: #e5243f;
+  --services-nav-teal: #176f67;
+  --services-nav-blue: #245d83;
+  --services-nav-navy: #183b5d;
+  --services-nav-slate: #527e99;
   --clients-background: var(--neutral);
   --clients-foreground: var(--primary);
   --clients-accent: var(--secondary);
