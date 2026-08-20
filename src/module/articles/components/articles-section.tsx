@@ -1,7 +1,5 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
-
 import { ArticleCard } from "@/module/articles/components/article-card";
 import {
   articleCategories,
@@ -9,8 +7,8 @@ import {
   type ArticleCategory,
 } from "@/module/articles/content/articles";
 import { SectionContainer } from "@/shared/components/section-container";
+import { SectionIntro } from "@/shared/components/section-intro";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { useState } from "react";
 
 export function ArticlesSection() {
@@ -30,35 +28,15 @@ export function ArticlesSection() {
       id="articles"
       variant="subtle"
     >
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
-        <div className="shrink-0 lg:basis-1/3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-articles-accent">
-            MEDIA &amp; INFORMATION
-          </p>
-          <h2
-            className="mt-3 font-sans text-3xl font-bold leading-tight tracking-tight text-articles-foreground sm:text-4xl"
-            id="articles-heading"
-          >
-            Our Latest <span className="text-articles-accent">Articles</span>
-          </h2>
-        </div>
-
-        <p className="text-sm leading-7 text-articles-muted lg:flex-1">
-          Trusted updates on business developments, innovation, and our
-          contribution to energy resilience and sustainable growth.
-        </p>
-
-        <Button
-          asChild
-          className="h-10 w-fit rounded-full border-articles-foreground bg-transparent px-5 text-xs font-semibold text-articles-foreground hover:bg-articles-foreground hover:text-articles-background"
-          variant="outline"
-        >
-          <a href="#articles">
-            See All News
-            <ArrowRight aria-hidden="true" className="size-3.5" />
-          </a>
-        </Button>
-      </div>
+      <SectionIntro
+        accent="Articles"
+        action={{ href: "#articles", label: "See All News" }}
+        description="Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth."
+        eyebrow="MEDIA & INFORMATION"
+        headingId="articles-heading"
+        theme="muted"
+        title="Our Latest"
+      />
 
       <div
         aria-label="Filter articles by category"

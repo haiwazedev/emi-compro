@@ -1,8 +1,7 @@
 import { aboutBadges, aboutContent } from "@/module/about/content/about";
 import { SectionContainer } from "@/shared/components/section-container";
+import { SectionIntro } from "@/shared/components/section-intro";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
-import { ArrowRightIcon } from "lucide-react";
 import { AboutMetrics } from "./about-metrics";
 
 export function AboutUsSection() {
@@ -13,36 +12,15 @@ export function AboutUsSection() {
       id="about"
       variant="default"
     >
-      <div className="flex flex-col lg:flex-row lg:items-start lg:gap-16">
-        <div className="lg:basis-1/3 lg:shrink-0">
-          <p className="text-xs font-bold uppercase tracking-widest text-about-accent sm:text-sm">
-            {aboutContent.eyebrow}
-          </p>
-
-          <h2
-            className="mt-5 flex flex-wrap gap-x-2 font-sans text-3xl font-bold leading-none tracking-tight text-about-foreground lg:text-5xl"
-            id="about-heading"
-          >
-            <span>{aboutContent.title}</span>
-            <span className="text-about-accent">{aboutContent.subtitle}</span>
-          </h2>
-        </div>
-
-        <p className="mt-6 min-w-0 text-xs leading-7 text-about-muted lg:mt-0 lg:flex-1 lg:text-base lg:leading-9">
-          {aboutContent.description}
-        </p>
-
-        <Button
-          asChild
-          className="mt-6 h-14 w-full justify-start gap-4 rounded-full border-about-foreground bg-transparent px-7 text-base font-semibold text-about-foreground hover:bg-about-foreground hover:text-about-background lg:mt-0 lg:w-auto lg:shrink-0 lg:px-9"
-          variant="outline"
-        >
-          <a href="#about">
-            <span>Learn More</span>
-            <ArrowRightIcon aria-hidden="true" />
-          </a>
-        </Button>
-      </div>
+      <SectionIntro
+        accent={aboutContent.subtitle}
+        action={{ href: "#about", label: "Learn More" }}
+        description={aboutContent.description}
+        eyebrow={aboutContent.eyebrow}
+        headingId="about-heading"
+        theme="light"
+        title={aboutContent.title}
+      />
 
       <ul
         aria-label="About PLN EMI focus areas"
