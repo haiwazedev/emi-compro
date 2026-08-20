@@ -57,6 +57,13 @@
   --color-partners-muted: var(--partners-muted);
   --color-partners-card: var(--partners-card);
   --color-partners-card-border: var(--partners-card-border);
+  --color-articles-background: var(--articles-background);
+  --color-articles-foreground: var(--articles-foreground);
+  --color-articles-accent: var(--articles-accent);
+  --color-articles-muted: var(--articles-muted);
+  --color-articles-card: var(--articles-card);
+  --color-articles-card-border: var(--articles-card-border);
+  --color-articles-shadow: var(--articles-shadow);
   --color-faq-background: var(--faq-background);
   --color-faq-foreground: var(--faq-foreground);
   --color-faq-accent: var(--faq-accent);
@@ -221,6 +228,23 @@
   --partners-muted: #8498b5;
   --partners-card: var(--neutral);
   --partners-card-border: var(--about-divider);
+  --articles-background: #f4f7f9;
+  --articles-foreground: var(--primary);
+  --articles-accent: var(--secondary);
+  --articles-muted: #7187a9;
+  --articles-card: var(--neutral);
+  --articles-card-border: #dbe7ef;
+  --articles-shadow: var(--primary);
+  --articles-media-blue-start: #1f4f6d;
+  --articles-media-blue-end: #3e79aa;
+  --articles-media-green-start: #116656;
+  --articles-media-green-end: #269b76;
+  --articles-media-amber-start: #a86e1d;
+  --articles-media-amber-end: #c17d25;
+  --articles-media-slate-start: #3f6d86;
+  --articles-media-slate-end: #5e899f;
+  --articles-media-navy-start: #173a5c;
+  --articles-media-navy-end: #204c75;
   --faq-background: var(--neutral);
   --faq-foreground: var(--primary);
   --faq-accent: var(--secondary);
@@ -345,6 +369,46 @@
       linear-gradient(var(--contact-grid) 1px, transparent 1px),
       linear-gradient(90deg, var(--contact-grid) 1px, transparent 1px);
     background-size: 86px 86px;
+  }
+
+  .article-media-blue {
+    background-image: linear-gradient(
+      135deg,
+      var(--articles-media-blue-start),
+      var(--articles-media-blue-end)
+    );
+  }
+
+  .article-media-green {
+    background-image: linear-gradient(
+      135deg,
+      var(--articles-media-green-start),
+      var(--articles-media-green-end)
+    );
+  }
+
+  .article-media-amber {
+    background-image: linear-gradient(
+      135deg,
+      var(--articles-media-amber-start),
+      var(--articles-media-amber-end)
+    );
+  }
+
+  .article-media-slate {
+    background-image: linear-gradient(
+      135deg,
+      var(--articles-media-slate-start),
+      var(--articles-media-slate-end)
+    );
+  }
+
+  .article-media-navy {
+    background-image: linear-gradient(
+      135deg,
+      var(--articles-media-navy-start),
+      var(--articles-media-navy-end)
+    );
   }
 }
 
