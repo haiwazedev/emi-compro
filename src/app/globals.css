@@ -82,8 +82,14 @@
   --color-footer-background: var(--footer-background);
   --color-footer-foreground: var(--footer-foreground);
   --color-footer-foreground-strong: var(--footer-foreground-strong);
-  --color-footer-logo-background: var(--footer-logo-background);
-  --color-footer-logo-foreground: var(--footer-logo-foreground);
+  --color-footer-muted: var(--footer-muted);
+  --color-footer-divider: var(--footer-divider);
+  --color-footer-link-hover: var(--footer-link-hover);
+  --color-footer-social-background: var(--footer-social-background);
+  --color-footer-social-border: var(--footer-social-border);
+  --color-footer-social-foreground: var(--footer-social-foreground);
+  --color-footer-social-hover: var(--footer-social-hover);
+  --color-footer-social-hover-foreground: var(--footer-social-hover-foreground);
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
   --font-mono:
@@ -247,11 +253,17 @@
   --contact-email-border: rgb(from var(--neutral) r g b / 22%);
   --contact-email-border-hover: rgb(from var(--neutral) r g b / 34%);
   --contact-email-foreground: var(--neutral);
-  --footer-background: var(--accent);
-  --footer-foreground: rgb(from var(--background) r g b / 72%);
-  --footer-foreground-strong: rgb(from var(--background) r g b / 86%);
-  --footer-logo-background: rgb(from var(--secondary) r g b / 20%);
-  --footer-logo-foreground: var(--secondary);
+  --footer-background: var(--background);
+  --footer-foreground: #416384;
+  --footer-foreground-strong: #1a3352;
+  --footer-muted: #5f7e9e;
+  --footer-divider: #d5e1e9;
+  --footer-link-hover: #1a3352;
+  --footer-social-background: var(--neutral);
+  --footer-social-border: #d2dee7;
+  --footer-social-foreground: var(--primary);
+  --footer-social-hover: #dce7ef;
+  --footer-social-hover-foreground: var(--accent);
 }
 
 .dark {
