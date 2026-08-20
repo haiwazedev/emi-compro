@@ -1,5 +1,6 @@
 export const contactContent = {
   email: "pemasaran@emipersero.co.id",
+  emailAddresses: ["emi@pln.co.id", "pemasaran@emipersero.co.id"],
   // TODO: Replace with the official PLN EMI wa.me number once it is confirmed.
   whatsappHref: "#contact",
   title: "Ready to Start Your",

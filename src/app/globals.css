@@ -80,10 +80,7 @@
   --color-contact-muted-soft: var(--contact-muted-soft);
   --color-contact-icon-background: var(--contact-icon-background);
   --color-contact-icon-foreground: var(--contact-icon-foreground);
-  --color-contact-grid: var(--contact-grid);
-  --color-contact-subtitle-from: var(--contact-subtitle-from);
-  --color-contact-subtitle-via: var(--contact-subtitle-via);
-  --color-contact-subtitle-to: var(--contact-subtitle-to);
+  --color-contact-subtitle: var(--contact-subtitle);
   --color-contact-whatsapp: var(--contact-whatsapp);
   --color-contact-whatsapp-hover: var(--contact-whatsapp-hover);
   --color-contact-whatsapp-foreground: var(--contact-whatsapp-foreground);
@@ -255,16 +252,13 @@
   --faq-scrollbar-track: #edf4f8;
   --faq-scrollbar-thumb: #c8d9e6;
   --faq-scrollbar-thumb-hover: #a9c3d8;
-  --contact-background: var(--primary);
+  --contact-background: var(--accent);
   --contact-foreground: var(--neutral);
   --contact-muted: #b9cce0;
   --contact-muted-soft: rgb(185 204 224 / 55%);
   --contact-icon-background: rgb(from var(--secondary) r g b / 18%);
   --contact-icon-foreground: var(--secondary);
-  --contact-grid: rgb(from var(--secondary) r g b / 5%);
-  --contact-subtitle-from: var(--secondary);
-  --contact-subtitle-via: color-mix(in srgb, var(--secondary) 45%, var(--neutral));
-  --contact-subtitle-to: color-mix(in srgb, var(--secondary) 78%, var(--neutral));
+  --contact-subtitle: color-mix(in srgb, var(--secondary) 78%, var(--neutral));
   --contact-whatsapp: #22c55e;
   --contact-whatsapp-hover: #16a34a;
   --contact-whatsapp-foreground: var(--neutral);
@@ -362,13 +356,6 @@
 
   .faq-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--faq-scrollbar-thumb-hover);
-  }
-
-  .contact-grid {
-    background-image:
-      linear-gradient(var(--contact-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--contact-grid) 1px, transparent 1px);
-    background-size: 86px 86px;
   }
 
   .article-media-blue {
