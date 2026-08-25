@@ -7,6 +7,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-secondary-2: var(--secondary-2);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
 
@@ -30,6 +31,7 @@
   --foreground: #1e2f40;
   --primary: #e9eff4;
   --secondary: #3f7ab3;
+  --secondary-2: #8fb5d6;
   --accent: #27496b;
   --accent-2: #1d5c55;
   --radius: 0.625rem;
@@ -68,7 +70,11 @@
   }
 
   .article-media-green {
-    background-image: linear-gradient(135deg, var(--accent-2), var(--secondary));
+    background-image: linear-gradient(
+      135deg,
+      var(--accent-2),
+      var(--secondary)
+    );
   }
 
   .article-media-amber {

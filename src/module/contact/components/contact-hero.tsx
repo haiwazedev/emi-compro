@@ -1,31 +1,18 @@
 import { contactPageContent } from "@/module/contact/content/contact";
-import { SectionContainer } from "@/shared/components/section-container";
+import { PageHero } from "@/shared/components/page-hero";
 
 export function ContactHero() {
-  const { breadcrumb, description, title } = contactPageContent.hero;
-  const [titleStart, ...titleAccent] = title.split(" ");
+  const { breadcrumb, description, title, titleAccent } =
+    contactPageContent.hero;
 
   return (
-    <SectionContainer
-      aria-labelledby="contact-page-heading"
-      className="from-accent-2 via-accent-2/90 to-accent text-background bg-linear-to-r"
-      contentClassName="py-14 sm:py-16 lg:py-20"
+    <PageHero
+      breadcrumb={breadcrumb}
+      description={description}
+      headingId="contact-page-heading"
       id="contact-hero"
-      variant="transparent"
-    >
-      <p className="text-primary/70 text-xs sm:text-sm">{breadcrumb}</p>
-
-      <h1
-        className="mt-5 font-sans text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-        id="contact-page-heading"
-      >
-        {titleStart}{" "}
-        <span className="text-background">{titleAccent.join(" ")}</span>
-      </h1>
-
-      <p className="text-primary/80 mt-5 max-w-3xl text-sm leading-7 sm:text-base sm:leading-8">
-        {description}
-      </p>
-    </SectionContainer>
+      title={title}
+      titleAccent={titleAccent}
+    />
   );
 }

@@ -34,7 +34,8 @@ export type ContactFaqItem = {
 export const contactPageContent = {
   hero: {
     breadcrumb: "Home / Contact Us",
-    title: "Hubungi Kami",
+    title: "Hubungi",
+    titleAccent: "Kami",
     description:
       "Connect with our team of experts. We're here to help you navigate energy efficiency, compliance, and climate action.",
   },

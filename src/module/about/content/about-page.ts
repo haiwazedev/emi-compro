@@ -22,7 +22,8 @@ export type LeadershipGroup = {
 export const aboutPageContent = {
   hero: {
     breadcrumb: "Home / About Us",
-    title: "Tentang Kami",
+    title: "Tentang",
+    titleAccent: "Kami",
     description:
       "Since 1987, supporting Indonesia's national energy efficiency program — and since 2021, managing Green Instruments and Carbon Economic Values across the PLN Group.",
   },
