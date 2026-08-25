@@ -64,7 +64,7 @@ export function HomeHero() {
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-linear-to-r from-accent/80 via-foreground/50 to-accent/20"
+        className="absolute inset-0 bg-linear-to-r from-accent-2/80 via-foreground/50 to-accent/20"
       />
       <div
         aria-hidden="true"

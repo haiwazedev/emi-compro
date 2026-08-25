@@ -30,7 +30,7 @@ export function HeroContent({
           className="h-auto rounded-full border-background/20 bg-background/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md"
           variant="outline"
         >
-          <span className="mr-1 size-2 animate-home-badge-pulse rounded-full bg-secondary" />
+          <span className="mr-1 size-2 animate-home-badge-pulse rounded-full bg-accent-2" />
           Powering Indonesia Sustainable Future
         </Badge>
 

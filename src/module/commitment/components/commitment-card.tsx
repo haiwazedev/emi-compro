@@ -6,7 +6,7 @@ import { cn } from "@/shared/lib/utils";
 const mediaToneClassNames: Record<CommitmentItem["mediaTone"], string> = {
   blue: "bg-linear-to-br from-secondary via-secondary/85 to-accent",
   green:
-    "bg-linear-to-br from-primary via-secondary/75 to-accent",
+    "bg-linear-to-br from-accent-2 via-secondary/75 to-accent",
   navy: "bg-linear-to-br from-accent via-accent/90 to-foreground",
 };
 

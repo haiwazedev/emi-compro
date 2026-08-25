@@ -39,7 +39,7 @@ export function ContactUsSection() {
           <div className="mt-7 flex flex-row items-center justify-center gap-3">
             <Button
               asChild
-              className="h-10 rounded-full bg-secondary px-5 text-xs font-bold text-background shadow-none hover:bg-secondary/85"
+              className="h-10 rounded-full bg-accent-2 px-5 text-xs font-bold text-background shadow-none hover:bg-accent-2/85 focus-visible:ring-accent-2/50"
               size="lg"
             >
               <a

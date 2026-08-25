@@ -8,6 +8,7 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
@@ -30,6 +31,7 @@
   --primary: #e9eff4;
   --secondary: #3f7ab3;
   --accent: #27496b;
+  --accent-2: #1d5c55;
   --radius: 0.625rem;
 }
 
@@ -49,10 +51,10 @@
 @keyframes home-badge-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(from var(--secondary) r g b / 45%);
+    box-shadow: 0 0 0 0 rgb(from var(--accent-2) r g b / 45%);
   }
   50% {
-    box-shadow: 0 0 0 8px rgb(from var(--secondary) r g b / 0%);
+    box-shadow: 0 0 0 8px rgb(from var(--accent-2) r g b / 0%);
   }
 }
 
@@ -66,11 +68,7 @@
   }
 
   .article-media-green {
-    background-image: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--secondary) 72%, var(--primary)),
-      var(--secondary)
-    );
+    background-image: linear-gradient(135deg, var(--accent-2), var(--secondary));
   }
 
   .article-media-amber {
