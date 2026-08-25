@@ -69,7 +69,7 @@ export const footerContent = {
       links: [
         { label: "News & Articles", href: "/articles" },
         { label: "Press Releases", href: "/articles" },
-        { label: "FAQ", href: "/#articles" },
+        { label: "FAQ", href: "/contact-us#faq" },
       ],
     },
     {

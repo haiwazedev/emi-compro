@@ -31,7 +31,7 @@ export function ContactExpert() {
             className="bg-accent text-background hover:bg-accent/85 focus-visible:ring-secondary/50 mt-7 h-10 rounded-full px-5 text-xs font-bold"
             size="lg"
           >
-            <Link href="/#contact">
+            <Link href="/contact-us">
               Talk to an Expert
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </Link>

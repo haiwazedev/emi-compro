@@ -19,6 +19,7 @@ export function Navbar() {
   const isArticlesPage =
     pathname === "/articles" || pathname.startsWith("/articles/");
   const isCommitmentsPage = pathname === "/commitments";
+  const isContactPage = pathname === "/contact-us";
   const isHomePage = pathname === "/";
   const [isHomeSectionActive, setIsHomeSectionActive] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -61,9 +62,11 @@ export function Navbar() {
         ? "/articles"
         : isCommitmentsPage
           ? "/commitments"
-          : isHomeActive
-            ? "/"
-            : null;
+          : isContactPage
+            ? "/contact-us"
+            : isHomeActive
+              ? "/"
+              : null;
 
   return (
     <header

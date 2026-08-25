@@ -1,26 +1,30 @@
+import { contactPageContent } from "@/module/contact/content/contact";
 import { SectionContainer } from "@/shared/components/section-container";
 
-export function CommitmentHero() {
+export function ContactHero() {
+  const { breadcrumb, description, title } = contactPageContent.hero;
+  const [titleStart, ...titleAccent] = title.split(" ");
+
   return (
     <SectionContainer
-      aria-labelledby="commitment-page-heading"
+      aria-labelledby="contact-page-heading"
       className="from-accent-2 via-accent-2/90 to-accent text-background bg-linear-to-r"
       contentClassName="py-14 sm:py-16 lg:py-20"
-      id="commitment-hero"
+      id="contact-hero"
       variant="transparent"
     >
-      <p className="text-primary/70 text-xs sm:text-sm">Home / Commitment</p>
+      <p className="text-primary/70 text-xs sm:text-sm">{breadcrumb}</p>
 
       <h1
         className="mt-5 font-sans text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-        id="commitment-page-heading"
+        id="contact-page-heading"
       >
-        Dokumen <span className="text-background">Komitmen</span>
+        {titleStart}{" "}
+        <span className="text-background">{titleAccent.join(" ")}</span>
       </h1>
 
       <p className="text-primary/80 mt-5 max-w-3xl text-sm leading-7 sm:text-base sm:leading-8">
-        Certifications, corporate policies, and sustainability reports — the
-        documents behind our promises. Uploaded and managed via CMS.
+        {description}
       </p>
     </SectionContainer>
   );

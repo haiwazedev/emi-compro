@@ -55,7 +55,7 @@ export const serviceNavigationItems: ServiceNavigationItem[] = [
     title: "Talk to Our Experts",
     icon: Mail,
     tone: "slate",
-    href: "#contact",
+    href: "/contact-us",
   },
 ];
 
