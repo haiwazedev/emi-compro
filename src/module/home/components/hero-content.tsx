@@ -27,10 +27,10 @@ export function HeroContent({
     >
       <div className="max-w-4xl">
         <Badge
-          className="h-auto rounded-full border-background/20 bg-background/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md"
+          className="border-background/20 bg-background/10 text-primary h-auto rounded-full px-4 py-2 text-[0.68rem] font-bold tracking-[0.18em] uppercase backdrop-blur-md"
           variant="outline"
         >
-          <span className="mr-1 size-2 animate-home-badge-pulse rounded-full bg-accent-2" />
+          <span className="animate-home-badge-pulse bg-accent-2 mr-1 size-2 rounded-full" />
           Powering Indonesia Sustainable Future
         </Badge>
 
@@ -42,16 +42,16 @@ export function HeroContent({
             )}
             key={`title-${displayedSlide.mainTitle}-${copyTransitionState}`}
           >
-            <span className="block text-background">
+            <span className="text-background block">
               {displayedSlide.mainTitle}
             </span>
-            <span className="block bg-linear-to-r from-secondary via-primary to-background bg-clip-text pb-2 text-transparent italic">
+            <span className="from-secondary via-primary to-background block bg-linear-to-r bg-clip-text pb-2 text-transparent italic">
               {displayedSlide.subtitle}
             </span>
           </h1>
           <p
             className={cn(
-              "mt-6 max-w-2xl text-sm leading-8 text-primary/80 lg:text-lg",
+              "text-primary/80 mt-6 max-w-2xl text-sm leading-8 lg:text-lg",
               copyAnimationClassName,
             )}
             key={`description-${displayedSlide.description}-${copyTransitionState}`}
@@ -63,7 +63,7 @@ export function HeroContent({
         <div className="mt-9 flex flex-wrap gap-3 sm:gap-4">
           <Button
             asChild
-            className="h-12 rounded-full bg-primary px-6 text-sm font-bold text-accent hover:bg-background sm:px-7"
+            className="bg-primary text-accent hover:bg-background h-12 rounded-full px-6 text-sm font-bold sm:px-7"
           >
             <div className="flex items-center gap-2">
               <a href="#services">Explore Services</a>
@@ -72,10 +72,10 @@ export function HeroContent({
           </Button>
           <Button
             asChild
-            className="h-12 rounded-full border-background/70 bg-background/5 px-6 text-sm font-bold text-background hover:bg-background/15 hover:text-background sm:px-7"
+            className="border-background/70 bg-background/5 text-background hover:bg-background/15 hover:text-background h-12 rounded-full px-6 text-sm font-bold sm:px-7"
             variant="outline"
           >
-            <a href="#about">Learn More</a>
+            <a href="/about-us">Learn More</a>
           </Button>
         </div>
       </div>

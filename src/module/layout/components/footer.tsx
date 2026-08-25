@@ -1,5 +1,6 @@
 import { AtSign, Globe2, Play } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
 import type { FooterSocialIcon } from "@/module/layout/content/footer";
@@ -41,15 +42,15 @@ export function Footer() {
   return (
     <footer
       aria-label="Site footer"
-      className="bg-primary py-6 text-foreground/80 sm:py-10 lg:py-12"
+      className="bg-primary text-foreground/80 py-6 sm:py-10 lg:py-12"
       id="footer"
     >
       <div className={sectionContainerRailClassName}>
         <div className="flex flex-col items-center text-center">
-          <a
+          <Link
             aria-label="Danantara Indonesia home"
-            className="inline-flex rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50"
-            href="#home"
+            className="focus-visible:ring-secondary/50 inline-flex rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+            href="/"
           >
             <Image
               alt="Danantara Indonesia"
@@ -59,22 +60,18 @@ export function Footer() {
               src="/danantara_logo.png"
               width={4090}
             />
-          </a>
+          </Link>
 
-          <address className="mt-5 max-w-4xl not-italic text-xs leading-5 text-foreground/80 sm:text-sm sm:leading-6">
-            <p className="font-bold text-accent">
-              {footerContent.companyName}
-            </p>
+          <address className="text-foreground/80 mt-5 max-w-4xl text-xs leading-5 not-italic sm:text-sm sm:leading-6">
+            <p className="text-accent font-bold">{footerContent.companyName}</p>
             <p>{footerContent.address}</p>
             <p>
-              <span className="font-bold text-accent">
-                Email:
-              </span>{" "}
+              <span className="text-accent font-bold">Email:</span>{" "}
               {footerContent.emailAddresses.map((email, index) => (
                 <span key={email}>
                   {index > 0 && " · "}
                   <a
-                    className="rounded-sm transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50"
+                    className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                     href={`mailto:${email}`}
                   >
                     {email}
@@ -82,11 +79,9 @@ export function Footer() {
                 </span>
               ))}
               {" · "}
-              <span className="font-bold text-accent">
-                Telp:
-              </span>{" "}
+              <span className="text-accent font-bold">Telp:</span>{" "}
               <a
-                className="rounded-sm transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50"
+                className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 href={footerContent.phoneHref}
               >
                 {footerContent.phone}
@@ -103,8 +98,8 @@ export function Footer() {
           </div>
         </nav>
 
-        <div className="mt-12 flex flex-col gap-5 border-t border-foreground/20 pt-5 sm:mt-16 sm:pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
-          <p className="text-xs leading-5 text-foreground/60 sm:text-sm">
+        <div className="border-foreground/20 mt-12 flex flex-col gap-5 border-t pt-5 sm:mt-16 sm:pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+          <p className="text-foreground/60 text-xs leading-5 sm:text-sm">
             {footerContent.copyright}
           </p>
 
@@ -116,7 +111,7 @@ export function Footer() {
               <li key={link.label}>
                 <a
                   aria-label={link.label}
-                  className="flex size-8 items-center justify-center rounded-full border border-foreground/20 bg-background text-accent transition-colors hover:border-secondary hover:bg-primary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50 sm:size-10"
+                  className="border-foreground/20 bg-background text-accent hover:border-secondary hover:bg-primary hover:text-accent focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:size-10"
                   href={link.href}
                 >
                   <SocialIcon icon={link.icon} />

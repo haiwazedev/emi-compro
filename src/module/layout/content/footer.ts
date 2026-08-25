@@ -9,7 +9,8 @@ export type FooterNavGroup = {
   links: readonly FooterLink[];
 };
 
-export type FooterSocialIcon = "website" | "linkedin" | "x" | "email" | "youtube";
+export type FooterSocialIcon =
+  "website" | "linkedin" | "x" | "email" | "youtube";
 
 export type FooterSocialLink = {
   label: string;
@@ -33,39 +34,39 @@ export const footerContent = {
       id: "company",
       title: "Company",
       links: [
-        { label: "About Us", href: "#about" },
-        { label: "Our History", href: "#about" },
-        { label: "Vision & Mission", href: "#about" },
-        { label: "Leadership", href: "#about" },
+        { label: "About Us", href: "/about-us" },
+        { label: "Our History", href: "/about-us#our-history" },
+        { label: "Vision & Mission", href: "/about-us#direction" },
+        { label: "Leadership", href: "/about-us#leadership" },
       ],
     },
     {
       id: "services",
       title: "Services",
       links: [
-        { label: "Decarbonization Strategy", href: "#services" },
-        { label: "Energy Conservation", href: "#services" },
-        { label: "Waste Circularity", href: "#services" },
-        { label: "Sustainability Consulting", href: "#services" },
-        { label: "Environment Compliance", href: "#services" },
+        { label: "Decarbonization Strategy", href: "/#services" },
+        { label: "Energy Conservation", href: "/#services" },
+        { label: "Waste Circularity", href: "/#services" },
+        { label: "Sustainability Consulting", href: "/#services" },
+        { label: "Environment Compliance", href: "/#services" },
       ],
     },
     {
       id: "media-information",
       title: "Media & Information",
       links: [
-        { label: "News & Articles", href: "#articles" },
-        { label: "Press Releases", href: "#articles" },
-        { label: "FAQ", href: "#articles" },
+        { label: "News & Articles", href: "/#articles" },
+        { label: "Press Releases", href: "/#articles" },
+        { label: "FAQ", href: "/#articles" },
       ],
     },
     {
       id: "commitment",
       title: "Commitment",
       links: [
-        { label: "Certifications", href: "#commitment" },
-        { label: "Corporate Policies", href: "#commitment" },
-        { label: "Sustainability Reports", href: "#commitment" },
+        { label: "Certifications", href: "/#commitment" },
+        { label: "Corporate Policies", href: "/#commitment" },
+        { label: "Sustainability Reports", href: "/#commitment" },
         { label: "Kebijakan Privasi", href: footerPlaceholderHref },
       ],
     },

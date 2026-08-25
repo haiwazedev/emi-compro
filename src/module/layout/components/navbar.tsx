@@ -2,6 +2,8 @@
 
 import { MenuIcon, XIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 
 import { navLinks } from "@/module/layout/content/navigation";
@@ -11,10 +13,17 @@ import LanguageSwitcher from "./language-switcher";
 import MobileNavbarDropmenu from "./mobile-navbar-dropmenu";
 
 export function Navbar() {
-  const [isHomeActive, setIsHomeActive] = React.useState(true);
+  const pathname = usePathname();
+  const isAboutPage = pathname === "/about-us";
+  const isHomePage = pathname === "/";
+  const [isHomeSectionActive, setIsHomeSectionActive] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
+    if (!isHomePage) {
+      return;
+    }
+
     const homeSection = document.getElementById("home");
 
     if (!homeSection) {
@@ -23,7 +32,7 @@ export function Navbar() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsHomeActive(entry.isIntersecting);
+        setIsHomeSectionActive(entry.isIntersecting);
       },
       {
         root: null,
@@ -37,60 +46,70 @@ export function Navbar() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [isHomePage]);
+
+  const isHomeActive = isHomePage && isHomeSectionActive;
+  const activeHref = isAboutPage ? "/about-us" : isHomeActive ? "/" : null;
 
   return (
     <header
       className={cn(
-        "group/nav hover:bg-primary hover:text-accent sticky top-0 z-50 transition-all duration-500 hover:shadow-sm hover:shadow-foreground/10",
+        "group/nav hover:bg-primary hover:text-accent hover:shadow-foreground/10 sticky top-0 z-50 transition-all duration-500 hover:shadow-sm",
         isHomeActive && !isMobileMenuOpen
           ? "text-background bg-transparent shadow-none"
-          : "text-accent bg-primary shadow-sm shadow-foreground/10",
+          : "text-accent bg-primary shadow-foreground/10 shadow-sm",
       )}
     >
       <nav
         aria-label="Primary navigation"
         className="mx-auto flex w-full max-w-7xl items-center justify-between gap-8 px-10 py-4 lg:justify-start"
       >
-        <a
+        <Link
           aria-label="Danantara Indonesia home"
           className="min-w-0 shrink-0 justify-self-start"
-          href="#home"
+          href="/"
         >
           <Image
             alt="Danantara Indonesia"
-            className="h-7 w-auto drop-shadow-md drop-shadow-foreground/25 transition-[filter] duration-500 group-hover/nav:drop-shadow-none sm:h-8"
+            className="drop-shadow-foreground/25 h-7 w-auto drop-shadow-md transition-[filter] duration-500 group-hover/nav:drop-shadow-none sm:h-8"
             height={1073}
             priority
             src="/danantara_logo.png"
             width={4090}
           />
-        </a>
+        </Link>
 
         <div className="hidden min-w-0 flex-1 items-center gap-1.5 px-6 lg:flex">
-          {navLinks.map((link) => (
-            <a
-              className={cn(
-                "hover:text-primary hover:bg-accent group-hover/nav:text-accent relative rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                isHomeActive
-                  ? "text-background drop-shadow-sm drop-shadow-foreground/30"
-                  : "text-accent",
-              )}
-              href={link.href}
-              key={link.href}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = link.href === activeHref;
+
+            return (
+              <Link
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "hover:bg-accent hover:text-primary relative rounded-full px-4 py-2 text-xs font-semibold transition-colors",
+                  isActive && isAboutPage
+                    ? "bg-accent text-primary"
+                    : isHomeActive
+                      ? "text-background drop-shadow-foreground/30 group-hover/nav:text-accent drop-shadow-sm"
+                      : "text-accent",
+                )}
+                href={link.href}
+                key={link.href}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-2 lg:gap-4">
           <LanguageSwitcher />
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-            <a
+            <Link
               aria-label="PLN Energy Management Indonesia home"
-              href="#home"
+              href="/"
               className="hidden gap-2 lg:flex"
             >
               <div className="relative aspect-square w-12">
@@ -106,7 +125,7 @@ export function Navbar() {
                 <span>Energy Management</span>
                 <span>Indonesia</span>
               </div>
-            </a>
+            </Link>
 
             <Button
               aria-controls="mobile-navigation"
@@ -119,7 +138,7 @@ export function Navbar() {
               className={cn(
                 "hover:text-accent group-hover/nav:text-accent bg-transparent hover:cursor-pointer hover:bg-transparent lg:hidden",
                 isHomeActive && !isMobileMenuOpen
-                  ? "text-background drop-shadow-sm drop-shadow-foreground/30"
+                  ? "text-background drop-shadow-foreground/30 drop-shadow-sm"
                   : "text-accent",
               )}
               onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
@@ -137,7 +156,7 @@ export function Navbar() {
       </nav>
 
       <MobileNavbarDropmenu
-        isHomeActive={isHomeActive}
+        activeHref={activeHref ?? undefined}
         isOpen={isMobileMenuOpen}
         navLinks={navLinks}
         onClose={() => setIsMobileMenuOpen(false)}

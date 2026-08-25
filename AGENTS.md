@@ -7,6 +7,7 @@
 - Prioritize SEO-friendly and performance-focused implementation
 - Prioritize using `flex` layout rather than `grid` layout if possible
 - Only run `pnpm lint` and `pnpm build` for verification
+- Run prettier on all new or modified files
 - No need to run visual checks for verification
 - Use general and well-known tailwind classes if possible
 - Avoid using fixed css size for width & height like w-20, h-40 if possible

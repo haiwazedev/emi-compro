@@ -14,7 +14,7 @@ export function AboutUsSection() {
     >
       <SectionIntro
         accent={aboutContent.subtitle}
-        action={{ href: "#about", label: "Learn More" }}
+        action={{ href: "/about-us", label: "Learn More" }}
         description={aboutContent.description}
         eyebrow={aboutContent.eyebrow}
         headingId="about-heading"

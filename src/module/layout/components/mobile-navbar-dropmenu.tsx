@@ -1,4 +1,5 @@
 import type { NavLink } from "@/module/layout/content/navigation";
+import Link from "next/link";
 import { cn } from "@/shared/lib/utils";
 import type { FC } from "react";
 
@@ -12,7 +13,7 @@ type MenuItemProps = {
 const MenuItem: FC<MenuItemProps> = ({ href, label, onSelect, isSelected }) => {
   return (
     <li>
-      <a
+      <Link
         className={cn(
           "text-accent hover:bg-accent hover:text-primary focus-visible:ring-secondary block rounded-full px-6 py-4 transition-colors focus-visible:ring-2 focus-visible:outline-none",
           isSelected && "bg-accent text-primary",
@@ -21,20 +22,20 @@ const MenuItem: FC<MenuItemProps> = ({ href, label, onSelect, isSelected }) => {
         onClick={onSelect}
       >
         {label}
-      </a>
+      </Link>
     </li>
   );
 };
 
 type MobileNavbarDropmenuProps = {
-  isHomeActive?: boolean;
+  activeHref?: string;
   isOpen: boolean;
   navLinks: NavLink[];
   onClose: () => void;
 };
 
 const MobileNavbarDropmenu: FC<MobileNavbarDropmenuProps> = ({
-  isHomeActive = false,
+  activeHref,
   isOpen,
   navLinks,
   onClose,
@@ -53,13 +54,13 @@ const MobileNavbarDropmenu: FC<MobileNavbarDropmenuProps> = ({
     >
       <nav
         aria-label="Mobile navigation"
-        className="bg-primary flex max-h-dvh flex-col overflow-y-auto px-10 py-4 shadow-sm shadow-foreground/10"
+        className="bg-primary shadow-foreground/10 flex max-h-dvh flex-col overflow-y-auto px-10 py-4 shadow-sm"
       >
         <ul className="flex flex-col gap-2 font-semibold">
           {navLinks.map((link) => (
             <MenuItem
               href={link.href}
-              isSelected={isHomeActive && link.href === "#home"}
+              isSelected={link.href === activeHref}
               key={link.href}
               label={link.label}
               onSelect={onClose}
