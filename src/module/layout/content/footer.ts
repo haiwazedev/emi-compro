@@ -67,8 +67,8 @@ export const footerContent = {
       id: "media-information",
       title: "Media & Information",
       links: [
-        { label: "News & Articles", href: "/#articles" },
-        { label: "Press Releases", href: "/#articles" },
+        { label: "News & Articles", href: "/articles" },
+        { label: "Press Releases", href: "/articles" },
         { label: "FAQ", href: "/#articles" },
       ],
     },

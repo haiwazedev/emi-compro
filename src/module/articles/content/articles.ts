@@ -65,7 +65,8 @@ export const articles: Article[] = [
     href: "#articles",
     id: "facility-compliance-deadlines",
     mediaTone: "slate",
-    title: "Five Compliance Deadlines Every Facility Manager Should Track in 2026",
+    title:
+      "Five Compliance Deadlines Every Facility Manager Should Track in 2026",
   },
   {
     category: "Press Release",
@@ -78,4 +79,28 @@ export const articles: Article[] = [
     mediaTone: "navy",
     title: "EMI and Hospitality Partners Sign Energy Efficiency MoU",
   },
+  {
+    category: "Energy News",
+    date: "18 Jun 2026",
+    dateTime: "2026-06-18",
+    description:
+      "How your electricity accounting choice changes your reported footprint — and what auditors expect.",
+    href: "#articles",
+    id: "scope-2-accounting",
+    mediaTone: "green",
+    title: "Scope 2 Accounting: Market-Based vs Location-Based Methods",
+  },
+  {
+    category: "Insight",
+    date: "11 Jun 2026",
+    dateTime: "2026-06-11",
+    description:
+      "Co-firing demand is rising. Here's how reliable feedstock partnerships de-risk the transition.",
+    href: "#articles",
+    id: "biomass-supply-chains",
+    mediaTone: "blue",
+    title: "Why Biomass Supply Chains Are the Next Decarbonization Frontier",
+  },
 ];
+
+export const homeArticles = articles.slice(0, 5);

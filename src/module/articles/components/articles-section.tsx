@@ -3,7 +3,7 @@
 import { ArticleCard } from "@/module/articles/components/article-card";
 import {
   articleCategories,
-  articles,
+  homeArticles,
   type ArticleCategory,
 } from "@/module/articles/content/articles";
 import { SectionContainer } from "@/shared/components/section-container";
@@ -16,8 +16,8 @@ export function ArticlesSection() {
 
   const filteredArticles =
     activeCategory === "All"
-      ? articles
-      : articles.filter((article) => article.category === activeCategory);
+      ? homeArticles
+      : homeArticles.filter((article) => article.category === activeCategory);
 
   const [featuredArticle, ...supportingArticles] = filteredArticles;
 
@@ -30,7 +30,7 @@ export function ArticlesSection() {
     >
       <SectionIntro
         accent="Articles"
-        action={{ href: "#articles", label: "See All News" }}
+        action={{ href: "/articles", label: "See All News" }}
         description="Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth."
         eyebrow="MEDIA & INFORMATION"
         headingId="articles-heading"
@@ -50,7 +50,7 @@ export function ArticlesSection() {
             <button
               aria-pressed={isActive}
               className={cn(
-                "rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50",
+                "focus-visible:ring-secondary/50 rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
                 isActive
                   ? "border-accent bg-accent text-background"
                   : "border-foreground/20 bg-background text-accent hover:border-secondary hover:text-secondary",

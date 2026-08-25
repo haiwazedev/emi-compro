@@ -16,6 +16,7 @@ export function Navbar() {
   const pathname = usePathname();
   const isAboutPage = pathname === "/about-us";
   const isServicesPage = pathname === "/services";
+  const isArticlesPage = pathname === "/articles";
   const isHomePage = pathname === "/";
   const [isHomeSectionActive, setIsHomeSectionActive] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -54,9 +55,11 @@ export function Navbar() {
     ? "/about-us"
     : isServicesPage
       ? "/services"
-      : isHomeActive
-        ? "/"
-        : null;
+      : isArticlesPage
+        ? "/articles"
+        : isHomeActive
+          ? "/"
+          : null;
 
   return (
     <header
@@ -95,7 +98,7 @@ export function Navbar() {
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "hover:bg-accent hover:text-primary relative rounded-full px-4 py-2 text-xs font-semibold transition-colors",
-                  isActive && isAboutPage
+                  isActive && !isHomeActive
                     ? "bg-accent text-primary"
                     : isHomeActive
                       ? "text-background drop-shadow-foreground/30 group-hover/nav:text-accent drop-shadow-sm"
