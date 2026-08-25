@@ -44,11 +44,23 @@ export const footerContent = {
       id: "services",
       title: "Services",
       links: [
-        { label: "Decarbonization Strategy", href: "/#services" },
-        { label: "Energy Conservation", href: "/#services" },
-        { label: "Waste Circularity", href: "/#services" },
-        { label: "Sustainability Consulting", href: "/#services" },
-        { label: "Environment Compliance", href: "/#services" },
+        {
+          label: "Decarbonization Strategy",
+          href: "/services#decarbonization-strategy",
+        },
+        {
+          label: "Energy Conservation",
+          href: "/services#energy-conservation",
+        },
+        { label: "Waste Circularity", href: "/services#waste-circularity" },
+        {
+          label: "Sustainability Consulting",
+          href: "/services#sustainability-consulting",
+        },
+        {
+          label: "Environment Compliance",
+          href: "/services#environment-compliance",
+        },
       ],
     },
     {

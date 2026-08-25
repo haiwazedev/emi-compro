@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
@@ -123,10 +124,10 @@ export function SectionIntro({
           )}
           variant="outline"
         >
-          <a href={action.href}>
+          <Link href={action.href}>
             {action.label}
             <ArrowRight aria-hidden="true" className="size-3.5" />
-          </a>
+          </Link>
         </Button>
       ) : null}
     </div>

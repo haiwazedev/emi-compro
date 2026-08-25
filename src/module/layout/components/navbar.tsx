@@ -15,6 +15,7 @@ import MobileNavbarDropmenu from "./mobile-navbar-dropmenu";
 export function Navbar() {
   const pathname = usePathname();
   const isAboutPage = pathname === "/about-us";
+  const isServicesPage = pathname === "/services";
   const isHomePage = pathname === "/";
   const [isHomeSectionActive, setIsHomeSectionActive] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -49,7 +50,13 @@ export function Navbar() {
   }, [isHomePage]);
 
   const isHomeActive = isHomePage && isHomeSectionActive;
-  const activeHref = isAboutPage ? "/about-us" : isHomeActive ? "/" : null;
+  const activeHref = isAboutPage
+    ? "/about-us"
+    : isServicesPage
+      ? "/services"
+      : isHomeActive
+        ? "/"
+        : null;
 
   return (
     <header

@@ -16,7 +16,7 @@ export function ServicesSection() {
       variant="muted"
     >
       <nav aria-label="Service resources">
-        <ul className="flex flex-col overflow-hidden rounded-2xl shadow-xl shadow-foreground/10 lg:flex-row">
+        <ul className="shadow-foreground/10 flex flex-col overflow-hidden rounded-2xl shadow-xl lg:flex-row">
           {serviceNavigationItems.map((item) => (
             <ServiceNavigationItem item={item} key={item.title} />
           ))}
@@ -24,7 +24,7 @@ export function ServicesSection() {
       </nav>
 
       <SectionIntro
-        action={{ href: "#services", label: "All Services" }}
+        action={{ href: "/services", label: "All Services" }}
         className="mt-16 lg:mt-20"
         description="Five integrated pillars — from decarbonization strategy and energy conservation to waste circularity, sustainability consulting, and environmental compliance."
         eyebrow="WHAT WE OFFER"
