@@ -13,7 +13,7 @@ export function CommitmentSection() {
     >
       <SectionIntro
         accent="Commitment"
-        action={{ href: "#commitment", label: "Document Library" }}
+        action={{ href: "/commitments", label: "Document Library" }}
         description="Certifications, corporate policies, and sustainability reports — the documents behind our promises, available for download."
         eyebrow="COMMITMENT"
         headingId="commitment-heading"
