@@ -16,7 +16,8 @@ export function Navbar() {
   const pathname = usePathname();
   const isAboutPage = pathname === "/about-us";
   const isServicesPage = pathname === "/services";
-  const isArticlesPage = pathname === "/articles";
+  const isArticlesPage =
+    pathname === "/articles" || pathname.startsWith("/articles/");
   const isHomePage = pathname === "/";
   const [isHomeSectionActive, setIsHomeSectionActive] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);

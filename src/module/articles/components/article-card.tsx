@@ -1,16 +1,13 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
+import Link from "next/link";
 
-import type { Article } from "@/module/articles/content/articles";
+import {
+  articleMediaToneClassNames,
+  getArticleHref,
+  type Article,
+} from "@/module/articles/content/articles";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
-
-const mediaToneClassNames: Record<Article["mediaTone"], string> = {
-  amber: "article-media-amber",
-  blue: "article-media-blue",
-  green: "article-media-green",
-  navy: "article-media-navy",
-  slate: "article-media-slate",
-};
 
 type ArticleCardProps = {
   article: Article;
@@ -34,20 +31,20 @@ export function ArticleCard({
         isHorizontal && "lg:flex-row",
       )}
     >
-      <a
+      <Link
         aria-label={`Read ${article.title}`}
         className={cn(
           "focus-visible:ring-secondary flex h-full w-full flex-col focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
           isHorizontal && "lg:flex-row",
         )}
-        href={article.href}
+        href={getArticleHref(article.id)}
       >
         <div
           aria-hidden="true"
           className={cn(
             "relative aspect-video shrink-0",
             isHorizontal && "lg:aspect-auto lg:w-1/2",
-            mediaToneClassNames[article.mediaTone],
+            articleMediaToneClassNames[article.mediaTone],
           )}
         >
           <Badge
@@ -98,7 +95,7 @@ export function ArticleCard({
             </span>
           ) : null}
         </div>
-      </a>
+      </Link>
     </article>
   );
 }
