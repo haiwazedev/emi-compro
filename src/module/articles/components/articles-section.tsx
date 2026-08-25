@@ -50,10 +50,10 @@ export function ArticlesSection() {
             <button
               aria-pressed={isActive}
               className={cn(
-                "rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-articles-accent/50",
+                "rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50",
                 isActive
-                  ? "border-articles-foreground bg-articles-foreground text-neutral"
-                  : "border-articles-card-border bg-articles-card text-articles-foreground hover:border-articles-accent hover:text-articles-accent",
+                  ? "border-accent bg-accent text-background"
+                  : "border-foreground/20 bg-background text-accent hover:border-secondary hover:text-secondary",
               )}
               key={category}
               onClick={() => setActiveCategory(category)}

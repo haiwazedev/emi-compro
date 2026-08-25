@@ -27,10 +27,10 @@ export function HeroContent({
     >
       <div className="max-w-4xl">
         <Badge
-          className="h-auto rounded-full border-neutral/20 bg-neutral/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-home-muted backdrop-blur-md"
+          className="h-auto rounded-full border-background/20 bg-background/10 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md"
           variant="outline"
         >
-          <span className="size-2 rounded-full bg-home-badge-dot animate-home-badge-pulse mr-1" />
+          <span className="mr-1 size-2 animate-home-badge-pulse rounded-full bg-secondary" />
           Powering Indonesia Sustainable Future
         </Badge>
 
@@ -42,16 +42,16 @@ export function HeroContent({
             )}
             key={`title-${displayedSlide.mainTitle}-${copyTransitionState}`}
           >
-            <span className="block text-home-foreground">
+            <span className="block text-background">
               {displayedSlide.mainTitle}
             </span>
-            <span className="pb-2 block bg-linear-to-r from-home-subtitle-from via-home-subtitle-via to-home-subtitle-to bg-clip-text italic text-transparent">
+            <span className="block bg-linear-to-r from-secondary via-primary to-background bg-clip-text pb-2 text-transparent italic">
               {displayedSlide.subtitle}
             </span>
           </h1>
           <p
             className={cn(
-              "mt-6 max-w-2xl text-sm leading-8 text-home-muted lg:text-lg",
+              "mt-6 max-w-2xl text-sm leading-8 text-primary/80 lg:text-lg",
               copyAnimationClassName,
             )}
             key={`description-${displayedSlide.description}-${copyTransitionState}`}
@@ -63,16 +63,16 @@ export function HeroContent({
         <div className="mt-9 flex flex-wrap gap-3 sm:gap-4">
           <Button
             asChild
-            className="h-12 rounded-full bg-background px-6 text-sm font-bold text-home-primary-action-foreground hover:bg-home-foreground sm:px-7"
+            className="h-12 rounded-full bg-primary px-6 text-sm font-bold text-accent hover:bg-background sm:px-7"
           >
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <a href="#services">Explore Services</a>
               <ArrowRightIcon />
             </div>
           </Button>
           <Button
             asChild
-            className="h-12 rounded-full border-neutral/70 bg-neutral/5 px-6 text-sm font-bold text-home-foreground hover:bg-neutral/15 hover:text-home-foreground sm:px-7"
+            className="h-12 rounded-full border-background/70 bg-background/5 px-6 text-sm font-bold text-background hover:bg-background/15 hover:text-background sm:px-7"
             variant="outline"
           >
             <a href="#about">Learn More</a>

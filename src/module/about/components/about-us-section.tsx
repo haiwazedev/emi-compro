@@ -29,7 +29,7 @@ export function AboutUsSection() {
         {aboutBadges.map((badge) => (
           <li key={badge.label}>
             <Badge
-              className="h-auto min-h-10 gap-1.5 rounded-full border-transparent bg-about-badge-background px-4 py-2 text-xs font-bold text-about-badge-foreground lg:px-5 lg:text-sm"
+              className="bg-primary text-accent h-auto min-h-10 gap-1.5 rounded-full border-transparent px-4 py-2 text-xs font-bold lg:px-5 lg:text-sm"
               variant="secondary"
             >
               <span aria-hidden="true">{badge.emoji}</span>
@@ -39,7 +39,7 @@ export function AboutUsSection() {
         ))}
       </ul>
 
-      <div className="mt-14 border-t border-about-divider pt-16 lg:mt-16 lg:pt-24">
+      <div className="border-foreground/20 mt-14 border-t pt-16 lg:mt-16 lg:pt-24">
         <AboutMetrics />
       </div>
     </SectionContainer>

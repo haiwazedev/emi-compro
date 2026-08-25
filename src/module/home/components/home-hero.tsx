@@ -36,7 +36,7 @@ export function HomeHero() {
     <section
       id="home"
       aria-label="PLN EMI home hero"
-      className="relative isolate -mt-20 min-h-svh overflow-hidden bg-brand-navbar-foreground text-home-foreground"
+      className="relative isolate -mt-20 min-h-svh overflow-hidden bg-accent text-background"
       onBlurCapture={handleBlurCapture}
       onFocusCapture={() => setIsPaused(true)}
       onMouseEnter={() => setIsPaused(true)}
@@ -64,11 +64,11 @@ export function HomeHero() {
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-linear-to-r from-home-overlay-start via-home-overlay-mid to-home-overlay-end"
+        className="absolute inset-0 bg-linear-to-r from-accent/80 via-foreground/50 to-accent/20"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-36 bg-linear-to-b from-slate-950/35 to-transparent"
+        className="absolute inset-x-0 top-0 h-36 bg-linear-to-b from-accent/35 to-transparent"
       />
 
       <HeroContent

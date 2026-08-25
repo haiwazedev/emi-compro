@@ -16,7 +16,7 @@ export function ServicesSection() {
       variant="muted"
     >
       <nav aria-label="Service resources">
-        <ul className="flex flex-col overflow-hidden rounded-2xl shadow-xl lg:flex-row">
+        <ul className="flex flex-col overflow-hidden rounded-2xl shadow-xl shadow-foreground/10 lg:flex-row">
           {serviceNavigationItems.map((item) => (
             <ServiceNavigationItem item={item} key={item.title} />
           ))}

@@ -35,7 +35,7 @@ const LanguageSwitcher: FC<Props> = ({
   return (
     <div
       aria-label="Language selector"
-      className="flex rounded-full bg-neutral overflow-hidden"
+      className="bg-background flex overflow-hidden rounded-full"
       role="group"
     >
       {languages.map(({ label, value }) => {
@@ -47,8 +47,8 @@ const LanguageSwitcher: FC<Props> = ({
             className={cn(
               "rounded-none border-0 px-4 py-2 text-sm font-bold transition-colors hover:cursor-pointer",
               isSelected
-                ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                : "bg-primary-foreground text-primary hover:bg-primary/25",
+                ? "bg-accent text-primary hover:bg-accent hover:text-primary"
+                : "bg-background text-accent hover:bg-accent/25",
             )}
             key={value}
             onClick={() => handleLanguageChange(value)}

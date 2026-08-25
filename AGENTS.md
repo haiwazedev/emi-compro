@@ -13,3 +13,4 @@
 - Use `lg` as mobile view breakpoint
 - Avoid using custom value for tailwind like `property-[<value>]` if possible
 - Prioritize refactor child item / multiple occurences UI to own component if possible
+- Prioritize using existing tailwind color variables instead of creating a new one, notify user if new one is needed

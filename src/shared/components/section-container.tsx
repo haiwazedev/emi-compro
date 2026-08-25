@@ -4,10 +4,10 @@ import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 
 const sectionSurfaceVariants = {
-  default: "bg-neutral text-primary",
-  muted: "bg-background text-primary",
-  subtle: "bg-articles-background text-primary",
-  inverse: "bg-accent text-neutral",
+  default: "bg-background text-foreground",
+  muted: "bg-primary text-foreground",
+  subtle: "bg-primary/60 text-foreground",
+  inverse: "bg-accent text-background",
   transparent: "bg-transparent",
 };
 

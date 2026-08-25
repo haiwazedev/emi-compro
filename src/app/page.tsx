@@ -10,7 +10,7 @@ import { ServicesSection } from "@/module/services/components/services-section";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-neutral text-brand-navbar-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
       <main>

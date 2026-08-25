@@ -18,11 +18,11 @@ export function AboutMetrics() {
             className="text-left lg:min-w-0 lg:flex-1"
             key={metric.label}
           >
-            <p className="text-xs font-bold uppercase tracking-widest text-about-accent sm:text-sm">
+            <p className="text-xs font-bold uppercase tracking-widest text-secondary sm:text-sm">
               {metric.label}
             </p>
 
-            <p className="mt-6 font-sans text-5xl font-bold leading-none tracking-tight text-black lg:text-7xl">
+            <p className="mt-6 font-sans text-5xl font-bold leading-none tracking-tight text-accent lg:text-7xl">
               <span aria-hidden="true">
                 {displayedValues[index]}
                 {metric.suffix}
@@ -33,7 +33,7 @@ export function AboutMetrics() {
               </span>
             </p>
 
-            <p className="mt-5 max-w-xl text-sm leading-6 text-about-muted lg:leading-8">
+            <p className="mt-5 max-w-xl text-sm leading-6 text-foreground/70 lg:leading-8">
               {metric.description}
             </p>
           </li>

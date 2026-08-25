@@ -19,10 +19,10 @@ type ArticleCardProps = {
 
 export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-articles-card shadow-lg shadow-articles-shadow/10 transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-background shadow-lg shadow-foreground/10 transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none">
       <a
         aria-label={`Read ${article.title}`}
-        className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-articles-accent"
+        className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary"
         href={article.href}
       >
         <div
@@ -33,7 +33,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
           )}
         >
           <Badge
-            className="absolute bottom-3 left-3 h-auto rounded-full border-transparent bg-articles-card px-3 py-1 text-xs font-semibold text-articles-foreground shadow-sm"
+            className="absolute bottom-3 left-3 h-auto rounded-full border-transparent bg-background px-3 py-1 text-xs font-semibold text-accent shadow-sm shadow-foreground/10"
             variant="secondary"
           >
             {article.category}
@@ -47,7 +47,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
           )}
         >
           <time
-            className="inline-flex items-center gap-1.5 text-xs text-articles-muted"
+            className="inline-flex items-center gap-1.5 text-xs text-foreground/70"
             dateTime={article.dateTime}
           >
             <CalendarDays aria-hidden="true" className="size-3" />
@@ -56,7 +56,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
 
           <h3
             className={cn(
-              "mt-3 font-sans font-bold leading-tight text-articles-foreground",
+              "mt-3 font-sans font-bold leading-tight text-accent",
               isFeatured ? "text-xl sm:text-2xl" : "text-lg",
             )}
           >
@@ -65,7 +65,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
 
           <p
             className={cn(
-              "mt-3 text-xs leading-6 text-articles-muted",
+              "mt-3 text-xs leading-6 text-foreground/70",
               isFeatured && "sm:text-sm sm:leading-7",
             )}
           >

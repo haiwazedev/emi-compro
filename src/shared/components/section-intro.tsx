@@ -35,27 +35,27 @@ const sectionIntroThemeClasses: Record<
 > = {
   light: {
     eyebrow: "text-secondary",
-    heading: "text-primary",
+    heading: "text-accent",
     accent: "text-secondary",
     description: "text-secondary",
     action:
-      "border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground focus-visible:ring-secondary/50",
+      "border-accent bg-transparent text-accent hover:bg-accent hover:text-primary focus-visible:ring-secondary/50",
   },
   muted: {
     eyebrow: "text-secondary",
-    heading: "text-primary",
+    heading: "text-accent",
     accent: "text-secondary",
-    description: "text-muted-foreground",
+    description: "text-foreground/70",
     action:
-      "border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground focus-visible:ring-secondary/50",
+      "border-accent bg-transparent text-accent hover:bg-accent hover:text-primary focus-visible:ring-secondary/50",
   },
   dark: {
-    eyebrow: "text-secondary",
-    heading: "text-primary-foreground",
+    eyebrow: "text-primary/80",
+    heading: "text-primary",
     accent: "text-secondary",
-    description: "text-primary-foreground/70",
+    description: "text-primary/70",
     action:
-      "border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary focus-visible:ring-secondary/50",
+      "border-primary bg-transparent text-primary hover:bg-primary hover:text-accent focus-visible:ring-primary/50",
   },
 };
 
@@ -81,7 +81,7 @@ export function SectionIntro({
       <div className="shrink-0 lg:basis-1/3">
         <p
           className={cn(
-            "text-xs font-bold uppercase tracking-[0.18em]",
+            "text-xs font-bold tracking-[0.18em] uppercase",
             themeClasses.eyebrow,
           )}
         >
@@ -90,7 +90,7 @@ export function SectionIntro({
 
         <h2
           className={cn(
-            "mt-3 font-sans text-3xl font-bold leading-tight tracking-tight sm:text-4xl",
+            "mt-3 font-sans text-3xl leading-tight font-bold tracking-tight sm:text-4xl",
             themeClasses.heading,
           )}
           id={headingId}

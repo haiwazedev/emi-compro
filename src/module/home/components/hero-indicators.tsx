@@ -23,8 +23,8 @@ function HeroIndicatorDotButton({
       aria-current={isActive ? "true" : undefined}
       aria-label={label}
       className={cn(
-        "cursor-pointer h-2.5 rounded-full bg-neutral/55 transition-all duration-300 hover:bg-neutral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-home-primary-action focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950/40",
-        isActive ? "w-8 bg-background" : "w-2.5",
+        "h-2.5 cursor-pointer rounded-full bg-background/55 transition-all duration-300 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-accent/40",
+        isActive ? "w-8 bg-primary" : "w-2.5",
       )}
       onClick={onClick}
       type="button"
@@ -46,7 +46,7 @@ function HeroIndicatorArrowButton({
   return (
     <Button
       aria-label={ariaLabel}
-      className="cursor-pointer size-12 rounded-xl border-neutral/60 bg-neutral/10 text-home-foreground hover:bg-neutral/20 hover:text-home-foreground focus-visible:ring-home-primary-action"
+      className="size-12 cursor-pointer rounded-xl border-background/60 bg-background/10 text-background hover:bg-background/20 hover:text-background focus-visible:ring-secondary"
       onClick={onClick}
       size="icon-lg"
       type="button"

@@ -5,10 +5,10 @@ import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 
 const iconToneClassNames: Record<ServiceDivision["iconTone"], string> = {
-  blue: "bg-services-icon-blue",
-  green: "bg-services-icon-green",
-  yellow: "bg-services-icon-yellow",
-  slate: "bg-services-icon-slate",
+  blue: "bg-secondary",
+  green: "bg-accent",
+  yellow: "bg-foreground",
+  slate: "bg-secondary/80",
 };
 
 type ServiceCardProps = {
@@ -19,11 +19,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
   const Icon = service.icon;
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-white/80 bg-services-card p-6 shadow-lg shadow-services-shadow/10 transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none sm:p-7">
+    <article className="flex h-full flex-col rounded-2xl border border-background/80 bg-background p-6 shadow-lg shadow-foreground/10 transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none sm:p-7">
       <div
         aria-hidden="true"
         className={cn(
-          "flex size-11 items-center justify-center rounded-xl text-neutral shadow-md shadow-services-shadow/20",
+          "flex size-11 items-center justify-center rounded-xl text-background shadow-md shadow-foreground/20",
           iconToneClassNames[service.iconTone],
         )}
       >
@@ -31,10 +31,10 @@ export function ServiceCard({ service }: ServiceCardProps) {
       </div>
 
       <div className="mt-5">
-        <h3 className="min-w-0 font-sans text-2xl font-bold leading-tight text-services-foreground">
+        <h3 className="min-w-0 font-sans text-2xl font-bold leading-tight text-accent">
           {service.title}
           <Badge
-            className="ml-2 mt-0.5 rounded-full border-transparent bg-services-tag-background px-2 py-0.5 text-xs font-bold text-services-accent"
+            className="ml-2 mt-0.5 rounded-full border-transparent bg-primary px-2 py-0.5 text-xs font-bold text-accent"
             variant="secondary"
           >
             {service.code}
@@ -42,12 +42,12 @@ export function ServiceCard({ service }: ServiceCardProps) {
         </h3>
       </div>
 
-      <p className="mt-3 text-xs leading-6 text-services-muted sm:text-sm">
+      <p className="mt-3 text-xs leading-6 text-foreground/70 sm:text-sm">
         {service.description}
       </p>
 
       <a
-        className="group mt-auto inline-flex w-fit items-center gap-1 pt-6 text-xs font-bold text-services-accent transition-colors hover:text-services-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-services-accent/50"
+        className="group mt-auto inline-flex w-fit items-center gap-1 pt-6 text-xs font-bold text-secondary transition-colors hover:text-accent focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50"
         href={service.href}
       >
         Explore {service.code}
