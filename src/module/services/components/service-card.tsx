@@ -2,15 +2,9 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import type { ServiceDivision } from "@/module/services/content/services";
+import { serviceIconToneClassNames } from "@/module/services/components/service-visuals";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
-
-const iconToneClassNames: Record<ServiceDivision["iconTone"], string> = {
-  blue: "bg-secondary",
-  green: "bg-accent-2",
-  yellow: "bg-foreground",
-  slate: "bg-secondary/80",
-};
 
 type ServiceCardProps = {
   service: ServiceDivision;
@@ -25,7 +19,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         aria-hidden="true"
         className={cn(
           "text-background shadow-foreground/20 flex size-11 items-center justify-center rounded-xl shadow-md",
-          iconToneClassNames[service.iconTone],
+          serviceIconToneClassNames[service.iconTone],
         )}
       >
         <Icon className="size-5" strokeWidth={2} />

@@ -10,6 +10,7 @@
   --color-secondary-2: var(--secondary-2);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-negative: var(--negative);
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-instrument-serif);
@@ -34,6 +35,7 @@
   --secondary-2: #8fb5d6;
   --accent: #27496b;
   --accent-2: #1d5c55;
+  --negative: #d91e36;
   --radius: 0.625rem;
 }
 

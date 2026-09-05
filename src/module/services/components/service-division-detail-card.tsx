@@ -1,21 +1,16 @@
-import { Plus } from "lucide-react";
-
 import type { ServiceDivision } from "@/module/services/content/services";
+import { serviceIconToneClassNames } from "@/module/services/components/service-visuals";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
-
-const iconToneClassNames: Record<ServiceDivision["iconTone"], string> = {
-  blue: "bg-secondary",
-  green: "bg-accent-2",
-  yellow: "bg-foreground",
-  slate: "bg-secondary/80",
-};
+import { ServiceOfferingList } from "@/module/services/components/service-offering-list";
 
 type ServiceDivisionDetailCardProps = {
+  onOpen: (trigger: HTMLElement) => void;
   service: ServiceDivision;
 };
 
 export function ServiceDivisionDetailCard({
+  onOpen,
   service,
 }: ServiceDivisionDetailCardProps) {
   const Icon = service.icon;
@@ -24,15 +19,26 @@ export function ServiceDivisionDetailCard({
   return (
     <article
       aria-labelledby={headingId}
-      className="border-background/80 bg-background shadow-foreground/10 scroll-mt-24 rounded-2xl border p-5 shadow-lg sm:p-6 lg:p-8"
+      aria-haspopup="dialog"
+      aria-label={`Open ${service.title} details`}
+      className="border-background/80 bg-background shadow-foreground/10 hover:border-secondary/40 focus-visible:ring-secondary/50 cursor-pointer scroll-mt-24 rounded-2xl border p-5 shadow-lg transition hover:shadow-xl focus-visible:ring-2 focus-visible:outline-none sm:p-6 lg:p-8"
       id={service.slug}
+      onClick={(event) => onOpen(event.currentTarget)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(event.currentTarget);
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div className="flex items-start gap-3 sm:gap-4">
         <div
           aria-hidden="true"
           className={cn(
             "text-background shadow-foreground/20 flex size-12 shrink-0 items-center justify-center rounded-xl shadow-md lg:size-16",
-            iconToneClassNames[service.iconTone],
+            serviceIconToneClassNames[service.iconTone],
           )}
         >
           <Icon className="size-5 sm:size-6" strokeWidth={2} />
@@ -59,22 +65,11 @@ export function ServiceDivisionDetailCard({
         {service.detailDescription}
       </p>
 
-      <ul
-        aria-label={`${service.title} offerings`}
-        className="mt-5 flex flex-wrap gap-2"
-      >
-        {service.offerings.map((offering) => (
-          <li key={offering}>
-            <Badge
-              className="border-primary bg-primary/50 text-accent h-auto min-h-7 px-3 py-1 text-xs leading-4 font-semibold whitespace-normal"
-              variant="outline"
-            >
-              <Plus aria-hidden="true" className="size-3 shrink-0" />
-              {offering}
-            </Badge>
-          </li>
-        ))}
-      </ul>
+      <ServiceOfferingList
+        ariaLabel={`${service.title} offerings`}
+        className="mt-5"
+        offerings={service.offerings}
+      />
     </article>
   );
 }
