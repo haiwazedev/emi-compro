@@ -50,9 +50,11 @@ function DialogOverlay({
 function DialogContent({
   className,
   children,
+  closeButtonClassName,
   showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  closeButtonClassName?: string;
   showCloseButton?: boolean;
 }) {
   return (
@@ -71,7 +73,10 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               aria-label="Close dialog"
-              className="bg-negative text-background hover:bg-negative/85 focus-visible:ring-negative/50 absolute top-4 right-4 rounded-full"
+              className={cn(
+                "bg-negative text-background hover:bg-negative/85 focus-visible:ring-negative/50 absolute top-4 right-4 rounded-full",
+                closeButtonClassName,
+              )}
               size="icon"
               type="button"
             >
