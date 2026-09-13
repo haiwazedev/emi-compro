@@ -37,7 +37,7 @@ export const footerContent = {
         { label: "About Us", href: "/about-us" },
         { label: "Our History", href: "/about-us#our-history" },
         { label: "Vision & Mission", href: "/about-us#direction" },
-        { label: "Leadership", href: "/about-us#leadership" },
+        { label: "Management", href: "/about-us#management" },
       ],
     },
     {

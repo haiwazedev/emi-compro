@@ -4,19 +4,24 @@ export type AboutHistoryItem = {
   description: string;
 };
 
-export type LeadershipTone = "blue" | "green" | "navy";
+export type ManagementTone = "blue" | "green" | "navy";
 
-export type LeadershipMember = {
-  initials: string;
+export type ManagementMember = {
+  biography: string;
+  englishRole: string;
+  englishRoleDescription: string;
+  image: string;
   name: string;
   role: string;
-  tone: LeadershipTone;
+  company: string;
+  slug: string;
+  tone: ManagementTone;
 };
 
-export type LeadershipGroup = {
+export type ManagementContent = {
+  directors: readonly ManagementMember[];
+  eyebrow: string;
   title: string;
-  subtitle: string;
-  members: readonly LeadershipMember[];
 };
 
 export const aboutPageContent = {
@@ -85,102 +90,48 @@ export const aboutPageContent = {
       "Managing and utilizing environmentally conscious energy, especially renewable energy.",
     ],
   },
-  leadership: {
-    eyebrow: "LEADERSHIP",
-    title: "Our Leadership",
-    description:
-      "Our leadership team across the Board of Commissioners, Board of Directors, and Division Heads & Managers.",
-    groups: [
+  management: {
+    eyebrow: "MANAJEMEN",
+    title: "Manajemen Perusahaan",
+    directors: [
       {
-        title: "Jajaran Komisaris",
-        subtitle: "Board of Commissioners",
-        members: [
-          {
-            initials: "KH",
-            name: "Kania Handayani",
-            role: "KOMISARIS UTAMA",
-            tone: "blue",
-          },
-          {
-            initials: "UA",
-            name: "Ubaidillah Amin",
-            role: "KOMISARIS",
-            tone: "green",
-          },
-          {
-            initials: "NI",
-            name: "Niken Indriyani",
-            role: "KOMISARIS INDEPENDEN",
-            tone: "navy",
-          },
-        ],
+        biography:
+          "Memiliki latar belakang pendidikan Sarjana Teknik Informatika dari Institut Teknologi PLN dan Magister Manajemen dari Universitas Sriwijaya.",
+        englishRole: "Chief Executive Officer (CEO)",
+        englishRoleDescription:
+          "dari PT Energy Management Indonesia (Persero).",
+        image: "/managements/Henri Firdaus.png",
+        name: "Henri Firdaus",
+        role: "Direktur Utama",
+        company: "PT Energy Management Indonesia (Persero)",
+        slug: "henri-firdaus",
+        tone: "blue",
       },
       {
-        title: "Jajaran Direksi",
-        subtitle: "Board of Directors",
-        members: [
-          {
-            initials: "HF",
-            name: "Henri Firdaus",
-            role: "DIREKTUR UTAMA",
-            tone: "blue",
-          },
-          {
-            initials: "AS",
-            name: "Asep Saepudin",
-            role: "DIREKTUR OPERASI DAN PENGEMBANGAN USAHA",
-            tone: "green",
-          },
-          {
-            initials: "SE",
-            name: "Saulus Erwin Pamungkas",
-            role: "DIREKTUR KEUANGAN, MANAJEMEN RISIKO, DAN HUMAN CAPITAL",
-            tone: "navy",
-          },
-        ],
+        biography:
+          "Memiliki latar belakang pendidikan Sarjana Teknik Lingkungan dari Universitas Diponegoro yang diperkuat dengan berbagai pendidikan, pelatihan, dan sertifikasi profesional di bidang ESG, keberlanjutan, dan pengembangan bisnis.",
+        englishRole:
+          "Chief Operations and Business Development Officer (COO/ CBDO)",
+        englishRoleDescription: "of PT Energy Management Indonesia (Persero).",
+        image: "/managements/Asep Saepudin.png",
+        name: "Asep Saepudin",
+        role: "Direktur Operasi dan Pengembangan Usaha",
+        company: "PT Energy Management Indonesia (Persero)",
+        slug: "asep-saepudin",
+        tone: "green",
       },
       {
-        title: "Kepala Divisi & Manajer",
-        subtitle: "Division Heads & Managers",
-        members: [
-          {
-            initials: "EM",
-            name: "Eva Marlina",
-            role: "KEPALA SATUAN PENGAWASAN INTERNAL",
-            tone: "blue",
-          },
-          {
-            initials: "NA",
-            name: "Neni Ariyani",
-            role: "SEKRETARIS PERUSAHAAN",
-            tone: "green",
-          },
-          {
-            initials: "HB",
-            name: "Hermeneigildus Bramantyo Agung Suprapto",
-            role: "MANAJER PEMASARAN DAN OPERASI–1",
-            tone: "navy",
-          },
-          {
-            initials: "AL",
-            name: "Andi Lala",
-            role: "MANAJER PEMASARAN DAN OPERASI–2",
-            tone: "blue",
-          },
-          {
-            initials: "NS",
-            name: "Neti Supriya Darsani",
-            role: "MANAJER KEUANGAN",
-            tone: "green",
-          },
-          {
-            initials: "W",
-            name: "Wahyudi",
-            role: "MANAJER HUMAN CAPITAL DAN UMUM",
-            tone: "navy",
-          },
-        ],
+        biography:
+          "Memiliki latar belakang pendidikan Sarjana Manajemen Keuangan dari Universitas Diponegoro dan Magister di bidang Kelistrikan dari Institut Teknologi Bandung (ITB).",
+        englishRole: "Director of Finance, Risk Management, and Human Capital",
+        englishRoleDescription: "of PT Energy Management Indonesia (Persero).",
+        image: "/managements/Saulus Erwin Pamungkas.png",
+        name: "Saulus Erwin Pamungkas",
+        role: "Direktur Keuangan, Manajemen Risiko, dan Human Capital",
+        company: "PT Energy Management Indonesia (Persero)",
+        slug: "saulus-erwin-pamungkas",
+        tone: "navy",
       },
-    ] satisfies readonly LeadershipGroup[],
-  },
+    ] satisfies readonly ManagementMember[],
+  } satisfies ManagementContent,
 } as const;

@@ -1,7 +1,7 @@
 import { AboutHero } from "./about-hero";
 import { CompanyProfile } from "./company-profile";
 import { Direction } from "./direction";
-import { Leadership } from "./leadership";
+import { Management } from "./management";
 import { OurHistory } from "./our-history";
 
 export function AboutPageContent() {
@@ -11,7 +11,7 @@ export function AboutPageContent() {
       <CompanyProfile />
       <OurHistory />
       <Direction />
-      <Leadership />
+      <Management />
     </>
   );
 }

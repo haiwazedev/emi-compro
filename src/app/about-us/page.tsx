@@ -7,7 +7,7 @@ import { Navbar } from "@/module/layout/components/navbar";
 export const metadata: Metadata = {
   title: "About Us | PLN EMI",
   description:
-    "Learn about PT Energy Management Indonesia (Persero), our history, direction, and leadership team.",
+    "Learn about PT Energy Management Indonesia (Persero), our history, direction, and management team.",
 };
 
 export default function AboutUsPage() {
