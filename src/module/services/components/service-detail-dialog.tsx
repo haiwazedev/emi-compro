@@ -42,11 +42,11 @@ export function ServiceDetailDialog({
   return (
     <DialogContent
       aria-describedby="service-dialog-description"
-      className="flex h-auto flex-col gap-6 overflow-hidden rounded-3xl p-6 lg:gap-8 lg:p-10"
+      className="flex h-auto max-h-[calc(100dvh-2rem)] flex-col gap-6 rounded-3xl p-6 lg:gap-8 lg:p-10"
       closeButtonClassName="top-4 right-4 size-8 lg:top-6 lg:right-6 lg:size-10 [&_svg]:size-5!"
       onCloseAutoFocus={onCloseAutoFocus}
     >
-      <DialogHeader className="mt-4 gap-4 lg:gap-8 lg:pr-8">
+      <DialogHeader className="mt-8 gap-4 md:mt-0 lg:gap-8 lg:pr-8">
         <div className="flex items-center gap-2 lg:gap-7">
           <div
             aria-hidden="true"
@@ -80,16 +80,16 @@ export function ServiceDetailDialog({
 
       <Carousel
         aria-label={`${service.title} service images`}
-        className="relative"
+        className="relative min-h-0 flex-1 overflow-hidden"
         opts={{ loop: false }}
       >
         <CarouselContent className="ml-0">
           {service.detailImages.map((image) => (
             <CarouselItem className="pl-0" key={image.src}>
-              <figure className="bg-primary/40 relative aspect-video w-full overflow-hidden rounded-2xl">
+              <figure className="bg-primary/40 relative aspect-video max-h-[40dvh] w-full rounded-2xl">
                 <Image
-                  alt={image.alt}
                   className="object-contain"
+                  alt={image.alt}
                   fill
                   sizes="(min-width: 1024px) 75vw, calc(100vw - 3rem)"
                   src={image.src}
