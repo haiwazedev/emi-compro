@@ -1,12 +1,20 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Leaf } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
+import type { ServiceDivision } from "@/module/services/content/services";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/shared/ui/carousel";
 import {
   DialogContent,
   DialogDescription,
@@ -19,11 +27,18 @@ type ServiceDetailDialogProps = {
   onCloseAutoFocus: React.ComponentProps<
     typeof DialogContent
   >["onCloseAutoFocus"];
+  service: ServiceDivision;
 };
 
 export function ServiceDetailDialog({
   onCloseAutoFocus,
+  service,
 }: ServiceDetailDialogProps) {
+  const Icon = service.icon;
+  const [activeTagIndex, setActiveTagIndex] = React.useState(0);
+  const activeTag = service.offerings[activeTagIndex];
+  const tagCount = service.offerings.length;
+
   return (
     <DialogContent
       aria-describedby="service-dialog-description"
@@ -37,7 +52,7 @@ export function ServiceDetailDialog({
             aria-hidden="true"
             className="from-secondary to-accent text-background shadow-foreground/20 flex size-12 items-center justify-center rounded bg-linear-to-br shadow-md lg:size-20 lg:rounded-2xl"
           >
-            <Leaf className="size-4 lg:size-14" strokeWidth={1.75} />
+            <Icon className="size-4 lg:size-14" strokeWidth={1.75} />
           </div>
 
           <div className="min-w-0 flex-1 pr-8">
@@ -45,35 +60,56 @@ export function ServiceDetailDialog({
               className="bg-primary text-accent h-auto rounded-full border-transparent text-xs font-semibold lg:px-3 lg:py-2 lg:text-sm"
               variant="secondary"
             >
-              Decarbonization Strategy Solutions · DSS
+              {service.title} · {service.code}
             </Badge>
 
             <DialogTitle className="mt-1 text-xl leading-tight lg:mt-2 lg:text-3xl">
-              Green Attribute (ERPA)
+              {activeTag?.label ?? service.title}
             </DialogTitle>
           </div>
         </div>
 
         <DialogDescription
+          aria-live="polite"
           className="text-secondary text-justify text-xs leading-6 lg:text-base"
           id="service-dialog-description"
         >
-          Sebuah sertifikat yang merepresentasikan setiap{" "}
-          <strong className="font-bold">1 MWh</strong> listrik bersih yang
-          dihasilkan oleh pembangkit listrik energi terbarukan PLN dan tercatat
-          secara aman di dalam sistem pelacakan.
+          {activeTag?.description ?? service.detailDescription}
         </DialogDescription>
       </DialogHeader>
 
-      <figure className="relative aspect-video w-full overflow-hidden">
-        <Image
-          alt="Diagram alur Green Attribute (ERPA)"
-          className="h-auto w-full"
-          sizes="(min-width: 1024px) 75vw, calc(100vw - 3rem)"
-          src="/service-diagram.png"
-          fill
+      <Carousel
+        aria-label={`${service.title} service images`}
+        className="relative"
+        opts={{ loop: false }}
+      >
+        <CarouselContent className="ml-0">
+          {service.detailImages.map((image) => (
+            <CarouselItem className="pl-0" key={image.src}>
+              <figure className="bg-primary/40 relative aspect-video w-full overflow-hidden rounded-2xl">
+                <Image
+                  alt={image.alt}
+                  className="object-contain"
+                  fill
+                  sizes="(min-width: 1024px) 75vw, calc(100vw - 3rem)"
+                  src={image.src}
+                />
+              </figure>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        <CarouselPrevious
+          aria-label="Previous image"
+          className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 bottom-auto left-3 my-0 size-10 rounded-lg lg:left-4"
+          size="icon-lg"
         />
-      </figure>
+        <CarouselNext
+          aria-label="Next image"
+          className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 right-3 bottom-auto my-0 size-10 rounded-lg lg:right-4"
+          size="icon-lg"
+        />
+      </Carousel>
 
       <DialogFooter className="border-foreground/10 mt-2 flex-col items-stretch gap-5 border-t pt-4 lg:flex-row lg:items-center lg:justify-between">
         <Button
@@ -89,20 +125,26 @@ export function ServiceDetailDialog({
 
         <div className="flex items-center justify-end gap-4 lg:gap-5">
           <span
-            aria-label="Slide 1 of 5"
+            aria-label={`Service tag ${activeTagIndex + 1} of ${tagCount}`}
+            aria-live="polite"
             className="text-secondary text-sm font-semibold tabular-nums lg:text-base"
           >
-            1 / 5
+            {tagCount > 0 ? `${activeTagIndex + 1} / ${tagCount}` : "0 / 0"}
           </span>
 
           <nav
-            aria-label="Slide navigation"
+            aria-label="Service tag navigation"
             className="flex items-center gap-3"
           >
             <Button
-              aria-label="Previous slide"
+              aria-label="Previous service tag"
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
-              disabled
+              disabled={tagCount === 0 || activeTagIndex === 0}
+              onClick={() =>
+                setActiveTagIndex((currentIndex) =>
+                  Math.max(0, currentIndex - 1),
+                )
+              }
               size="icon-lg"
               type="button"
               variant="outline"
@@ -110,9 +152,14 @@ export function ServiceDetailDialog({
               <ArrowLeft aria-hidden="true" className="size-6" />
             </Button>
             <Button
-              aria-label="Next slide"
+              aria-label="Next service tag"
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
-              disabled
+              disabled={tagCount === 0 || activeTagIndex === tagCount - 1}
+              onClick={() =>
+                setActiveTagIndex((currentIndex) =>
+                  Math.min(tagCount - 1, currentIndex + 1),
+                )
+              }
               size="icon-lg"
               type="button"
               variant="outline"

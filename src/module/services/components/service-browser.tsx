@@ -9,18 +9,23 @@ import { ServiceDivisionDetailCard } from "./service-division-detail-card";
 import { ServiceDetailDialog } from "./service-detail-dialog";
 
 export function ServiceBrowser() {
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [activeServiceSlug, setActiveServiceSlug] = React.useState<
+    string | null
+  >(null);
   const activeCardRef = React.useRef<HTMLElement | null>(null);
+  const activeService = serviceDivisions.find(
+    (service) => service.slug === activeServiceSlug,
+  );
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      setIsDialogOpen(false);
+      setActiveServiceSlug(null);
     }
   }
 
-  function handleOpen(trigger: HTMLElement) {
+  function handleOpen(slug: string, trigger: HTMLElement) {
     activeCardRef.current = trigger;
-    setIsDialogOpen(true);
+    setActiveServiceSlug(slug);
   }
 
   function handleCloseAutoFocus(event: Event) {
@@ -45,7 +50,7 @@ export function ServiceBrowser() {
           {serviceDivisions.map((service) => (
             <li key={service.slug}>
               <ServiceDivisionDetailCard
-                onOpen={handleOpen}
+                onOpen={(trigger) => handleOpen(service.slug, trigger)}
                 service={service}
               />
             </li>
@@ -53,8 +58,14 @@ export function ServiceBrowser() {
         </ul>
       </SectionContainer>
 
-      <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
-        <ServiceDetailDialog onCloseAutoFocus={handleCloseAutoFocus} />
+      <Dialog open={activeServiceSlug !== null} onOpenChange={handleOpenChange}>
+        {activeService ? (
+          <ServiceDetailDialog
+            key={activeService.slug}
+            onCloseAutoFocus={handleCloseAutoFocus}
+            service={activeService}
+          />
+        ) : null}
       </Dialog>
     </>
   );
