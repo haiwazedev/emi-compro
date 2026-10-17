@@ -1,25 +1,17 @@
-"use client";
-
 import { ArticleCard } from "@/module/articles/components/article-card";
-import {
-  articleCategories,
-  homeArticles,
-  type ArticleCategory,
-} from "@/module/articles/content/articles";
+import { ArticleCategoryFilters } from "@/module/articles/components/article-category-filters";
+import { ArticlesStatus } from "@/module/articles/components/articles-status";
+import type { HomeArticleData } from "@/module/articles/lib/articles-api";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
-import { cn } from "@/shared/lib/utils";
-import { useState } from "react";
 
-export function ArticlesSection() {
-  const [activeCategory, setActiveCategory] = useState<ArticleCategory>("All");
+type ArticlesSectionProps = {
+  data: HomeArticleData | null;
+  error: boolean;
+};
 
-  const filteredArticles =
-    activeCategory === "All"
-      ? homeArticles
-      : homeArticles.filter((article) => article.category === activeCategory);
-
-  const [featuredArticle, ...supportingArticles] = filteredArticles;
+export function ArticlesSection({ data, error }: ArticlesSectionProps) {
+  const [featuredArticle, ...supportingArticles] = data?.articles ?? [];
 
   return (
     <SectionContainer
@@ -38,40 +30,42 @@ export function ArticlesSection() {
         title="Our Latest"
       />
 
-      <div
-        aria-label="Filter articles by category"
-        className="mt-10 flex flex-wrap gap-2"
-        role="group"
-      >
-        {articleCategories.map((category) => {
-          const isActive = category === activeCategory;
+      {data ? (
+        <div className="mt-10">
+          <ArticleCategoryFilters
+            activeCategoryId={data.activeCategoryId}
+            categories={data.categories}
+            pathname="/"
+            queryKey="homeCategory"
+          />
+        </div>
+      ) : null}
 
-          return (
-            <button
-              aria-pressed={isActive}
-              className={cn(
-                "focus-visible:ring-secondary/50 rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
-                isActive
-                  ? "border-accent bg-accent text-background"
-                  : "border-foreground/20 bg-background text-accent hover:border-secondary hover:text-secondary",
-              )}
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              type="button"
-            >
-              {category}
-            </button>
-          );
-        })}
-      </div>
+      {error ? (
+        <ArticlesStatus
+          description="Article updates are currently unavailable."
+          title="Articles are temporarily unavailable."
+          variant="error"
+        />
+      ) : null}
 
-      {filteredArticles.length === 1 ? (
+      {!error && data && data.articles.length === 0 ? (
+        <ArticlesStatus
+          description="There are no published articles in this category yet."
+          title="No articles found."
+          variant="empty"
+        />
+      ) : null}
+
+      {featuredArticle && supportingArticles.length === 0 ? (
         <ul aria-label="Latest articles" className="-m-2 mt-6 flex flex-wrap">
           <li className="flex w-full p-2">
             <ArticleCard article={featuredArticle} isFeatured />
           </li>
         </ul>
-      ) : (
+      ) : null}
+
+      {featuredArticle && supportingArticles.length > 0 ? (
         <ul aria-label="Latest articles" className="-m-2 mt-6 flex flex-wrap">
           <li className="flex w-full p-2 lg:w-5/12">
             <ArticleCard article={featuredArticle} isFeatured />
@@ -80,20 +74,14 @@ export function ArticlesSection() {
           <li className="w-full p-2 lg:w-7/12">
             <ul className="-m-2 flex flex-wrap">
               {supportingArticles.map((article) => (
-                <li
-                  className={cn(
-                    "flex w-full p-2",
-                    supportingArticles.length > 1 && "lg:w-1/2",
-                  )}
-                  key={article.id}
-                >
+                <li className="flex w-full p-2 lg:w-1/2" key={article.id}>
                   <ArticleCard article={article} />
                 </li>
               ))}
             </ul>
           </li>
         </ul>
-      )}
+      ) : null}
     </SectionContainer>
   );
 }

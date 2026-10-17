@@ -1,39 +1,33 @@
-"use client";
-
 import { ArrowDown } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
 
 import { ArticleCard } from "@/module/articles/components/article-card";
-import {
-  articleCategories,
-  articles,
-  type ArticleCategory,
-} from "@/module/articles/content/articles";
+import { ArticleCategoryFilters } from "@/module/articles/components/article-category-filters";
+import { ArticlesStatus } from "@/module/articles/components/articles-status";
+import type { ArticleListingData } from "@/module/articles/lib/articles-api";
 import { SectionContainer } from "@/shared/components/section-container";
-import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 
-const initialVisibleArticleCount = 7;
-const articlesPerLoad = 6;
+type ArticleBrowserProps = {
+  data: ArticleListingData | null;
+  error: boolean;
+};
 
-export function ArticleBrowser() {
-  const [activeCategory, setActiveCategory] = useState<ArticleCategory>("All");
-  const [visibleArticleCount, setVisibleArticleCount] = useState(
-    initialVisibleArticleCount,
-  );
+function getPageHref(categoryId: number | null, page: number) {
+  const query = new URLSearchParams();
 
-  const filteredArticles =
-    activeCategory === "All"
-      ? articles
-      : articles.filter((article) => article.category === activeCategory);
-  const visibleArticles = filteredArticles.slice(0, visibleArticleCount);
-  const featuredArticle = visibleArticles[0];
-  const supportingArticles = visibleArticles.slice(1);
-
-  function handleCategoryChange(category: ArticleCategory) {
-    setActiveCategory(category);
-    setVisibleArticleCount(initialVisibleArticleCount);
+  if (categoryId !== null) {
+    query.set("category", String(categoryId));
   }
+
+  query.set("page", String(page));
+
+  return `/articles?${query.toString()}#articles`;
+}
+
+export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
+  const featuredArticle = data?.articles[0];
+  const supportingArticles = data?.articles.slice(1) ?? [];
 
   return (
     <SectionContainer
@@ -46,32 +40,30 @@ export function ArticleBrowser() {
         Browse articles
       </h2>
 
-      <div
-        aria-label="Filter articles by category"
-        className="flex flex-wrap gap-2"
-        role="group"
-      >
-        {articleCategories.map((category) => {
-          const isActive = category === activeCategory;
+      {data ? (
+        <ArticleCategoryFilters
+          activeCategoryId={data.activeCategoryId}
+          categories={data.categories}
+          pathname="/articles"
+          queryKey="category"
+        />
+      ) : null}
 
-          return (
-            <button
-              aria-pressed={isActive}
-              className={cn(
-                "focus-visible:ring-secondary/50 rounded-full border px-4 py-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
-                isActive
-                  ? "border-accent bg-accent text-background"
-                  : "border-foreground/20 bg-background text-accent hover:border-secondary hover:text-secondary",
-              )}
-              key={category}
-              onClick={() => handleCategoryChange(category)}
-              type="button"
-            >
-              {category}
-            </button>
-          );
-        })}
-      </div>
+      {error ? (
+        <ArticlesStatus
+          description="Article updates are currently unavailable."
+          title="Articles are temporarily unavailable."
+          variant="error"
+        />
+      ) : null}
+
+      {!error && data && data.articles.length === 0 ? (
+        <ArticlesStatus
+          description="There are no published articles in this category yet."
+          title="No articles found."
+          variant="empty"
+        />
+      ) : null}
 
       {featuredArticle ? (
         <ul aria-label="Featured article" className="-m-2 mt-6 flex flex-wrap">
@@ -99,18 +91,17 @@ export function ArticleBrowser() {
         </ul>
       ) : null}
 
-      {visibleArticleCount < filteredArticles.length ? (
+      {data && data.page < data.totalPages ? (
         <div className="mt-8 flex justify-center lg:mt-10">
           <Button
+            asChild
             className="h-10 rounded-full px-5 text-xs font-semibold"
-            onClick={() =>
-              setVisibleArticleCount((count) => count + articlesPerLoad)
-            }
-            type="button"
             variant="outline"
           >
-            Load More Articles
-            <ArrowDown aria-hidden="true" className="size-3.5" />
+            <Link href={getPageHref(data.activeCategoryId, data.page + 1)}>
+              Load More Articles
+              <ArrowDown aria-hidden="true" className="size-3.5" />
+            </Link>
           </Button>
         </div>
       ) : null}

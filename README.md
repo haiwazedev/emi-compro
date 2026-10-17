@@ -16,6 +16,13 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Article API
+
+The homepage and article pages fetch published Indonesian content from the API
+server-side. Set `API_BASE_URL` to the API origin before starting or building
+the application. The app exits with a configuration error if it is missing or
+is not a valid HTTP or HTTPS URL.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

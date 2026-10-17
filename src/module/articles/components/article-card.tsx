@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -30,6 +31,7 @@ export function ArticleCard({
         "bg-background shadow-foreground/10 flex h-full w-full flex-col overflow-hidden rounded-2xl shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none",
         isHorizontal && "lg:flex-row",
       )}
+      lang="id"
     >
       <Link
         aria-label={`Read ${article.title}`}
@@ -40,13 +42,25 @@ export function ArticleCard({
         href={getArticleHref(article.id)}
       >
         <div
-          aria-hidden="true"
           className={cn(
             "relative aspect-video shrink-0",
             isHorizontal && "lg:aspect-auto lg:w-1/2",
             articleMediaToneClassNames[article.mediaTone],
           )}
         >
+          {article.imageUrl ? (
+            <Image
+              alt=""
+              className="object-cover"
+              fill
+              sizes={
+                isHorizontal
+                  ? "(min-width: 1024px) 50vw, 100vw"
+                  : "(min-width: 1024px) 33vw, 100vw"
+              }
+              src={article.imageUrl}
+            />
+          ) : null}
           <Badge
             className="bg-background text-accent shadow-foreground/10 absolute bottom-3 left-3 h-auto rounded-full border-transparent px-3 py-1 text-xs font-semibold shadow-sm"
             variant="secondary"

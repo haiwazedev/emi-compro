@@ -1,10 +1,11 @@
 import { ArrowLeft, CalendarDays, Clock3, PenLine } from "lucide-react";
+import sanitizeHtml from "sanitize-html";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
   articleMediaToneClassNames,
   type Article,
-  type ArticleContentBlock,
 } from "@/module/articles/content/articles";
 import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
@@ -14,26 +15,34 @@ type ArticleDetailProps = {
   article: Article;
 };
 
-function ArticleContentBlockView({ block }: { block: ArticleContentBlock }) {
-  switch (block.type) {
-    case "heading":
-      return (
-        <h2 className="text-accent text-xl leading-tight font-bold sm:text-2xl">
-          {block.text}
-        </h2>
-      );
-    case "quote":
-      return (
-        <blockquote className="border-secondary text-accent font-display border-l-2 pl-4 text-lg leading-8 italic sm:pl-5 sm:text-xl">
-          {block.text}
-        </blockquote>
-      );
-    case "paragraph":
-      return <p>{block.text}</p>;
-  }
-}
-
 export function ArticleDetail({ article }: ArticleDetailProps) {
+  const safeContent = sanitizeHtml(article.content, {
+    allowedAttributes: {
+      a: ["href", "title"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    allowedTags: [
+      "a",
+      "b",
+      "blockquote",
+      "br",
+      "div",
+      "em",
+      "h2",
+      "h3",
+      "h4",
+      "hr",
+      "i",
+      "li",
+      "ol",
+      "p",
+      "span",
+      "strong",
+      "u",
+      "ul",
+    ],
+  });
+
   return (
     <SectionContainer
       aria-labelledby="article-detail-heading"
@@ -51,12 +60,23 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
       <div
         aria-hidden="true"
         className={cn(
-          "mt-5 aspect-[4/5] w-full rounded-2xl sm:mt-6 lg:aspect-[5/2]",
+          "relative mt-5 aspect-[4/5] w-full overflow-hidden rounded-2xl sm:mt-6 lg:aspect-[5/2]",
           articleMediaToneClassNames[article.mediaTone],
         )}
-      />
+      >
+        {article.imageUrl ? (
+          <Image
+            alt=""
+            className="object-cover"
+            fill
+            priority
+            sizes="(min-width: 1024px) 100vw, 100vw"
+            src={article.imageUrl}
+          />
+        ) : null}
+      </div>
 
-      <article className="mx-auto mt-8 max-w-3xl sm:mt-10 lg:mt-12">
+      <article className="mx-auto mt-8 max-w-3xl sm:mt-10 lg:mt-12" lang="id">
         <Badge
           className="bg-primary text-accent h-auto rounded-full border-transparent px-3 py-1 text-xs font-semibold"
           variant="secondary"
@@ -79,24 +99,22 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
             <CalendarDays aria-hidden="true" className="size-3.5" />
             {article.date}
           </time>
-          <span className="inline-flex items-center gap-1.5">
-            <PenLine aria-hidden="true" className="size-3.5" />
-            {article.author}
-          </span>
+          {article.author ? (
+            <span className="inline-flex items-center gap-1.5">
+              <PenLine aria-hidden="true" className="size-3.5" />
+              {article.author}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock3 aria-hidden="true" className="size-3.5" />
             {article.readTime}
           </span>
         </div>
 
-        <div className="text-foreground/70 mt-7 flex flex-col gap-5 text-sm leading-7 sm:mt-8 sm:gap-6 sm:text-base sm:leading-8">
-          {article.content.map((block) => (
-            <ArticleContentBlockView
-              block={block}
-              key={`${block.type}-${block.text}`}
-            />
-          ))}
-        </div>
+        <div
+          className="text-foreground/70 [&_a]:text-secondary [&_blockquote]:border-secondary [&_h2]:text-accent [&_h3]:text-accent [&_h4]:text-accent mt-7 text-sm leading-7 sm:mt-8 sm:text-base sm:leading-8 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mt-7 [&_h3]:text-lg [&_h3]:font-bold [&_h4]:mt-6 [&_h4]:font-bold [&_li+li]:mt-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p+p]:mt-5 [&_ul]:list-disc [&_ul]:pl-6"
+          dangerouslySetInnerHTML={{ __html: safeContent }}
+        />
       </article>
     </SectionContainer>
   );

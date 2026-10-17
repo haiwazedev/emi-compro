@@ -11,6 +11,10 @@ type RelatedArticlesProps = {
 };
 
 export function RelatedArticles({ articles }: RelatedArticlesProps) {
+  if (articles.length === 0) {
+    return null;
+  }
+
   return (
     <SectionContainer
       aria-labelledby="related-articles-heading"
