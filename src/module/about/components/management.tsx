@@ -2,22 +2,75 @@
 
 import * as React from "react";
 
-import {
-  aboutPageContent,
-  type ManagementMember,
-} from "@/module/about/content/about-page";
+import { aboutPageContent } from "@/module/about/content/about-page";
+import type {
+  ManagementBoardType,
+  ManagementData,
+  ManagementMember,
+} from "@/module/about/lib/management-api";
 import { SectionContainer } from "@/shared/components/section-container";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
 import { ManagementCard } from "./management-card";
 import { ManagementDialog } from "./management-dialog";
 
-export function Management() {
-  const { directors, eyebrow, title } = aboutPageContent.management;
-  const [titlePrefix, titleAccent] = title.split(" ");
+type ManagementProps = {
+  data: ManagementData | null;
+  error: boolean;
+};
+
+type ManagementStatusProps = {
+  className?: string;
+  description: string;
+  error?: boolean;
+  title: string;
+};
+
+function ManagementStatus({
+  className,
+  description,
+  error = false,
+  title,
+}: ManagementStatusProps) {
+  return (
+    <div
+      aria-live={error ? "assertive" : "polite"}
+      className={cn(
+        "border-foreground/15 bg-background/70 mt-8 rounded-2xl border px-6 py-10 text-center",
+        className,
+      )}
+      role={error ? "alert" : "status"}
+    >
+      <h3 className="text-accent text-lg font-semibold">{title}</h3>
+      <p className="text-foreground/70 mt-2 text-sm leading-6">{description}</p>
+    </div>
+  );
+}
+
+function getPanelId(typeId: number) {
+  return `management-${typeId}-panel`;
+}
+
+function getTabId(typeId: number) {
+  return `management-${typeId}-tab`;
+}
+
+export function Management({ data, error }: ManagementProps) {
+  const { eyebrow, title } = aboutPageContent.management;
+  const [titlePrefix, ...titleAccentWords] = title.split(" ");
+  const titleAccent = titleAccentWords.join(" ");
+  const [activeTypeId, setActiveTypeId] = React.useState<number | null>(
+    data?.types[0]?.id ?? null,
+  );
   const [activeMember, setActiveMember] =
     React.useState<ManagementMember | null>(null);
   const activeCardRef = React.useRef<HTMLButtonElement | null>(null);
+  const tabRefs = React.useRef(new Map<number, HTMLButtonElement>());
+  const activeType =
+    data?.types.find((type) => type.id === activeTypeId) ??
+    data?.types[0] ??
+    null;
 
   function handleOpen(member: ManagementMember, trigger: HTMLButtonElement) {
     activeCardRef.current = trigger;
@@ -34,6 +87,41 @@ export function Management() {
     event.preventDefault();
     activeCardRef.current?.focus();
     activeCardRef.current = null;
+  }
+
+  function handleTabKeyDown(
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    const types = data?.types ?? [];
+
+    if (types.length < 2) {
+      return;
+    }
+
+    let nextIndex: number;
+
+    switch (event.key) {
+      case "ArrowRight":
+        nextIndex = (index + 1) % types.length;
+        break;
+      case "ArrowLeft":
+        nextIndex = (index - 1 + types.length) % types.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = types.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const nextType = types[nextIndex];
+    setActiveTypeId(nextType.id);
+    tabRefs.current.get(nextType.id)?.focus();
   }
 
   return (
@@ -55,52 +143,64 @@ export function Management() {
           {titlePrefix} <span className="text-secondary">{titleAccent}</span>
         </h2>
 
-        <div
-          aria-label="Management board"
-          className="mt-8 flex flex-wrap gap-3"
-          role="tablist"
-        >
-          <Button
-            aria-label="Dewan Komisaris (coming soon)"
-            aria-selected={false}
-            disabled
-            id="management-commissioners-tab"
-            role="tab"
-            title="Coming soon"
-            type="button"
-            variant="outline"
-            className="rounded-full px-6 py-5 font-semibold"
-          >
-            Dewan Komisaris
-            <span className="sr-only">Coming soon</span>
-          </Button>
-          <Button
-            aria-controls="management-directors-panel"
-            aria-selected={true}
-            id="management-directors-tab"
-            role="tab"
-            type="button"
-            className="rounded-full px-6 py-5 font-semibold"
-          >
-            Dewan Direksi
-          </Button>
-        </div>
+        {error ? (
+          <ManagementStatus
+            description="Board member information is temporarily unavailable. Please try again later."
+            error
+            title="Management information is unavailable."
+          />
+        ) : !data || data.types.length === 0 ? (
+          <ManagementStatus
+            description="There are no board members available at this time."
+            title="No management information found."
+          />
+        ) : (
+          <>
+            <div
+              aria-label="Management board"
+              className="mt-8 flex flex-wrap gap-3"
+              role="tablist"
+            >
+              {data.types.map((type, index) => {
+                const isSelected = activeType?.id === type.id;
 
-        <div
-          aria-labelledby="management-directors-tab"
-          className="mt-8"
-          id="management-directors-panel"
-          role="tabpanel"
-          tabIndex={0}
-        >
-          <ul aria-label="Dewan Direksi" className="-m-3 flex flex-wrap">
-            {directors.map((member) => (
-              <li className="flex w-full p-3 lg:w-1/3" key={member.slug}>
-                <ManagementCard member={member} onOpen={handleOpen} />
-              </li>
+                return (
+                  <Button
+                    aria-controls={getPanelId(type.id)}
+                    aria-selected={isSelected}
+                    className="rounded-full px-6 py-5 font-semibold"
+                    id={getTabId(type.id)}
+                    key={type.id}
+                    onClick={() => setActiveTypeId(type.id)}
+                    onKeyDown={(event) => handleTabKeyDown(event, index)}
+                    ref={(node) => {
+                      if (node) {
+                        tabRefs.current.set(type.id, node);
+                      } else {
+                        tabRefs.current.delete(type.id);
+                      }
+                    }}
+                    role="tab"
+                    tabIndex={isSelected ? 0 : -1}
+                    type="button"
+                    variant={isSelected ? "default" : "outline"}
+                  >
+                    {type.type}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {data.types.map((type) => (
+              <ManagementTypePanel
+                hidden={type.id !== activeType?.id}
+                key={type.id}
+                onOpen={handleOpen}
+                type={type}
+              />
             ))}
-          </ul>
-        </div>
+          </>
+        )}
       </SectionContainer>
 
       <Dialog open={Boolean(activeMember)} onOpenChange={handleOpenChange}>
@@ -112,5 +212,44 @@ export function Management() {
         ) : null}
       </Dialog>
     </>
+  );
+}
+
+type ManagementTypePanelProps = {
+  hidden: boolean;
+  onOpen: (member: ManagementMember, trigger: HTMLButtonElement) => void;
+  type: ManagementBoardType;
+};
+
+function ManagementTypePanel({
+  hidden,
+  onOpen,
+  type,
+}: ManagementTypePanelProps) {
+  return (
+    <div
+      aria-labelledby={getTabId(type.id)}
+      className="mt-8"
+      hidden={hidden}
+      id={getPanelId(type.id)}
+      role="tabpanel"
+      tabIndex={0}
+    >
+      {type.members.length > 0 ? (
+        <ul aria-label={type.type} className="-m-3 flex flex-wrap">
+          {type.members.map((member) => (
+            <li className="flex w-full p-3 lg:w-1/3" key={member.id}>
+              <ManagementCard member={member} onOpen={onOpen} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ManagementStatus
+          className="mt-0"
+          description={`There are no members listed for ${type.type} yet.`}
+          title="No members found."
+        />
+      )}
+    </div>
   );
 }

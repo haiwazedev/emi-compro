@@ -1,16 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import * as React from "react";
 
-import type { ManagementMember } from "@/module/about/content/about-page";
+import type { ManagementMember } from "@/module/about/lib/management-api";
 import { cn } from "@/shared/lib/utils";
 import {
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { managementToneClassNames } from "./management-card";
+import { getManagementToneClassName } from "./management-card";
+import { ManagementPortrait } from "./management-portrait";
 
 type ManagementDialogProps = {
   member: ManagementMember;
@@ -23,7 +23,7 @@ export function ManagementDialog({
   member,
   onCloseAutoFocus,
 }: ManagementDialogProps) {
-  const descriptionId = `${member.slug}-dialog-description`;
+  const descriptionId = `management-${member.id}-dialog-description`;
 
   return (
     <DialogContent
@@ -35,16 +35,14 @@ export function ManagementDialog({
       <div
         className={cn(
           "box-content flex aspect-5/3 w-full shrink-0 justify-center overflow-hidden pt-8 lg:aspect-3/4 lg:w-2/5 lg:pt-16",
-          managementToneClassNames[member.tone],
+          getManagementToneClassName(member.id),
         )}
       >
         <div className="relative w-3/5 lg:w-full">
-          <Image
+          <ManagementPortrait
             alt={`${member.name} portrait`}
-            className="object-cover object-top"
-            fill
+            member={member}
             sizes="(min-width: 1024px) 40vw, 100vw"
-            src={member.image}
           />
         </div>
       </div>
@@ -58,17 +56,8 @@ export function ManagementDialog({
           className="text-secondary mt-3 text-sm leading-5 font-semibold"
           id={descriptionId}
         >
-          {member.role} · {member.company}
+          {member.role}
         </DialogDescription>
-
-        <p className="text-foreground/80 mt-5 text-base leading-7">
-          <strong className="font-bold">{member.englishRole}</strong>{" "}
-          {member.englishRoleDescription}
-        </p>
-
-        <p className="text-foreground/70 mt-4 text-base leading-7">
-          {member.biography}
-        </p>
       </div>
     </DialogContent>
   );

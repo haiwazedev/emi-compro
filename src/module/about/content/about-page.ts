@@ -4,26 +4,6 @@ export type AboutHistoryItem = {
   description: string;
 };
 
-export type ManagementTone = "blue" | "green" | "navy";
-
-export type ManagementMember = {
-  biography: string;
-  englishRole: string;
-  englishRoleDescription: string;
-  image: string;
-  name: string;
-  role: string;
-  company: string;
-  slug: string;
-  tone: ManagementTone;
-};
-
-export type ManagementContent = {
-  directors: readonly ManagementMember[];
-  eyebrow: string;
-  title: string;
-};
-
 export const aboutPageContent = {
   hero: {
     breadcrumb: "Home / About Us",
@@ -93,45 +73,5 @@ export const aboutPageContent = {
   management: {
     eyebrow: "MANAJEMEN",
     title: "Manajemen Perusahaan",
-    directors: [
-      {
-        biography:
-          "Memiliki latar belakang pendidikan Sarjana Teknik Informatika dari Institut Teknologi PLN dan Magister Manajemen dari Universitas Sriwijaya.",
-        englishRole: "Chief Executive Officer (CEO)",
-        englishRoleDescription:
-          "dari PT Energy Management Indonesia (Persero).",
-        image: "/managements/Henri Firdaus.png",
-        name: "Henri Firdaus",
-        role: "Direktur Utama",
-        company: "PT Energy Management Indonesia (Persero)",
-        slug: "henri-firdaus",
-        tone: "blue",
-      },
-      {
-        biography:
-          "Memiliki latar belakang pendidikan Sarjana Teknik Lingkungan dari Universitas Diponegoro yang diperkuat dengan berbagai pendidikan, pelatihan, dan sertifikasi profesional di bidang ESG, keberlanjutan, dan pengembangan bisnis.",
-        englishRole:
-          "Chief Operations and Business Development Officer (COO/ CBDO)",
-        englishRoleDescription: "of PT Energy Management Indonesia (Persero).",
-        image: "/managements/Asep Saepudin.png",
-        name: "Asep Saepudin",
-        role: "Direktur Operasi dan Pengembangan Usaha",
-        company: "PT Energy Management Indonesia (Persero)",
-        slug: "asep-saepudin",
-        tone: "green",
-      },
-      {
-        biography:
-          "Memiliki latar belakang pendidikan Sarjana Manajemen Keuangan dari Universitas Diponegoro dan Magister di bidang Kelistrikan dari Institut Teknologi Bandung (ITB).",
-        englishRole: "Director of Finance, Risk Management, and Human Capital",
-        englishRoleDescription: "of PT Energy Management Indonesia (Persero).",
-        image: "/managements/Saulus Erwin Pamungkas.png",
-        name: "Saulus Erwin Pamungkas",
-        role: "Direktur Keuangan, Manajemen Risiko, dan Human Capital",
-        company: "PT Energy Management Indonesia (Persero)",
-        slug: "saulus-erwin-pamungkas",
-        tone: "navy",
-      },
-    ] satisfies readonly ManagementMember[],
-  } satisfies ManagementContent,
+  },
 } as const;

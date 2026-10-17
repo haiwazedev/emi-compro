@@ -1,13 +1,18 @@
-import Image from "next/image";
-
-import type { ManagementMember } from "@/module/about/content/about-page";
+import type { ManagementMember } from "@/module/about/lib/management-api";
 import { cn } from "@/shared/lib/utils";
+import { ManagementPortrait } from "./management-portrait";
 
-const managementToneClassNames: Record<ManagementMember["tone"], string> = {
-  blue: "bg-linear-to-br from-secondary to-accent",
-  green: "bg-linear-to-br from-accent-2 to-foreground",
-  navy: "bg-linear-to-br from-accent to-foreground",
-};
+const managementToneClassNames = [
+  "bg-linear-to-br from-secondary to-accent",
+  "bg-linear-to-br from-accent-2 to-foreground",
+  "bg-linear-to-br from-accent to-foreground",
+] as const;
+
+export function getManagementToneClassName(memberId: number) {
+  return managementToneClassNames[
+    (memberId - 1) % managementToneClassNames.length
+  ];
+}
 
 type ManagementCardProps = {
   member: ManagementMember;
@@ -27,16 +32,13 @@ export function ManagementCard({ member, onOpen }: ManagementCardProps) {
         aria-hidden="true"
         className={cn(
           "flex aspect-video w-full justify-center overflow-hidden",
-          managementToneClassNames[member.tone],
+          getManagementToneClassName(member.id),
         )}
       >
-        <div className="relative top-4 w-1/2">
-          <Image
-            alt=""
-            className="object-cover object-top"
-            fill
+        <div className="relative top-4 flex h-full w-1/2">
+          <ManagementPortrait
+            member={member}
             sizes="(min-width: 1024px) 33vw, 100vw"
-            src={member.image}
           />
         </div>
       </span>
