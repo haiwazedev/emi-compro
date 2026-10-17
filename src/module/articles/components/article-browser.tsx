@@ -2,9 +2,9 @@ import { ArrowDown } from "lucide-react";
 import Link from "next/link";
 
 import { ArticleCard } from "@/module/articles/components/article-card";
-import { ArticleCategoryFilters } from "@/module/articles/components/article-category-filters";
-import { ArticlesStatus } from "@/module/articles/components/articles-status";
 import type { ArticleListingData } from "@/module/articles/lib/articles-api";
+import { CategoryFilters } from "@/shared/components/category-filters";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
 
@@ -41,8 +41,11 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
       </h2>
 
       {data ? (
-        <ArticleCategoryFilters
+        <CategoryFilters
           activeCategoryId={data.activeCategoryId}
+          allLabel="All"
+          anchorId="articles"
+          ariaLabel="Filter articles by category"
           categories={data.categories}
           pathname="/articles"
           queryKey="category"
@@ -50,7 +53,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
       ) : null}
 
       {error ? (
-        <ArticlesStatus
+        <ContentStatus
           description="Article updates are currently unavailable."
           title="Articles are temporarily unavailable."
           variant="error"
@@ -58,7 +61,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
       ) : null}
 
       {!error && data && data.articles.length === 0 ? (
-        <ArticlesStatus
+        <ContentStatus
           description="There are no published articles in this category yet."
           title="No articles found."
           variant="empty"

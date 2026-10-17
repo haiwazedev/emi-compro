@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { ArticleDetail } from "@/module/articles/components/article-detail";
 import { RelatedArticles } from "@/module/articles/components/related-articles";
-import { ArticlesStatus } from "@/module/articles/components/articles-status";
 import type { Article } from "@/module/articles/content/articles";
 import {
   getArticleById,
@@ -12,6 +11,7 @@ import {
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { SectionContainer } from "@/shared/components/section-container";
+import { ContentStatus } from "@/shared/components/content-status";
 import { parsePositiveInteger } from "@/shared/lib/utils";
 
 type ArticlePageProps = {
@@ -83,7 +83,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </>
         ) : (
           <SectionContainer className="py-12 lg:py-20">
-            <ArticlesStatus
+            <ContentStatus
               description="This article cannot be displayed right now."
               title="This article is temporarily unavailable."
               variant="error"

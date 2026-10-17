@@ -1,14 +1,14 @@
-type ArticlesStatusProps = {
+type ContentStatusProps = {
   description: string;
   title: string;
   variant: "empty" | "error";
 };
 
-export function ArticlesStatus({
+export function ContentStatus({
   description,
   title,
   variant,
-}: ArticlesStatusProps) {
+}: ContentStatusProps) {
   const isError = variant === "error";
 
   return (

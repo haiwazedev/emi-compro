@@ -1,23 +1,35 @@
 import Link from "next/link";
 
-import type { ArticleCategory } from "@/module/articles/content/articles";
 import { cn } from "@/shared/lib/utils";
 
-type ArticleCategoryFiltersProps = {
+type FilterCategory = {
+  id: number;
+  name: string;
+};
+
+type CategoryFiltersProps = {
   activeCategoryId: number | null;
-  categories: readonly ArticleCategory[];
+  allLabel: string;
+  anchorId: string;
+  ariaLabel: string;
+  categories: readonly FilterCategory[];
   pathname: string;
+  preserveQuery?: Record<string, string | undefined>;
   queryKey: string;
 };
 
-export function ArticleCategoryFilters({
+export function CategoryFilters({
   activeCategoryId,
+  allLabel,
+  anchorId,
+  ariaLabel,
   categories,
   pathname,
+  preserveQuery,
   queryKey,
-}: ArticleCategoryFiltersProps) {
+}: CategoryFiltersProps) {
   const filters = [
-    { id: null, label: "All" },
+    { id: null, label: allLabel },
     ...categories.map((category) => ({
       id: category.id,
       label: category.name,
@@ -25,21 +37,23 @@ export function ArticleCategoryFilters({
   ];
 
   return (
-    <div
-      aria-label="Filter articles by category"
-      className="flex flex-wrap gap-2"
-      role="group"
-    >
+    <div aria-label={ariaLabel} className="flex flex-wrap gap-2" role="group">
       {filters.map((filter) => {
         const isActive = filter.id === activeCategoryId;
         const query = new URLSearchParams();
+
+        for (const [key, value] of Object.entries(preserveQuery ?? {})) {
+          if (value) {
+            query.set(key, value);
+          }
+        }
 
         if (filter.id !== null) {
           query.set(queryKey, String(filter.id));
         }
 
         const queryString = query.toString();
-        const href = `${pathname}${queryString ? `?${queryString}` : ""}#articles`;
+        const href = `${pathname}${queryString ? `?${queryString}` : ""}#${anchorId}`;
 
         return (
           <Link

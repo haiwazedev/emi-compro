@@ -1,7 +1,7 @@
 import { ArticleCard } from "@/module/articles/components/article-card";
-import { ArticleCategoryFilters } from "@/module/articles/components/article-category-filters";
-import { ArticlesStatus } from "@/module/articles/components/articles-status";
 import type { HomeArticleData } from "@/module/articles/lib/articles-api";
+import { CategoryFilters } from "@/shared/components/category-filters";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
 
@@ -32,8 +32,11 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
 
       {data ? (
         <div className="mt-10">
-          <ArticleCategoryFilters
+          <CategoryFilters
             activeCategoryId={data.activeCategoryId}
+            allLabel="All"
+            anchorId="articles"
+            ariaLabel="Filter articles by category"
             categories={data.categories}
             pathname="/"
             queryKey="homeCategory"
@@ -42,7 +45,7 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
       ) : null}
 
       {error ? (
-        <ArticlesStatus
+        <ContentStatus
           description="Article updates are currently unavailable."
           title="Articles are temporarily unavailable."
           variant="error"
@@ -50,7 +53,7 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
       ) : null}
 
       {!error && data && data.articles.length === 0 ? (
-        <ArticlesStatus
+        <ContentStatus
           description="There are no published articles in this category yet."
           title="No articles found."
           variant="empty"
