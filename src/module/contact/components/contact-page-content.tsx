@@ -1,4 +1,5 @@
 import type {
+  ContactFaqItem,
   ContactPageSettings,
   InboxSubject,
 } from "@/module/contact/content/contact";
@@ -9,9 +10,11 @@ import { FAQ } from "@/module/contact/components/faq";
 
 export function ContactPageContent({
   contactSettings,
+  faqs,
   inboxSubjects,
 }: {
   contactSettings: ContactPageSettings | null;
+  faqs: ContactFaqItem[] | null;
   inboxSubjects: InboxSubject[] | null;
 }) {
   return (
@@ -21,7 +24,7 @@ export function ContactPageContent({
         contactSettings={contactSettings}
         inboxSubjects={inboxSubjects}
       />
-      <FAQ />
+      <FAQ faqs={faqs} />
     </>
   );
 }

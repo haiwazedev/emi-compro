@@ -42,8 +42,9 @@ export type InboxSubject = {
 };
 
 export type ContactFaqItem = {
+  id: number;
   question: string;
-  answer: string;
+  answerHtml: string;
 };
 
 export const contactPageContent = {
@@ -79,26 +80,4 @@ export const contactPageContent = {
     successMessage:
       "Thanks for reaching out. Our team will get back to you within 1–2 working days.",
   },
-  faqs: [
-    {
-      question: "Apa itu REC dan SPE? — What is REC and SPE?",
-      answer:
-        "REC and SPE are environmental instruments that can help organizations document renewable energy use and emissions-reduction activity. Our team can help identify the right instrument for your goals.",
-    },
-    {
-      question: "Apa hubungannya REC dan SPE dengan GHG Accounting?",
-      answer:
-        "REC and SPE can support the evidence and disclosures used in a broader GHG accounting process. The right approach depends on your reporting boundary and claim requirements.",
-    },
-    {
-      question: "Berapa harga 1 unit REC dan 1 unit SPE?",
-      answer:
-        "Pricing depends on certificate type, volume, source, and delivery requirements. Contact our team for a quotation tailored to your needs.",
-    },
-    {
-      question: "Bagaimana skema pembelian REC atau SPE di PLN EMI?",
-      answer:
-        "Share your requirements with us and our team will guide you through the required documents, quantity, and procurement steps.",
-    },
-  ] satisfies readonly ContactFaqItem[],
 };

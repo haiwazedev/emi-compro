@@ -1,5 +1,6 @@
-import { contactPageContent } from "@/module/contact/content/contact";
+import type { ContactFaqItem } from "@/module/contact/content/contact";
 import { SectionContainer } from "@/shared/components/section-container";
+import { ContentStatus } from "@/shared/components/content-status";
 import {
   Accordion,
   AccordionContent,
@@ -7,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/shared/ui/accordion";
 
-export function FAQ() {
+export function FAQ({ faqs }: { faqs: ContactFaqItem[] | null }) {
   return (
     <SectionContainer
       aria-labelledby="faq-heading"
@@ -28,22 +29,38 @@ export function FAQ() {
           </h2>
         </div>
 
-        <Accordion className="mt-8 gap-3 sm:mt-10" collapsible type="single">
-          {contactPageContent.faqs.map((faq, index) => (
-            <AccordionItem
-              className="border-foreground/10 bg-background rounded-xl border shadow-sm not-last:border-b-0"
-              key={faq.question}
-              value={`faq-${index}`}
-            >
-              <AccordionTrigger className="text-accent focus-visible:border-secondary focus-visible:ring-secondary/50 rounded-xl px-4 py-4 text-xs leading-5 font-bold hover:no-underline sm:px-5 sm:py-5 sm:text-sm">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="border-foreground/10 text-foreground/70 border-t px-4 pt-4 pb-4 text-xs leading-6 sm:px-5 sm:text-sm">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        {faqs === null ? (
+          <ContentStatus
+            className="mt-8"
+            description="Please try again later."
+            title="Unable to load FAQs"
+            variant="error"
+          />
+        ) : faqs.length === 0 ? (
+          <ContentStatus
+            className="mt-8"
+            description="Please check back later."
+            title="No FAQs are currently available"
+            variant="empty"
+          />
+        ) : (
+          <Accordion className="mt-8 gap-3 sm:mt-10" collapsible type="single">
+            {faqs.map((faq) => (
+              <AccordionItem
+                className="border-foreground/10 bg-background rounded-xl border shadow-sm not-last:border-b-0"
+                key={faq.id}
+                value={`faq-${faq.id}`}
+              >
+                <AccordionTrigger className="text-accent focus-visible:border-secondary focus-visible:ring-secondary/50 rounded-xl px-4 py-4 text-xs leading-5 font-bold hover:no-underline sm:px-5 sm:py-5 sm:text-sm">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="border-foreground/10 text-foreground/70 border-t px-4 pt-4 pb-4 text-xs leading-6 sm:px-5 sm:text-sm">
+                  <div dangerouslySetInnerHTML={{ __html: faq.answerHtml }} />
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        )}
       </div>
     </SectionContainer>
   );

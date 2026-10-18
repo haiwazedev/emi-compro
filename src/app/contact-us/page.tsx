@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ContactPageContent } from "@/module/contact/components/contact-page-content";
 import type { ContactPageSettings } from "@/module/contact/content/contact";
+import { getContactFaqs } from "@/module/contact/lib/faq-api";
 import {
   getContactPageSettings,
   getInboxSubjects,
@@ -16,9 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactUsPage() {
-  const [contactSettings, inboxSubjects] = await Promise.all([
+  const [contactSettings, inboxSubjects, faqs] = await Promise.all([
     getContactPageSettings().catch((): ContactPageSettings | null => null),
     getInboxSubjects().catch(() => null),
+    getContactFaqs().catch(() => null),
   ]);
 
   return (
@@ -28,6 +30,7 @@ export default async function ContactUsPage() {
       <main>
         <ContactPageContent
           contactSettings={contactSettings}
+          faqs={faqs}
           inboxSubjects={inboxSubjects}
         />
       </main>

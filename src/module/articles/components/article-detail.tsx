@@ -1,5 +1,4 @@
 import { ArrowLeft, CalendarDays, Clock3, PenLine } from "lucide-react";
-import sanitizeHtml from "sanitize-html";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,6 +8,7 @@ import {
 } from "@/module/articles/content/articles";
 import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
+import { sanitizeRichText } from "@/shared/lib/sanitize-rich-text";
 import { Badge } from "@/shared/ui/badge";
 
 type ArticleDetailProps = {
@@ -16,32 +16,7 @@ type ArticleDetailProps = {
 };
 
 export function ArticleDetail({ article }: ArticleDetailProps) {
-  const safeContent = sanitizeHtml(article.content, {
-    allowedAttributes: {
-      a: ["href", "title"],
-    },
-    allowedSchemes: ["http", "https", "mailto"],
-    allowedTags: [
-      "a",
-      "b",
-      "blockquote",
-      "br",
-      "div",
-      "em",
-      "h2",
-      "h3",
-      "h4",
-      "hr",
-      "i",
-      "li",
-      "ol",
-      "p",
-      "span",
-      "strong",
-      "u",
-      "ul",
-    ],
-  });
+  const safeContent = sanitizeRichText(article.content);
 
   return (
     <SectionContainer
