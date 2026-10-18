@@ -26,9 +26,10 @@ export type Article = {
   imageUrl: string | null;
   mediaTone: ArticleMediaTone;
   readTime: string;
+  slug: string;
   title: string;
 };
 
-export function getArticleHref(articleId: number) {
-  return `/articles/${articleId}`;
+export function getArticleHref(slug: string) {
+  return `/articles/${encodeURIComponent(slug)}`;
 }

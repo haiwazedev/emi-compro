@@ -39,7 +39,7 @@ export function ArticleCard({
           "focus-visible:ring-secondary flex h-full w-full flex-col focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
           isHorizontal && "lg:flex-row",
         )}
-        href={getArticleHref(article.id)}
+        href={getArticleHref(article.slug)}
       >
         <div
           className={cn(

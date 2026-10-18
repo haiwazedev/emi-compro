@@ -5,33 +5,27 @@ import { ArticleDetail } from "@/module/articles/components/article-detail";
 import { RelatedArticles } from "@/module/articles/components/related-articles";
 import type { Article } from "@/module/articles/content/articles";
 import {
-  getArticleById,
+  getArticleBySlug,
   getRelatedArticles,
 } from "@/module/articles/lib/articles-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { SectionContainer } from "@/shared/components/section-container";
 import { ContentStatus } from "@/shared/components/content-status";
-import { parsePositiveInteger } from "@/shared/lib/utils";
 
 type ArticlePageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
-  const { id } = await params;
-  const articleId = parsePositiveInteger(id);
-
-  if (articleId === undefined) {
-    return {};
-  }
+  const { slug } = await params;
 
   let article: Article | null;
 
   try {
-    article = await getArticleById(articleId);
+    article = await getArticleBySlug(slug);
   } catch {
     return {};
   }
@@ -47,18 +41,13 @@ export async function generateMetadata({
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { id } = await params;
-  const articleId = parsePositiveInteger(id);
-
-  if (articleId === undefined) {
-    notFound();
-  }
+  const { slug } = await params;
 
   let article: Article | null = null;
   let hasApiError = false;
 
   try {
-    article = await getArticleById(articleId);
+    article = await getArticleBySlug(slug);
   } catch {
     hasApiError = true;
   }

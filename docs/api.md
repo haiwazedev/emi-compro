@@ -405,24 +405,29 @@ Unauthorized`; a missing or disallowed request origin returns `403 Forbidden`.
 
 ## Languages
 
-`GET /languages` is public and returns the active languages, ordered by `id`.
+`GET /languages` is public and returns the active languages, ordered by `sort_order`, then `id`.
+Every language list in the API (article `contents`, article list `languages`)
+uses the same order.
 Inactive languages are omitted and cannot receive article content.
+
+A language `id` is its lowercase code (`id`, `en`). Every `language_id` input
+is case-insensitive and normalized to lowercase, so `ID` and `id` are the same.
 
 ```json
 {
   "languages": [
     {
-      "id": 1,
+      "id": "id",
       "language": "Bahasa Indonesia",
-      "abbreviated_language": "ID",
       "flag": "🇮🇩",
+      "sort_order": 1,
       "is_active": true
     },
     {
-      "id": 2,
+      "id": "en",
       "language": "English",
-      "abbreviated_language": "EN",
       "flag": "🇬🇧",
+      "sort_order": 2,
       "is_active": true
     }
   ]
@@ -437,7 +442,8 @@ frontend `Origin` or `Referer` as described under [Browser Sessions](#browser-se
 
 An article is a shared header (category, dates, photo, contact person) plus at
 most one content row per language in `contents`. Title, slug, summary, content,
-and status belong to a language. Slugs are unique per language.
+and status belong to a language. Slugs are unique across all languages, so a slug identifies one article and
+one language; an article's languages cannot share a slug.
 
 Each content has a server-computed `read_time` in whole minutes: the visible
 characters of `content` (HTML tags removed, whitespace collapsed) divided by
@@ -458,7 +464,7 @@ tie-breaker.
 | `limit`               | number | Optional; default `20`, minimum `1`, maximum `100`.                       |
 | `search`              | string | Optional, case-insensitive substring search in a content `title`.         |
 | `article_category_id` | number | Optional positive category ID filter.                                     |
-| `language_id`         | number | Optional; only articles with content in this language, shown in it.       |
+| `language_id`         | string | Optional; only articles with content in this language, shown in it.       |
 | `status`              | string | Optional; `DRAFT` or `PUBLISHED`; matches a content row with this status. |
 | `sort_by`             | string | Optional; must be `created_at`, default `created_at`.                     |
 | `sort_order`          | string | Optional; `asc` or `desc`, default `desc`.                                |
@@ -469,7 +475,7 @@ Request`.
 
 `title`, `slug`, `summary`, `status`, `read_time`, and `language_id` on each item come from
 the `language_id` content when that query is set, otherwise from the content
-with the lowest language ID. `languages` lists every active language with that
+with the first language by `sort_order`, then `id`. `languages` lists every active language with that
 language's content status, or `null` when the article has no content in it.
 
 ```json
@@ -495,19 +501,15 @@ language's content status, or `null` when the article has no content in it.
         "name": "Company News",
         "slug": "company-news"
       },
-      "language_id": 1,
+      "language_id": "id",
       "title": "Kantor layanan baru dibuka",
       "slug": "kantor-layanan-baru-dibuka",
       "summary": "Ringkasan singkat.",
       "status": "PUBLISHED",
       "read_time": 1,
       "languages": [
-        {
-          "language_id": 1,
-          "abbreviated_language": "ID",
-          "status": "PUBLISHED"
-        },
-        { "language_id": 2, "abbreviated_language": "EN", "status": null }
+        { "language_id": "id", "status": "PUBLISHED" },
+        { "language_id": "en", "status": null }
       ]
     }
   ],
@@ -522,9 +524,14 @@ language's content status, or `null` when the article has no content in it.
 
 ### Get, create, update, and delete an article
 
+- `GET /articles/slug/:slug` is for the landing page and returns
+  `{ "article": ... }` with `200 OK`, in the same shape as the detail response.
+  `contents` holds only `PUBLISHED` content in active languages. A slug that is
+  unknown, a draft, or in an inactive language returns `404 Not Found` with
+  `Article was not found.`
 - `GET /articles/:articleId` returns `{ "article": ... }` with `200 OK`. The
   article has the shared header fields and every language's content in
-  `contents`, ordered by `language_id`.
+  `contents`, ordered by language `sort_order`, then `language_id`.
 - `POST /articles` creates the article header and its first language content,
   then returns `{ "article": ... }` with `201 Created`.
 - `PUT /articles/:articleId` updates the shared fields that are sent and
@@ -538,9 +545,9 @@ Article POST and PUT bodies use JSON. Each request writes one language.
 
 | Field                  | Type           | Rules                                                               |
 | ---------------------- | -------------- | ------------------------------------------------------------------- |
-| `language_id`          | number         | Required; ID of an active language.                                 |
+| `language_id`          | string         | Required; ID of an active language.                                 |
 | `title`                | string         | Required; maximum 120 characters.                                   |
-| `slug`                 | string         | Required; maximum 255 characters; unique within the language.       |
+| `slug`                 | string         | Required; maximum 255 characters; unique across all languages.      |
 | `summary`              | string         | Required.                                                           |
 | `content`              | string         | Required.                                                           |
 | `status`               | string         | Required; `DRAFT` or `PUBLISHED`; applies to this language only.    |
@@ -591,8 +598,7 @@ Article detail response:
     "contents": [
       {
         "id": 40,
-        "language_id": 1,
-        "abbreviated_language": "ID",
+        "language_id": "id",
         "title": "Kantor layanan baru dibuka",
         "slug": "kantor-layanan-baru-dibuka",
         "summary": "Ringkasan singkat.",
@@ -618,7 +624,7 @@ const response = await fetch(`${API_BASE_URL}/articles`, {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     article_category_id: 3,
-    language_id: 1,
+    language_id: 'id',
     title: 'Kantor layanan baru dibuka',
     slug: 'kantor-layanan-baru-dibuka',
     summary: 'Ringkasan singkat.',
@@ -638,7 +644,12 @@ if (!response.ok) throw new Error(data.message);
 Division and service reads are public. Creating, updating, deleting, and
 reordering require an authenticated session and the configured frontend
 `Origin` or `Referer`, as described under [Browser Sessions](#browser-sessions).
-Requests use JSON.
+Requests use JSON. Names, abbreviations, and descriptions are stored per
+language and returned in a `contents` array ordered by the language registry's
+`sort_order` and language ID. Responses include only translations that exist;
+clients choose the language to display and handle a missing translation.
+Create requests and updates to translated fields require an active
+`language_id`; unknown or inactive language IDs return `400 Bad Request`.
 
 ### Divisions
 
@@ -655,26 +666,33 @@ Requests use JSON.
 - `DELETE /divisions/:divisionId` returns `204 No Content`. Deleting a division
   also deletes its services and compacts the remaining divisions' order.
 
-Create and update bodies accept these fields:
+Create bodies accept these fields:
 
-| Field      | Type           | Rules                                                            |
-| ---------- | -------------- | ---------------------------------------------------------------- |
-| `name`     | string         | Required on create; trimmed; 1–200 characters.                   |
-| `abbr`     | string         | Required on create; trimmed; 1–50 characters.                    |
-| `icon_svg` | string or null | Optional; omitted on update to keep the current value.           |
-| `status`   | string         | Optional; `DRAFT` or `PUBLISHED`; defaults to `DRAFT` on create. |
+| Field         | Type           | Rules                                                                 |
+| ------------- | -------------- | --------------------------------------------------------------------- |
+| `language_id` | string         | Required; active language code such as `id`; normalized to lowercase. |
+| `name`        | string         | Required; trimmed; 1–200 characters.                                  |
+| `abbr`        | string         | Required; trimmed; 1–50 characters.                                   |
+| `description` | string or null | Optional; no length limit; blank string becomes `null`.               |
+| `icon_svg`    | string or null | Optional.                                                             |
+| `status`      | string         | Optional; `DRAFT` or `PUBLISHED`; defaults to `DRAFT` on create.      |
 
-On update, omitted fields remain unchanged. Send `null` for `icon_svg` to clear
-it. The authenticated user's name is stored in `created_by`; updates set
-`updated_by` and `updated_at`.
+Update bodies are partial. Updating `icon_svg` or `status` does not require a
+language. Updating `name`, `abbr`, or `description` requires `language_id`.
+Existing translations can be partially updated; adding a translation requires
+both `name` and `abbr`. Send `null` for `icon_svg` or `description` to clear it.
+The authenticated user's name is stored in `created_by`; updates set
+`updated_by` and `updated_at` on the division.
 
 Example create request:
 
 ```json
 {
+  "language_id": "en",
   "name": "Customer Services",
   "abbr": "CS",
   "icon_svg": "<svg></svg>",
+  "description": "Energy management services for organizations.",
   "status": "PUBLISHED"
 }
 ```
@@ -685,16 +703,34 @@ The response shape is:
 {
   "division": {
     "id": 1,
-    "name": "Customer Services",
-    "abbr": "CS",
     "icon_svg": "<svg></svg>",
     "status": "PUBLISHED",
     "sort_order": 1,
     "created_at": "2026-10-11T10:30:00.000Z",
     "created_by": "Ari Putra",
     "updated_at": null,
-    "updated_by": null
+    "updated_by": null,
+    "contents": [
+      {
+        "language_id": "en",
+        "name": "Customer Services",
+        "abbr": "CS",
+        "description": "Energy management services for organizations."
+      }
+    ]
   }
+}
+```
+
+For example, add Indonesian content to the same division with
+`PUT /divisions/1`:
+
+```json
+{
+  "language_id": "id",
+  "name": "Layanan Pelanggan",
+  "abbr": "LP",
+  "description": "Layanan manajemen energi untuk organisasi."
 }
 ```
 
@@ -724,14 +760,40 @@ divisions. Invalid status values and unknown query parameters return
   destination division and compacts its former division.
 - `POST /services/reorder` reorders all services for one division and returns
   `{ "services": [...] }` with `200 OK`.
-- `DELETE /services/:serviceId` returns `204 No Content`.
+- `DELETE /services/:serviceId` returns `204 No Content` and removes its
+  gallery links without deleting media records.
 
-Service create and update bodies accept `division_id` (positive integer ID of
-an existing division) and `name` (required on create; trimmed; 1–200
-characters). Updates are partial; omitted fields remain unchanged. New
+Service create and update bodies accept these fields:
+
+| Field         | Type              | Rules                                                                        |
+| ------------- | ----------------- | ---------------------------------------------------------------------------- |
+| `language_id` | string            | Required on create; active language code.                                    |
+| `division_id` | integer           | Positive ID of an existing division; required on create.                     |
+| `name`        | string            | Required on create; trimmed; 1–200 characters.                               |
+| `description` | string or null    | Optional; no length limit; blank string becomes `null`.                      |
+| `media_ids`   | array of integers | Optional; unique positive IDs of existing `PICTURE` media, in display order. |
+
+Updates are partial; omitted fields remain unchanged. Updating `name` or
+`description` requires `language_id`. Existing translations can be partially
+updated; adding a translation requires `name`. On create, an omitted
+`media_ids` creates an empty gallery. On update, an omitted `media_ids` keeps
+the current gallery; sending an array replaces it, and `[]` clears it. Invalid,
+duplicate, missing, or non-picture media IDs return `400 Bad Request`. New
 services append after the division's current maximum `sort_order`. The
 authenticated user's name is stored in `created_by`; updates set `updated_by`
-and `updated_at`.
+and `updated_at` on the service.
+
+Example create request:
+
+```json
+{
+  "language_id": "en",
+  "division_id": 1,
+  "name": "Customer Support",
+  "description": "Support for energy management initiatives.",
+  "media_ids": [24, 31]
+}
+```
 
 For example, `GET /services/:serviceId` returns:
 
@@ -740,23 +802,54 @@ For example, `GET /services/:serviceId` returns:
   "service": {
     "id": 12,
     "division_id": 1,
-    "name": "Customer Support",
     "sort_order": 1,
     "created_at": "2026-10-11T10:30:00.000Z",
     "created_by": "Ari Putra",
     "updated_at": null,
     "updated_by": null,
+    "contents": [
+      {
+        "language_id": "en",
+        "name": "Customer Support",
+        "description": "Support for energy management initiatives."
+      }
+    ],
+    "media": [
+      {
+        "id": 24,
+        "filename": "customer-support.jpg",
+        "path": "/public/media/customer-support.jpg",
+        "extension": "jpg",
+        "type": "PICTURE",
+        "size": 245760,
+        "metadata": { "width": 1600, "height": 900 },
+        "created_by": "Ari Putra",
+        "created_at": "2026-10-11T10:20:00.000Z"
+      }
+    ],
     "division": {
       "id": 1,
-      "name": "Customer Services",
-      "abbr": "CS",
       "icon_svg": null,
       "status": "PUBLISHED",
       "sort_order": 1,
       "created_at": "2026-10-11T10:00:00.000Z",
       "created_by": "Ari Putra",
       "updated_at": null,
-      "updated_by": null
+      "updated_by": null,
+      "contents": [
+        {
+          "language_id": "id",
+          "name": "Layanan Pelanggan",
+          "abbr": "LP",
+          "description": null
+        },
+        {
+          "language_id": "en",
+          "name": "Customer Services",
+          "abbr": "CS",
+          "description": null
+        }
+      ]
     }
   }
 }
@@ -991,7 +1084,8 @@ The bulk delete response is:
 ```
 
 Deleting media also clears any Article `primary_photo` relation that references
-it. The stored file is removed after the database deletion commits.
+it and removes any service gallery links that reference it. The stored file is
+removed after the database deletion commits.
 
 ## Article Categories
 
@@ -1445,17 +1539,26 @@ const { inboxes, pagination } = await response.json();
 ## Site Settings
 
 Site settings hold the company identity, contact details, and social media
-links shown in the landing page navbar, footer, and "Hubungi Kami" page. There
-is a single settings record (`id` is always `1`).
+links shown in the landing page navbar, footer, and "Hubungi Kami" page. Each
+setting is a key/value row per language; keys are seeded master data for each
+language. Social media items are shared by all languages.
 
-- `GET /site_settings` is public and returns `{ "site_settings": ... }` with
-  `200 OK`, or `{ "site_settings": null }` before the first save. Signed-in
-  users receive every social media item; everyone else receives only
-  `PUBLISHED` items.
+Company location coordinates are sent and returned as numbers. Latitude must
+be between `-90` and `90`, and longitude between `-180` and `180`.
+
+In the response, configured text keys are strings (`""` until a value is
+saved), while unset coordinates are `null`. A key with no row for that
+language is also `null`. The CMS disables inputs whose key is `null`.
+
+- `GET /site_settings?language_id=id` is public and returns
+  `{ "site_settings": ... }` with `200 OK`. `language_id` is optional and
+  defaults to Bahasa Indonesia (`id`); an unknown or inactive language returns
+  `400 Bad Request`. Signed-in users receive every social media item; everyone
+  else receives only `PUBLISHED` items.
 - `PUT /site_settings` requires an authenticated session and the configured
-  frontend `Origin` or `Referer`. It creates or replaces the settings and the
-  whole social media list, and returns `{ "site_settings": ... }` with
-  `200 OK`.
+  frontend `Origin` or `Referer`. It saves the setting values for
+  `language_id`, replaces the whole social media list, and returns
+  `{ "site_settings": ... }` for that language with `200 OK`.
 
 `PUT /site_settings` uses `multipart/form-data`:
 
@@ -1468,19 +1571,22 @@ is a single settings record (`id` is always `1`).
 
 The `data` payload:
 
-| Field                     | Type           | Rules                                                       |
-| ------------------------- | -------------- | ----------------------------------------------------------- |
-| `company_name`            | string         | Required; trimmed; 1–200 characters.                        |
-| `company_short_name`      | string \| null | Optional; up to 50 characters; blank is `null`.             |
-| `company_address`         | string         | Required; trimmed; 1–500 characters.                        |
-| `company_phone_number`    | string \| null | Optional; up to 30 characters; blank is `null`.             |
-| `company_whatsapp_number` | string \| null | Optional; up to 30 characters; blank is `null`.             |
-| `main_email`              | string \| null | Optional; valid email; blank is `null`.                     |
-| `marketing_email`         | string \| null | Optional; valid email; blank is `null`.                     |
-| `operational_day`         | string \| null | Optional; up to 100 characters, e.g. `"Senin - Jumat"`.     |
-| `operational_start_time`  | string \| null | Optional; `HH:mm`. Must be sent together with the end time. |
-| `operational_end_time`    | string \| null | Optional; `HH:mm`; must be after the start time.            |
-| `social_medias`           | array          | Required (may be empty); up to 20 items, in display order.  |
+| Field                     | Type           | Rules                                                         |
+| ------------------------- | -------------- | ------------------------------------------------------------- |
+| `language_id`             | string         | Required; ID of an active language.                           |
+| `company_name`            | string         | Required; trimmed; 1–200 characters.                          |
+| `company_short_name`      | string \| null | Optional; up to 50 characters; blank is `null`.               |
+| `company_address`         | string         | Required; trimmed; 1–500 characters.                          |
+| `company_location_lat`    | number \| null | Optional; latitude from `-90` to `90`; `null` clears it.      |
+| `company_location_long`   | number \| null | Optional; longitude from `-180` to `180`; `null` clears it.   |
+| `company_phone_number`    | string \| null | Optional; up to 30 characters; blank is `null`.               |
+| `company_whatsapp_number` | string \| null | Optional; up to 30 characters; blank is `null`.               |
+| `main_email`              | string \| null | Optional; valid email; blank is `null`.                       |
+| `marketing_email`         | string \| null | Optional; valid email; blank is `null`.                       |
+| `operational_day`         | string \| null | Optional; up to 100 characters, e.g. `"Senin - Jumat"`.       |
+| `operational_start_time`  | string \| null | Optional; `HH:mm`. Must be sent together with the end time.   |
+| `operational_end_time`    | string \| null | Optional; `HH:mm`. Must be sent together with the start time. |
+| `social_medias`           | array          | Required (may be empty); up to 20 items, in display order.    |
 
 Each `social_medias` item:
 
@@ -1501,8 +1607,16 @@ Uploaded SVG files are sanitized: scripts, event handlers, `foreignObject`, and
 `javascript:` links are removed, and a file with no valid `<svg>` left returns
 `400 Bad Request`. Logos are stored at `/public/site-logo-{name}-{timestamp}.{extension}`
 and icons at `/public/site-social-medias/site-social-media-{name}-{timestamp}.svg`.
-`*_metadata` is the pixel `width` and `height` for raster images and `{}` for
-SVG.
+Only the logo filepath is kept. `icon_metadata` is the pixel `width` and
+`height` for raster images and `{}` for SVG.
+
+Omitted optional fields keep their stored value. Sending a field, or uploading
+a logo, whose key has no row for `language_id` returns `400 Bad Request` with
+`Input key not configured for this language.`
+
+Top-level `created_*` comes from that language's earliest setting row and
+`updated_*` from its most recently updated one; both are `null` when the
+language has no rows.
 
 Example browser request:
 
@@ -1511,9 +1625,12 @@ const formData = new FormData();
 formData.append(
   'data',
   JSON.stringify({
+    language_id: 'id',
     company_name: 'PT Energy Management Indonesia (Persero)',
     company_short_name: 'PLN EMI',
     company_address: 'Menara Sentraya Lt. 17, Jakarta Selatan 12160',
+    company_location_lat: -6.2249,
+    company_location_long: 106.8172,
     company_phone_number: '021-27881925',
     company_whatsapp_number: '0821-1779-291',
     main_email: 'emi@pln.co.id',
@@ -1555,20 +1672,14 @@ The response shape is:
 ```json
 {
   "site_settings": {
-    "id": 1,
+    "language_id": "id",
     "company_name": "PT Energy Management Indonesia (Persero)",
     "company_short_name": "PLN EMI",
-    "danantara_logo_filename": null,
-    "danantara_logo_filepath": null,
-    "danantara_logo_extension": null,
-    "danantara_logo_size": null,
-    "danantara_logo_metadata": null,
-    "pln_logo_filename": "site-logo-pln-emi-1792136400000.svg",
+    "danantara_logo_filepath": "",
     "pln_logo_filepath": "/public/site-logo-pln-emi-1792136400000.svg",
-    "pln_logo_extension": "svg",
-    "pln_logo_size": 6,
-    "pln_logo_metadata": {},
     "company_address": "Menara Sentraya Lt. 17, Jakarta Selatan 12160",
+    "company_location_lat": -6.2249,
+    "company_location_long": 106.8172,
     "company_phone_number": "021-27881925",
     "company_whatsapp_number": "0821-1779-291",
     "main_email": "emi@pln.co.id",
@@ -1594,17 +1705,18 @@ The response shape is:
         "updated_by": null
       }
     ],
-    "created_at": "2026-10-16T10:30:00.000Z",
-    "created_by": "Ari Putra",
-    "updated_at": null,
-    "updated_by": null
+    "created_at": "2026-10-16T10:00:00.000Z",
+    "created_by": "system",
+    "updated_at": "2026-10-16T10:30:00.000Z",
+    "updated_by": "Ari Putra"
   }
 }
 ```
 
-Invalid fields, files, or `icon_index` references return `400 Bad Request`; an
-unknown social media `id` returns `404 Not Found`; files over their size limit
-return `413 Payload Too Large`.
+Invalid fields, files, or `icon_index` references return
+`400 Bad Request`; an unknown social media `id` returns
+`404 Not Found`; files over their size limit return `413 Payload Too Large`; a
+setting key missing from the seed returns `500 Internal Server Error`.
 
 ## Public Static Assets
 
@@ -1624,14 +1736,14 @@ available at
 
 ## Article, Category, Media, and Document Commitment Errors
 
-| Status                  | Description                                                                                         |
-| ----------------------- | --------------------------------------------------------------------------------------------------- |
-| `400 Bad Request`       | Invalid ID, body or query value, category, media or language reference, or uploaded PDF.            |
-| `401 Unauthorized`      | A write request does not have a valid session.                                                      |
-| `403 Forbidden`         | A write request has a missing or disallowed `Origin`/`Referer`.                                     |
-| `404 Not Found`         | The requested article, category, media, or document commitment does not exist.                      |
-| `409 Conflict`          | Article slug (per language), category slug, media filename, or document filename is already in use. |
-| `413 Payload Too Large` | An uploaded file exceeds the limit for its media type or document commitment.                       |
+| Status                  | Description                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `400 Bad Request`       | Invalid ID, body or query value, category, media or language reference, or uploaded PDF. |
+| `401 Unauthorized`      | A write request does not have a valid session.                                           |
+| `403 Forbidden`         | A write request has a missing or disallowed `Origin`/`Referer`.                          |
+| `404 Not Found`         | The requested article, category, media, or document commitment does not exist.           |
+| `409 Conflict`          | Article slug, category slug, media filename, or document filename is already in use.     |
+| `413 Payload Too Large` | An uploaded file exceeds the limit for its media type or document commitment.            |
 
 ## Health Check
 

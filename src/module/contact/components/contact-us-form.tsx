@@ -2,22 +2,21 @@
 
 import {
   ArrowRight,
-  AtSign,
   Clock,
   Globe2,
   Mail,
   MapPin,
   Phone,
-  Play,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import * as React from "react";
 
 import {
   contactPageContent,
   type ContactDetail,
   type ContactDetailIcon,
-  type ContactSocialIcon,
+  type ContactPageSettings,
 } from "@/module/contact/content/contact";
 import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
@@ -67,29 +66,22 @@ function ContactDetailItem({ detail }: { detail: ContactDetail }) {
   );
 }
 
-function SocialIcon({ icon }: { icon: ContactSocialIcon }) {
-  switch (icon) {
-    case "website":
-      return <Globe2 aria-hidden="true" className="size-3.5" />;
-    case "linkedin":
-      return (
-        <span aria-hidden="true" className="text-xs font-bold">
-          in
-        </span>
-      );
-    case "x":
-      return (
-        <span aria-hidden="true" className="text-xs font-medium">
-          𝕏
-        </span>
-      );
-    case "email":
-      return <AtSign aria-hidden="true" className="size-3.5" />;
-    case "youtube":
-      return (
-        <Play aria-hidden="true" className="size-3.5" fill="currentColor" />
-      );
+function SocialIcon({ iconUrl }: { iconUrl: string | null }) {
+  if (iconUrl) {
+    return (
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="size-3.5 object-contain"
+        height={14}
+        src={iconUrl}
+        unoptimized
+        width={14}
+      />
+    );
   }
+
+  return <Globe2 aria-hidden="true" className="size-3.5" />;
 }
 
 function RequiredIndicator() {
@@ -101,9 +93,18 @@ function RequiredIndicator() {
   );
 }
 
-export function ContactUsForm() {
+export function ContactUsForm({
+  contactSettings,
+}: {
+  contactSettings: ContactPageSettings | null;
+}) {
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const formContent = contactPageContent.form;
+  const contactDetails = contactSettings?.details ?? [];
+  const mapLabel = contactSettings?.mapLabel ?? null;
+  const socialLinks = contactSettings?.socialLinks ?? [];
+  const hasContactInfo =
+    contactDetails.length > 0 || mapLabel !== null || socialLinks.length > 0;
   const defaultSubject = formContent.subjectOptions[0];
   const [selectedSubject, setSelectedSubject] = React.useState(defaultSubject);
   const [formTitleStart, ...formTitleAccent] = formContent.title.split(" ");
@@ -123,63 +124,79 @@ export function ContactUsForm() {
       variant="default"
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-        <section className="border-foreground/10 bg-background shadow-foreground/10 flex min-w-0 flex-1 flex-col rounded-2xl border p-6 shadow-lg sm:p-7 lg:basis-1/2">
-          <h2 className="sr-only" id="contact-details-heading">
-            Contact details
-          </h2>
+        {hasContactInfo ? (
+          <section className="border-foreground/10 bg-background shadow-foreground/10 flex min-w-0 flex-1 flex-col rounded-2xl border p-6 shadow-lg sm:p-7 lg:basis-1/2">
+            <h2 className="sr-only" id="contact-details-heading">
+              Contact details
+            </h2>
 
-          <ul aria-label="PLN EMI contact details" className="flex flex-col">
-            {contactPageContent.details.map((detail) => (
-              <ContactDetailItem detail={detail} key={detail.label} />
-            ))}
-          </ul>
+            {contactDetails.length > 0 ? (
+              <ul
+                aria-label="PLN EMI contact details"
+                className="flex flex-col"
+              >
+                {contactDetails.map((detail) => (
+                  <ContactDetailItem detail={detail} key={detail.label} />
+                ))}
+              </ul>
+            ) : null}
 
-          <div
-            aria-label="PLN EMI head office location"
-            className="bg-primary relative isolate mt-5 min-h-40 flex-1 overflow-hidden rounded-xl p-3"
-          >
-            <div
-              aria-hidden="true"
-              className="from-background/75 via-primary to-secondary/20 absolute inset-0 bg-linear-to-br"
-            />
-            <div
-              aria-hidden="true"
-              className="border-background/50 absolute top-5 left-8 size-24 rounded-full border"
-            />
-            <div
-              aria-hidden="true"
-              className="border-background/40 absolute right-5 bottom-8 size-16 rounded-full border"
-            />
-            <MapPin
-              aria-hidden="true"
-              className="text-secondary absolute inset-0 m-auto size-8 drop-shadow-sm"
-              fill="currentColor"
-              strokeWidth={1.5}
-            />
-            <span className="text-accent bg-background absolute inset-x-3 bottom-3 w-fit rounded-lg px-3 py-2 text-[0.65rem] font-bold shadow-sm">
-              {contactPageContent.mapLabel}
-            </span>
-          </div>
+            {mapLabel ? (
+              <div
+                aria-label="PLN EMI head office location"
+                className="bg-primary relative isolate mt-5 min-h-40 flex-1 overflow-hidden rounded-xl p-3"
+              >
+                <div
+                  aria-hidden="true"
+                  className="from-background/75 via-primary to-secondary/20 absolute inset-0 bg-linear-to-br"
+                />
+                <div
+                  aria-hidden="true"
+                  className="border-background/50 absolute top-5 left-8 size-24 rounded-full border"
+                />
+                <div
+                  aria-hidden="true"
+                  className="border-background/40 absolute right-5 bottom-8 size-16 rounded-full border"
+                />
+                <MapPin
+                  aria-hidden="true"
+                  className="text-secondary absolute inset-0 m-auto size-8 drop-shadow-sm"
+                  fill="currentColor"
+                  strokeWidth={1.5}
+                />
+                <span className="text-accent bg-background absolute inset-x-3 bottom-3 w-fit max-w-full rounded-lg px-3 py-2 text-[0.65rem] font-bold whitespace-normal shadow-sm">
+                  {mapLabel}
+                </span>
+              </div>
+            ) : null}
 
-          <ul
-            aria-label="Social and contact links"
-            className="mt-4 flex items-center gap-2"
-          >
-            {contactPageContent.socialLinks.map((link) => (
-              <li key={link.label}>
-                <a
-                  aria-label={link.label}
-                  className="border-foreground/15 text-secondary hover:border-secondary hover:bg-primary focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                  href={link.href}
-                >
-                  <SocialIcon icon={link.icon} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+            {socialLinks.length > 0 ? (
+              <ul
+                aria-label="Social and contact links"
+                className="mt-4 flex items-center gap-2"
+              >
+                {socialLinks.map((link) => (
+                  <li key={link.id}>
+                    <a
+                      aria-label={link.label}
+                      className="border-foreground/15 text-secondary hover:border-secondary hover:bg-primary focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                      href={link.href}
+                    >
+                      <SocialIcon iconUrl={link.iconUrl} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        ) : null}
 
-        <section className="border-foreground/10 bg-background shadow-foreground/10 min-w-0 flex-1 rounded-2xl border p-6 shadow-lg sm:p-7 lg:basis-1/2">
+        <section
+          className={cn(
+            "border-foreground/10 bg-background shadow-foreground/10 min-w-0 flex-1 rounded-2xl border p-6 shadow-lg sm:p-7",
+            hasContactInfo && "lg:basis-1/2",
+          )}
+        >
           <h2
             className="text-accent font-sans text-2xl leading-tight font-bold tracking-tight sm:text-3xl"
             id="contact-form-heading"

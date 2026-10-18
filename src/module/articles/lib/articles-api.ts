@@ -3,16 +3,16 @@ import "server-only";
 import { cache } from "react";
 
 import {
-  ApiClientError,
-  apiGet,
-  resolveApiAssetUrl,
-} from "@/shared/lib/api-client";
-import {
   articleMediaToneClassNames,
   type Article,
   type ArticleCategory,
   type ArticleMediaTone,
 } from "@/module/articles/content/articles";
+import {
+  ApiClientError,
+  apiGet,
+  resolveApiAssetUrl,
+} from "@/shared/lib/api-client";
 
 const ARTICLES_PER_PAGE = 7;
 const HOME_ARTICLE_LIMIT = 5;
@@ -22,14 +22,12 @@ const mediaTones = Object.keys(
 ) as ArticleMediaTone[];
 
 type ApiLanguage = {
-  abbreviated_language: string;
-  id: number;
-  is_active: boolean;
+  id: string;
 };
 
 type ApiArticleContent = {
   content: string;
-  language_id: number;
+  language_id: string;
   read_time: number;
   slug: string;
   status: "DRAFT" | "PUBLISHED";
@@ -51,7 +49,7 @@ type ApiArticle = {
   status?: "DRAFT" | "PUBLISHED";
   summary?: string;
   title?: string;
-  language_id?: number;
+  language_id?: string;
 };
 
 type ApiArticleListResponse = {
@@ -106,11 +104,7 @@ function getMediaUrl(path: string | null) {
 
 const getIndonesianLanguageId = cache(async () => {
   const { languages } = await apiGet<ApiLanguagesResponse>("/languages");
-  const indonesianLanguage = languages.find(
-    (language) =>
-      language.is_active &&
-      language.abbreviated_language.toUpperCase() === "ID",
-  );
+  const indonesianLanguage = languages.find((language) => language.id === "id");
 
   if (!indonesianLanguage) {
     throw new ArticlesApiError("Indonesian article content is unavailable.");
@@ -149,6 +143,13 @@ function formatArticleDate(dateValue: string) {
 }
 
 function mapArticle(article: ApiArticle): Article {
+  const content = article.contents?.[0];
+  const slug = content?.slug ?? article.slug;
+
+  if (!slug) {
+    throw new ArticlesApiError("An article is missing its slug.");
+  }
+
   const date = formatArticleDate(article.issue_date ?? article.created_at);
   const tone = mediaTones[article.id % mediaTones.length];
 
@@ -156,21 +157,22 @@ function mapArticle(article: ApiArticle): Article {
     author: article.cp_name,
     category: article.article_category?.name ?? "Articles",
     categoryId: article.article_category_id,
-    content: article.contents?.[0]?.content ?? "",
+    content: content?.content ?? "",
     date: date.date,
     dateTime: date.dateTime,
-    description: article.contents?.[0]?.summary ?? article.summary ?? "",
+    description: content?.summary ?? article.summary ?? "",
     id: article.id,
     imageUrl: getMediaUrl(article.primary_photo_url),
     mediaTone: tone,
-    readTime: `${article.contents?.[0]?.read_time ?? article.read_time ?? 1} min read`,
-    title: article.contents?.[0]?.title ?? article.title ?? "",
+    readTime: `${content?.read_time ?? article.read_time ?? 1} min read`,
+    slug,
+    title: content?.title ?? article.title ?? "",
   };
 }
 
 async function getPublishedArticlePage(options: {
   categoryId?: number;
-  languageId: number;
+  languageId: string;
   limit: number;
   page: number;
 }) {
@@ -265,14 +267,13 @@ export async function getArticleListingData(options: {
   };
 }
 
-export const getArticleById = cache(
-  async (articleId: number): Promise<Article | null> => {
-    const languageId = await getIndonesianLanguageId();
+export const getArticleBySlug = cache(
+  async (slug: string): Promise<Article | null> => {
     let response: ApiArticleDetailResponse;
 
     try {
       response = await apiGet<ApiArticleDetailResponse>(
-        `/articles/${articleId}`,
+        `/articles/slug/${encodeURIComponent(slug)}`,
       );
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 404) {
@@ -284,7 +285,7 @@ export const getArticleById = cache(
 
     const article = response.article;
     const content = article.contents?.find(
-      (item) => item.language_id === languageId && item.status === "PUBLISHED",
+      (item) => item.slug === slug && item.status === "PUBLISHED",
     );
 
     if (!content) {
@@ -294,12 +295,11 @@ export const getArticleById = cache(
     return mapArticle({
       ...article,
       contents: [content],
-      language_id: languageId,
+      slug: content.slug,
       status: content.status,
       summary: content.summary,
       title: content.title,
       read_time: content.read_time,
-      slug: content.slug,
     });
   },
 );

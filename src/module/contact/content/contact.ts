@@ -17,13 +17,17 @@ export type ContactDetail = {
   value: string;
 };
 
-export type ContactSocialIcon =
-  "website" | "linkedin" | "x" | "email" | "youtube";
-
 export type ContactSocialLink = {
-  icon: ContactSocialIcon;
+  iconUrl: string | null;
+  id: number;
   label: string;
   href: string;
+};
+
+export type ContactPageSettings = {
+  details: ContactDetail[];
+  mapLabel: string | null;
+  socialLinks: ContactSocialLink[];
 };
 
 export type ContactFaqItem = {
@@ -39,37 +43,6 @@ export const contactPageContent = {
     description:
       "Connect with our team of experts. We're here to help you navigate energy efficiency, compliance, and climate action.",
   },
-  details: [
-    {
-      icon: "office",
-      label: "HEAD OFFICE",
-      value:
-        "Menara Sentraya Lt. 17, Unit A4 & B5, Jl. Iskandarsyah Raya No.1A, Melawai, Kebayoran Baru, Jakarta Selatan, DKI Jakarta 12160",
-    },
-    {
-      icon: "phone",
-      label: "PHONE / WHATSAPP",
-      value: "021–27881925 · WA 0821–1779–291 (Corp. Marketing PLN EMI)",
-    },
-    {
-      icon: "email",
-      label: "EMAIL",
-      value: "emi@pln.co.id\npemasaran@emipersero.co.id",
-    },
-    {
-      icon: "hours",
-      label: "OFFICE HOURS",
-      value: "Monday – Friday, 08.00 – 17.00 WIB",
-    },
-  ] satisfies readonly ContactDetail[],
-  mapLabel: "Menara Sentraya, Jakarta Selatan",
-  socialLinks: [
-    { icon: "website", label: "Company website", href: "#footer" },
-    { icon: "linkedin", label: "LinkedIn", href: "#footer" },
-    { icon: "x", label: "X", href: "#footer" },
-    { icon: "email", label: "Email", href: "mailto:emi@pln.co.id" },
-    { icon: "youtube", label: "YouTube", href: "#footer" },
-  ] satisfies readonly ContactSocialLink[],
   form: {
     title: "Send Us a Message",
     description:
