@@ -7,6 +7,7 @@ import { HomeHero } from "@/module/home/components/home-hero";
 import { getHomeSiteContentData } from "@/module/home/lib/home-content-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
+import { getPartners } from "@/module/partners/lib/clients-api";
 import { PartnersSection } from "@/module/partners/components/partners-section";
 import { ServicesSection } from "@/module/services/components/services-section";
 import { getServiceDirectoryData } from "@/module/services/lib/services-api";
@@ -25,11 +26,13 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const categoryValue = getFirstSearchParamValue(params.homeCategory);
   const categoryId = parsePositiveInteger(categoryValue);
-  const [homeResult, articleResult, servicesResult] = await Promise.allSettled([
-    getHomeSiteContentData(),
-    getHomeArticleData(categoryId),
-    getServiceDirectoryData(),
-  ]);
+  const [homeResult, articleResult, servicesResult, partnersResult] =
+    await Promise.allSettled([
+      getHomeSiteContentData(),
+      getHomeArticleData(categoryId),
+      getServiceDirectoryData(),
+      getPartners(),
+    ]);
   const homeData = homeResult.status === "fulfilled" ? homeResult.value : null;
   const homeError = homeResult.status === "rejected";
   const articleData =
@@ -38,6 +41,9 @@ export default async function Home({ searchParams }: HomeProps) {
   const servicesData =
     servicesResult.status === "fulfilled" ? servicesResult.value : null;
   const servicesError = servicesResult.status === "rejected";
+  const partnersData =
+    partnersResult.status === "fulfilled" ? partnersResult.value : null;
+  const partnersError = partnersResult.status === "rejected";
 
   return (
     <div className="bg-background text-foreground min-h-screen">
@@ -47,7 +53,7 @@ export default async function Home({ searchParams }: HomeProps) {
         <HomeHero error={homeError} slides={homeData?.slides ?? []} />
         <AboutUsSection data={homeData} error={homeError} />
         <ServicesSection data={servicesData} error={servicesError} />
-        <PartnersSection />
+        <PartnersSection data={partnersData} error={partnersError} />
         <ArticlesSection data={articleData} error={articlesError} />
         <CommitmentSection />
         <ContactUsSection />

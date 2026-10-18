@@ -1,9 +1,15 @@
 import { PartnerCard } from "@/module/partners/components/partner-card";
-import { partners } from "@/module/partners/content/partners";
+import type { Partner } from "@/module/partners/content/partners";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
 
-export function PartnersSection() {
+type PartnersSectionProps = {
+  data: Partner[] | null;
+  error: boolean;
+};
+
+export function PartnersSection({ data, error }: PartnersSectionProps) {
   return (
     <SectionContainer
       aria-labelledby="partners-heading"
@@ -14,11 +20,7 @@ export function PartnersSection() {
       <SectionIntro
         accent="Partners"
         description={
-          <>
-            We are proud to partner with leading organizations across various
-            industries, driving energy efficiency and sustainability solutions
-            together. <em>(Logo asli diunggah via CMS.)</em>
-          </>
+          "We are proud to partner with leading organizations across various industries, driving energy efficiency and sustainability solutions together."
         }
         eyebrow="PARTNER PLN EMI"
         headingId="partners-heading"
@@ -26,16 +28,26 @@ export function PartnersSection() {
         title="Our"
       />
 
-      <ul
-        aria-label="PLN EMI partners"
-        className="-m-2 mt-10 flex flex-wrap lg:mt-8"
-      >
-        {partners.map((partner) => (
-          <li className="w-1/2 p-2 lg:w-1/4" key={partner.name}>
-            <PartnerCard partner={partner} />
-          </li>
-        ))}
-      </ul>
+      {error ? (
+        <ContentStatus
+          description="Client logos are currently unavailable."
+          title="Partners are temporarily unavailable."
+          variant="error"
+        />
+      ) : null}
+
+      {!error && data && data.length > 0 ? (
+        <ul
+          aria-label="PLN EMI partners"
+          className="-m-2 mt-10 flex flex-wrap lg:mt-8"
+        >
+          {data.map((partner) => (
+            <li className="w-1/2 p-2 lg:w-1/4" key={partner.id}>
+              <PartnerCard partner={partner} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </SectionContainer>
   );
 }
