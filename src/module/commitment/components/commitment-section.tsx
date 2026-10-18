@@ -2,8 +2,11 @@ import { CommitmentCard } from "@/module/commitment/components/commitment-card";
 import { commitmentItems } from "@/module/commitment/content/commitment";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
+import { useCopy } from "@/i18n/use-copy";
 
 export function CommitmentSection() {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="commitment-heading"
@@ -12,17 +15,19 @@ export function CommitmentSection() {
       variant="default"
     >
       <SectionIntro
-        accent="Commitment"
-        action={{ href: "/commitments", label: "Document Library" }}
-        description="Certifications, corporate policies, and sustainability reports — the documents behind our promises, available for download."
-        eyebrow="COMMITMENT"
+        accent={copy("Commitment heading accent")}
+        action={{ href: "/commitments", label: copy("Document Library") }}
+        description={copy(
+          "Certifications, corporate policies, and sustainability reports — the documents behind our promises, available for download.",
+        )}
+        eyebrow={copy("COMMITMENT")}
         headingId="commitment-heading"
         theme="light"
-        title="Our"
+        title={copy("Commitment heading title")}
       />
 
       <ul
-        aria-label="PLN EMI commitment resources"
+        aria-label={copy("PLN EMI commitment resources")}
         className="-m-2 mt-10 flex flex-wrap lg:mt-12"
       >
         {commitmentItems.map((item) => (

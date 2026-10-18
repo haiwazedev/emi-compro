@@ -7,27 +7,38 @@ import {
 } from "@/module/articles/lib/articles-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
+import { getLocalizedMetadata } from "@/i18n/metadata";
+import type { Locale } from "@/i18n/routing";
 import {
   getFirstSearchParamValue,
   parsePositiveInteger,
 } from "@/shared/lib/utils";
 
-export const metadata: Metadata = {
-  title: "News & Articles | PLN EMI",
-  description:
-    "Trusted updates on PLN EMI business developments, innovation, and contribution to energy resilience and sustainable growth.",
-};
-
 type ArticlesPageProps = {
+  params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
     category?: string | string[];
     page?: string | string[];
   }>;
 };
 
+export async function generateMetadata({
+  params,
+}: ArticlesPageProps): Promise<Metadata> {
+  const { locale } = await params;
+
+  return getLocalizedMetadata(
+    locale,
+    "News & Articles | PLN EMI",
+    "Trusted updates on PLN EMI business developments, innovation, and contribution to energy resilience and sustainable growth.",
+  );
+}
+
 export default async function ArticlesPage({
+  params: routeParams,
   searchParams,
 }: ArticlesPageProps) {
+  const { locale } = await routeParams;
   const params = await searchParams;
   const categoryValue = getFirstSearchParamValue(params.category);
   const pageValue = getFirstSearchParamValue(params.page);
@@ -37,7 +48,7 @@ export default async function ArticlesPage({
   let error = false;
 
   try {
-    data = await getArticleListingData({ categoryId, page });
+    data = await getArticleListingData({ categoryId, locale, page });
   } catch {
     error = true;
   }

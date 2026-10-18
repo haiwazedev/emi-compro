@@ -15,6 +15,7 @@ export const articleMediaToneClassNames: Record<ArticleMediaTone, string> = {
 };
 
 export type Article = {
+  alternateSlugs: Partial<Record<"id" | "en", string>>;
   author: string | null;
   category: string;
   categoryId: number;
@@ -25,7 +26,7 @@ export type Article = {
   id: number;
   imageUrl: string | null;
   mediaTone: ArticleMediaTone;
-  readTime: string;
+  readTime: number;
   slug: string;
   title: string;
 };

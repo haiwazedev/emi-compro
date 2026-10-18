@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
+import { useCopy } from "@/i18n/use-copy";
 
 const detailIcons: Record<ContactDetailIcon, LucideIcon> = {
   office: MapPin,
@@ -47,6 +48,7 @@ const controlClassName =
   "border-foreground/15 bg-primary/60 text-accent placeholder:text-foreground/45 focus-visible:border-secondary/70 focus-visible:ring-secondary/40 w-full rounded-xl border px-3 text-xs outline-none transition focus-visible:ring-2";
 
 function ContactDetailItem({ detail }: { detail: ContactDetail }) {
+  const copy = useCopy();
   const Icon = detailIcons[detail.icon];
 
   return (
@@ -60,7 +62,7 @@ function ContactDetailItem({ detail }: { detail: ContactDetail }) {
 
       <div className="min-w-0">
         <p className="text-secondary text-[0.65rem] font-bold tracking-[0.12em] uppercase">
-          {detail.label}
+          {copy(detail.label)}
         </p>
         <p className="text-foreground/70 mt-1 text-xs leading-5 whitespace-pre-line">
           {detail.value}
@@ -95,6 +97,7 @@ function CompanyLocationMap({
   coordinates: CompanyLocationCoordinates | null;
   label: string | null;
 }) {
+  const copy = useCopy();
   const embedUrl = coordinates
     ? `https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`
     : null;
@@ -104,7 +107,7 @@ function CompanyLocationMap({
 
   return (
     <div
-      aria-label="PLN EMI head office location"
+      aria-label={copy("PLN EMI head office location")}
       className="bg-primary relative isolate mt-5 min-h-40 flex-1 overflow-hidden rounded-xl p-3"
     >
       {embedUrl ? (
@@ -114,7 +117,7 @@ function CompanyLocationMap({
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
           src={embedUrl}
-          title="PLN EMI head office location on Google Maps"
+          title={copy("PLN EMI head office location on Google Maps")}
         />
       ) : (
         <>
@@ -147,7 +150,7 @@ function CompanyLocationMap({
           target="_blank"
         >
           <ExternalLink aria-hidden="true" className="size-3.5" />
-          Open in Google Maps
+          {copy("Open in Google Maps")}
         </a>
       ) : null}
 
@@ -161,10 +164,12 @@ function CompanyLocationMap({
 }
 
 function RequiredIndicator() {
+  const copy = useCopy();
+
   return (
     <>
       <span aria-hidden="true"> *</span>
-      <span className="sr-only"> required</span>
+      <span className="sr-only"> {copy("Required")}</span>
     </>
   );
 }
@@ -176,16 +181,54 @@ export function ContactUsForm({
   contactSettings: ContactPageSettings | null;
   inboxSubjects: InboxSubject[] | null;
 }) {
+  const copy = useCopy();
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const formContent = contactPageContent.form;
+  const localizedFormContent = {
+    ...formContent,
+    description: copy(formContent.description),
+    disclaimer: copy(formContent.disclaimer),
+    fields: {
+      fullName: {
+        label: copy(formContent.fields.fullName.label),
+        placeholder: copy(formContent.fields.fullName.placeholder),
+      },
+      email: {
+        label: copy(formContent.fields.email.label),
+        placeholder: copy(formContent.fields.email.placeholder),
+      },
+      company: {
+        label: copy(formContent.fields.company.label),
+        placeholder: copy(formContent.fields.company.placeholder),
+      },
+      phone: {
+        label: copy(formContent.fields.phone.label),
+        placeholder: copy(formContent.fields.phone.placeholder),
+      },
+      subject: { label: copy(formContent.fields.subject.label) },
+      message: {
+        label: copy(formContent.fields.message.label),
+        placeholder: copy(formContent.fields.message.placeholder),
+      },
+    },
+    subjectEmptyMessage: copy(formContent.subjectEmptyMessage),
+    subjectLoadErrorMessage: copy(formContent.subjectLoadErrorMessage),
+    subjectPlaceholder: copy(formContent.subjectPlaceholder),
+    subjectReloadLabel: copy(formContent.subjectReloadLabel),
+    submitErrorMessage: copy(formContent.submitErrorMessage),
+    submitLabel: copy(formContent.submitLabel),
+    submittingLabel: copy(formContent.submittingLabel),
+    successMessage: copy(formContent.successMessage),
+    title: copy(formContent.title),
+  };
   const subjects = inboxSubjects ?? [];
   const subjectLoadError =
     inboxSubjects === null
-      ? formContent.subjectLoadErrorMessage
+      ? localizedFormContent.subjectLoadErrorMessage
       : inboxSubjects.length === 0
-        ? formContent.subjectEmptyMessage
+        ? localizedFormContent.subjectEmptyMessage
         : null;
   const [selectedSubjectId, setSelectedSubjectId] = React.useState(
     String(subjects[0]?.id ?? ""),
@@ -199,7 +242,8 @@ export function ContactUsForm({
     mapCoordinates !== null ||
     mapLabel !== null ||
     socialLinks.length > 0;
-  const [formTitleStart, ...formTitleAccent] = formContent.title.split(" ");
+  const [formTitleStart, ...formTitleAccent] =
+    localizedFormContent.title.split(" ");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -237,10 +281,8 @@ export function ContactUsForm({
       form.reset();
       setSelectedSubjectId(String(subjects[0]?.id ?? ""));
       setIsSubmitted(true);
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : formContent.submitErrorMessage,
-      );
+    } catch {
+      setSubmitError(localizedFormContent.submitErrorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -257,12 +299,12 @@ export function ContactUsForm({
         {hasContactInfo ? (
           <section className="border-foreground/10 bg-background shadow-foreground/10 flex min-w-0 flex-1 flex-col rounded-2xl border p-6 shadow-lg sm:p-7 lg:basis-1/2">
             <h2 className="sr-only" id="contact-details-heading">
-              Contact details
+              {copy("Contact details")}
             </h2>
 
             {contactDetails.length > 0 ? (
               <ul
-                aria-label="PLN EMI contact details"
+                aria-label={copy("PLN EMI contact details")}
                 className="flex flex-col"
               >
                 {contactDetails.map((detail) => (
@@ -280,7 +322,7 @@ export function ContactUsForm({
 
             {socialLinks.length > 0 ? (
               <ul
-                aria-label="Social and contact links"
+                aria-label={copy("Social and contact links")}
                 className="mt-4 flex items-center gap-2"
               >
                 {socialLinks.map((link) => (
@@ -314,7 +356,7 @@ export function ContactUsForm({
           </h2>
 
           <p className="text-foreground/65 mt-3 max-w-xl text-xs leading-5 sm:text-sm sm:leading-6">
-            {formContent.description}
+            {localizedFormContent.description}
           </p>
 
           {isSubmitted ? (
@@ -323,7 +365,7 @@ export function ContactUsForm({
               className="border-accent-2/20 bg-accent-2/10 text-accent-2 mt-5 rounded-xl border px-4 py-3 text-xs leading-5"
               role="status"
             >
-              {formContent.successMessage}
+              {localizedFormContent.successMessage}
             </p>
           ) : null}
 
@@ -351,7 +393,7 @@ export function ContactUsForm({
                   className="text-accent text-xs font-bold"
                   htmlFor="full-name"
                 >
-                  {formContent.fields.fullName.label}
+                  {localizedFormContent.fields.fullName.label}
                   <RequiredIndicator />
                 </Label>
                 <Input
@@ -360,7 +402,7 @@ export function ContactUsForm({
                   id="full-name"
                   maxLength={100}
                   name="fullName"
-                  placeholder={formContent.fields.fullName.placeholder}
+                  placeholder={localizedFormContent.fields.fullName.placeholder}
                   required
                   type="text"
                 />
@@ -371,7 +413,7 @@ export function ContactUsForm({
                   className="text-accent text-xs font-bold"
                   htmlFor="email"
                 >
-                  {formContent.fields.email.label}
+                  {localizedFormContent.fields.email.label}
                   <RequiredIndicator />
                 </Label>
                 <Input
@@ -380,7 +422,7 @@ export function ContactUsForm({
                   id="email"
                   maxLength={254}
                   name="email"
-                  placeholder={formContent.fields.email.placeholder}
+                  placeholder={localizedFormContent.fields.email.placeholder}
                   required
                   type="email"
                 />
@@ -393,7 +435,7 @@ export function ContactUsForm({
                   className="text-accent text-xs font-bold"
                   htmlFor="company"
                 >
-                  {formContent.fields.company.label}
+                  {localizedFormContent.fields.company.label}
                 </Label>
                 <Input
                   autoComplete="organization"
@@ -401,7 +443,7 @@ export function ContactUsForm({
                   id="company"
                   maxLength={200}
                   name="company"
-                  placeholder={formContent.fields.company.placeholder}
+                  placeholder={localizedFormContent.fields.company.placeholder}
                   type="text"
                 />
               </div>
@@ -411,7 +453,7 @@ export function ContactUsForm({
                   className="text-accent text-xs font-bold"
                   htmlFor="phone"
                 >
-                  {formContent.fields.phone.label}
+                  {localizedFormContent.fields.phone.label}
                 </Label>
                 <Input
                   autoComplete="tel"
@@ -419,7 +461,7 @@ export function ContactUsForm({
                   id="phone"
                   maxLength={30}
                   name="phone"
-                  placeholder={formContent.fields.phone.placeholder}
+                  placeholder={localizedFormContent.fields.phone.placeholder}
                   type="tel"
                 />
               </div>
@@ -430,7 +472,7 @@ export function ContactUsForm({
                 className="text-accent text-xs font-bold"
                 htmlFor="subject"
               >
-                {formContent.fields.subject.label}
+                {localizedFormContent.fields.subject.label}
                 <RequiredIndicator />
               </Label>
               <Select
@@ -455,7 +497,9 @@ export function ContactUsForm({
                   )}
                   id="subject"
                 >
-                  <SelectValue placeholder={formContent.subjectPlaceholder} />
+                  <SelectValue
+                    placeholder={localizedFormContent.subjectPlaceholder}
+                  />
                 </SelectTrigger>
                 <SelectContent className="border-foreground/10 bg-background text-accent">
                   {subjects.map((subject) => (
@@ -482,7 +526,7 @@ export function ContactUsForm({
                     type="button"
                     variant="link"
                   >
-                    {formContent.subjectReloadLabel}
+                    {localizedFormContent.subjectReloadLabel}
                   </Button>
                 </div>
               ) : null}
@@ -493,7 +537,7 @@ export function ContactUsForm({
                 className="text-accent text-xs font-bold"
                 htmlFor="message"
               >
-                {formContent.fields.message.label}
+                {localizedFormContent.fields.message.label}
                 <RequiredIndicator />
               </Label>
               <Textarea
@@ -501,7 +545,7 @@ export function ContactUsForm({
                 id="message"
                 maxLength={5000}
                 name="message"
-                placeholder={formContent.fields.message.placeholder}
+                placeholder={localizedFormContent.fields.message.placeholder}
                 required
               />
             </div>
@@ -517,15 +561,15 @@ export function ContactUsForm({
               type="submit"
             >
               {isSubmitting
-                ? formContent.submittingLabel
-                : formContent.submitLabel}
+                ? localizedFormContent.submittingLabel
+                : localizedFormContent.submitLabel}
               {!isSubmitting ? (
                 <ArrowRight aria-hidden="true" className="size-3.5" />
               ) : null}
             </Button>
 
             <p className="text-foreground/55 text-[0.65rem] leading-4">
-              {formContent.disclaimer}
+              {localizedFormContent.disclaimer}
             </p>
           </form>
         </section>

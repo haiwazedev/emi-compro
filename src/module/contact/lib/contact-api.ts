@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import type {
   ContactDetail,
   ContactDetailIcon,
@@ -153,9 +154,11 @@ function mapSiteSettings(
   };
 }
 
-export async function getContactPageSettings(): Promise<ContactPageSettings | null> {
+export async function getContactPageSettings(
+  locale: Locale,
+): Promise<ContactPageSettings | null> {
   const response = await apiGet<ApiSiteSettingsResponse>("/site_settings", {
-    language_id: "id",
+    language_id: locale,
   });
 
   return mapSiteSettings(response.site_settings);

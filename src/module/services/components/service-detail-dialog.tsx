@@ -2,12 +2,14 @@
 
 import { ArrowLeft, ArrowRight, Layers3 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 import * as React from "react";
 
 import type { ServiceDivision } from "@/module/services/content/services";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { useCopy } from "@/i18n/use-copy";
+import { useLocale } from "next-intl";
 import {
   Carousel,
   CarouselContent,
@@ -34,7 +36,12 @@ export function ServiceDetailDialog({
   onCloseAutoFocus,
   service,
 }: ServiceDetailDialogProps) {
+  const copy = useCopy();
   const [activeTagIndex, setActiveTagIndex] = React.useState(0);
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(
+    locale === "id" ? "id-ID" : "en-US",
+  );
   const activeTag = service.offerings[activeTagIndex];
   const activeDescription = activeTag?.description ?? service.description;
   const tagCount = service.offerings.length;
@@ -95,7 +102,7 @@ export function ServiceDetailDialog({
 
       {activeTag && activeTag.images.length > 0 ? (
         <Carousel
-          aria-label={`${activeTag.label} images`}
+          aria-label={copy("{title} images", { title: activeTag.label })}
           className="relative min-h-0 flex-1 overflow-hidden"
           key={activeTag.id}
           opts={{ loop: false }}
@@ -117,12 +124,12 @@ export function ServiceDetailDialog({
           </CarouselContent>
 
           <CarouselPrevious
-            aria-label="Previous image"
+            aria-label={copy("Previous image")}
             className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 bottom-auto left-3 my-0 size-10 rounded-lg lg:left-4"
             size="icon-lg"
           />
           <CarouselNext
-            aria-label="Next image"
+            aria-label={copy("Next image")}
             className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 right-3 bottom-auto my-0 size-10 rounded-lg lg:right-4"
             size="icon-lg"
           />
@@ -136,26 +143,31 @@ export function ServiceDetailDialog({
           size="lg"
         >
           <Link href="/contact-us">
-            Konsultasikan Layanan Ini
+            {copy("Konsultasikan Layanan Ini")}
             <ArrowRight aria-hidden="true" className="size-5" />
           </Link>
         </Button>
 
         <div className="flex items-center justify-end gap-4 lg:gap-5">
           <span
-            aria-label={`Service tag ${activeTagIndex + 1} of ${tagCount}`}
+            aria-label={copy("Service tag {index} of {count}", {
+              count: numberFormatter.format(tagCount),
+              index: numberFormatter.format(activeTagIndex + 1),
+            })}
             aria-live="polite"
             className="text-secondary text-sm font-semibold tabular-nums lg:text-base"
           >
-            {tagCount > 0 ? `${activeTagIndex + 1} / ${tagCount}` : "0 / 0"}
+            {tagCount > 0
+              ? `${numberFormatter.format(activeTagIndex + 1)} / ${numberFormatter.format(tagCount)}`
+              : "0 / 0"}
           </span>
 
           <nav
-            aria-label="Service tag navigation"
+            aria-label={copy("Service tag navigation")}
             className="flex items-center gap-3"
           >
             <Button
-              aria-label="Previous service tag"
+              aria-label={copy("Previous service tag")}
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
               disabled={tagCount === 0 || activeTagIndex === 0}
               onClick={() =>
@@ -170,7 +182,7 @@ export function ServiceDetailDialog({
               <ArrowLeft aria-hidden="true" className="size-6" />
             </Button>
             <Button
-              aria-label="Next service tag"
+              aria-label={copy("Next service tag")}
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
               disabled={tagCount === 0 || activeTagIndex === tagCount - 1}
               onClick={() =>

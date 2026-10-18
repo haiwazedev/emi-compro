@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import { aboutPageContent } from "@/module/about/content/about-page";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
+import { useCopy } from "@/i18n/use-copy";
 
 type CompanyProfileProps = {
   error: boolean;
@@ -18,6 +19,7 @@ export function CompanyProfile({
   pictureUrl,
   profileContent,
 }: CompanyProfileProps) {
+  const copy = useCopy();
   const { eyebrow, partOfLabel, partOfValue, title } =
     aboutPageContent.companyProfile;
 
@@ -31,13 +33,13 @@ export function CompanyProfile({
       <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:gap-16">
         <div className="min-w-0 flex-1">
           <p className="text-secondary text-xs font-bold tracking-[0.18em] uppercase">
-            {eyebrow}
+            {copy(eyebrow)}
           </p>
           <h2
             className="text-accent mt-3 font-sans text-3xl font-bold tracking-tight sm:text-4xl"
             id="company-profile-heading"
           >
-            {title}
+            {copy(title)}
           </h2>
 
           {profileContent ? (
@@ -48,13 +50,17 @@ export function CompanyProfile({
             <ContentStatus
               description={
                 error
-                  ? "Company profile information is temporarily unavailable. Please try again later."
-                  : "Company profile information is not available at this time."
+                  ? copy(
+                      "Company profile information is temporarily unavailable. Please try again later.",
+                    )
+                  : copy(
+                      "Company profile information is not available at this time.",
+                    )
               }
               title={
                 error
-                  ? "Company profile is unavailable."
-                  : "No company profile found."
+                  ? copy("Company profile is unavailable.")
+                  : copy("No company profile found.")
               }
               variant={error ? "error" : "empty"}
             />
@@ -66,7 +72,7 @@ export function CompanyProfile({
               className="bg-secondary/25 text-accent hover:bg-secondary/35 focus-visible:ring-secondary/50 h-9 rounded-full px-4 text-xs font-bold shadow-none"
             >
               <Link href="/#services">
-                Our Services
+                {copy("Our Services")}
                 <ArrowRight aria-hidden="true" className="size-3.5" />
               </Link>
             </Button>
@@ -75,7 +81,7 @@ export function CompanyProfile({
               className="border-accent/40 text-accent hover:bg-primary focus-visible:ring-secondary/50 h-9 rounded-full px-4 text-xs font-bold shadow-none"
               variant="outline"
             >
-              <Link href="/#commitment">Our Commitment</Link>
+              <Link href="/#commitment">{copy("Our Commitment")}</Link>
             </Button>
           </div>
         </div>
@@ -84,7 +90,7 @@ export function CompanyProfile({
           <div className="from-secondary via-accent to-foreground shadow-foreground/15 relative aspect-video overflow-hidden rounded-xl bg-linear-to-br shadow-xl">
             {pictureUrl ? (
               <Image
-                alt="PLN EMI company profile"
+                alt={copy("PLN EMI company profile")}
                 className="object-cover"
                 fill
                 sizes="(min-width: 64rem) 50vw, 100vw"
@@ -96,13 +102,15 @@ export function CompanyProfile({
                   className="w-full"
                   description={
                     error
-                      ? "The company photo is temporarily unavailable. Please try again later."
-                      : "A company photo is not available at this time."
+                      ? copy(
+                          "The company photo is temporarily unavailable. Please try again later.",
+                        )
+                      : copy("A company photo is not available at this time.")
                   }
                   title={
                     error
-                      ? "Company photo is unavailable."
-                      : "No company photo found."
+                      ? copy("Company photo is unavailable.")
+                      : copy("No company photo found.")
                   }
                   variant={error ? "error" : "empty"}
                 />
@@ -114,7 +122,7 @@ export function CompanyProfile({
             />
             <div className="bg-background text-accent shadow-foreground/20 absolute inset-x-6 bottom-6 rounded-lg px-4 py-3 shadow-lg sm:inset-x-8 sm:bottom-8 sm:max-w-xs">
               <p className="text-secondary text-[0.55rem] font-bold tracking-[0.16em] uppercase">
-                {partOfLabel}
+                {copy(partOfLabel)}
               </p>
               <p className="mt-1 text-xs font-bold sm:text-sm">{partOfValue}</p>
             </div>

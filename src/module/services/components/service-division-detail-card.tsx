@@ -2,6 +2,7 @@ import type { ServiceDivision } from "@/module/services/content/services";
 import { Badge } from "@/shared/ui/badge";
 import { ServiceOfferingList } from "@/module/services/components/service-offering-list";
 import { ServiceDivisionIcon } from "@/module/services/components/service-division-icon";
+import { useCopy } from "@/i18n/use-copy";
 
 type ServiceDivisionDetailCardProps = {
   onOpen: (trigger: HTMLElement) => void;
@@ -12,13 +13,14 @@ export function ServiceDivisionDetailCard({
   onOpen,
   service,
 }: ServiceDivisionDetailCardProps) {
+  const copy = useCopy();
   const headingId = `${service.slug}-heading`;
 
   return (
     <article
       aria-labelledby={headingId}
       aria-haspopup="dialog"
-      aria-label={`Open ${service.title} details`}
+      aria-label={copy("Open {title} details", { title: service.title })}
       className="border-background/80 bg-background shadow-foreground/10 hover:border-secondary/40 focus-visible:ring-secondary/50 cursor-pointer scroll-mt-24 rounded-2xl border p-5 shadow-lg transition hover:shadow-xl focus-visible:ring-2 focus-visible:outline-none sm:p-6 lg:p-8"
       id={service.slug}
       onClick={(event) => onOpen(event.currentTarget)}
@@ -63,7 +65,7 @@ export function ServiceDivisionDetailCard({
 
       {service.offerings.length > 0 ? (
         <ServiceOfferingList
-          ariaLabel={`${service.title} offerings`}
+          ariaLabel={copy("{title} offerings", { title: service.title })}
           className="mt-5"
           offerings={service.offerings}
         />

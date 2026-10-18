@@ -14,6 +14,7 @@ import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
 import { ManagementCard } from "./management-card";
 import { ManagementDialog } from "./management-dialog";
+import { useCopy } from "@/i18n/use-copy";
 
 type ManagementProps = {
   data: ManagementData | null;
@@ -57,8 +58,10 @@ function getTabId(typeId: number) {
 }
 
 export function Management({ data, error }: ManagementProps) {
+  const copy = useCopy();
   const { eyebrow, title } = aboutPageContent.management;
-  const [titlePrefix, ...titleAccentWords] = title.split(" ");
+  const localizedTitle = copy(title);
+  const [titlePrefix, ...titleAccentWords] = localizedTitle.split(" ");
   const titleAccent = titleAccentWords.join(" ");
   const [activeTypeId, setActiveTypeId] = React.useState<number | null>(
     data?.types[0]?.id ?? null,
@@ -133,7 +136,7 @@ export function Management({ data, error }: ManagementProps) {
         variant="subtle"
       >
         <p className="text-secondary text-xs font-bold tracking-[0.18em] uppercase">
-          {eyebrow}
+          {copy(eyebrow)}
         </p>
 
         <h2
@@ -145,19 +148,23 @@ export function Management({ data, error }: ManagementProps) {
 
         {error ? (
           <ManagementStatus
-            description="Board member information is temporarily unavailable. Please try again later."
+            description={copy(
+              "Board member information is temporarily unavailable. Please try again later.",
+            )}
             error
-            title="Management information is unavailable."
+            title={copy("Management information is unavailable.")}
           />
         ) : !data || data.types.length === 0 ? (
           <ManagementStatus
-            description="There are no board members available at this time."
-            title="No management information found."
+            description={copy(
+              "There are no board members available at this time.",
+            )}
+            title={copy("No management information found.")}
           />
         ) : (
           <>
             <div
-              aria-label="Management board"
+              aria-label={copy("Management board")}
               className="mt-8 flex flex-wrap gap-3"
               role="tablist"
             >
@@ -226,6 +233,8 @@ function ManagementTypePanel({
   onOpen,
   type,
 }: ManagementTypePanelProps) {
+  const copy = useCopy();
+
   return (
     <div
       aria-labelledby={getTabId(type.id)}
@@ -246,8 +255,10 @@ function ManagementTypePanel({
       ) : (
         <ManagementStatus
           className="mt-0"
-          description={`There are no members listed for ${type.type} yet.`}
-          title="No members found."
+          description={copy("There are no members listed for {type} yet.", {
+            type: type.type,
+          })}
+          title={copy("No members found.")}
         />
       )}
     </div>

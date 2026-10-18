@@ -11,6 +11,7 @@ import {
 } from "@/shared/ui/dialog";
 import { getManagementToneClassName } from "./management-card";
 import { ManagementPortrait } from "./management-portrait";
+import { useCopy } from "@/i18n/use-copy";
 
 type ManagementDialogProps = {
   member: ManagementMember;
@@ -23,6 +24,7 @@ export function ManagementDialog({
   member,
   onCloseAutoFocus,
 }: ManagementDialogProps) {
+  const copy = useCopy();
   const descriptionId = `management-${member.id}-dialog-description`;
 
   return (
@@ -40,7 +42,7 @@ export function ManagementDialog({
       >
         <div className="relative w-3/5 lg:w-full">
           <ManagementPortrait
-            alt={`${member.name} portrait`}
+            alt={copy("{name} portrait", { name: member.name })}
             member={member}
             sizes="(min-width: 1024px) 40vw, 100vw"
           />
@@ -59,7 +61,9 @@ export function ManagementDialog({
           <strong className="text-foreground font-semibold">
             {member.role}
           </strong>
-          {member.companyName ? ` dari ${member.companyName}` : null}
+          {member.companyName
+            ? ` ${copy("from {company}", { company: member.companyName })}`
+            : null}
         </DialogDescription>
 
         {member.description ? (

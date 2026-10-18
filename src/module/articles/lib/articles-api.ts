@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
+import type { Locale } from "@/i18n/routing";
 import {
   articleMediaToneClassNames,
   type Article,
@@ -44,6 +45,7 @@ type ApiArticle = {
   id: number;
   issue_date: string | null;
   primary_photo_url: string | null;
+  content?: string;
   read_time?: number;
   slug?: string;
   status?: "DRAFT" | "PUBLISHED";
@@ -102,15 +104,17 @@ function getMediaUrl(path: string | null) {
   return resolveApiAssetUrl(path);
 }
 
-const getIndonesianLanguageId = cache(async () => {
+const getLanguageId = cache(async (locale: Locale) => {
   const { languages } = await apiGet<ApiLanguagesResponse>("/languages");
-  const indonesianLanguage = languages.find((language) => language.id === "id");
+  const selectedLanguage = languages.find((language) => language.id === locale);
 
-  if (!indonesianLanguage) {
-    throw new ArticlesApiError("Indonesian article content is unavailable.");
+  if (!selectedLanguage) {
+    throw new ArticlesApiError(
+      "Article content is unavailable in this language.",
+    );
   }
 
-  return indonesianLanguage.id;
+  return selectedLanguage.id;
 });
 
 const getArticleCategories = cache(async () => {
@@ -121,7 +125,7 @@ const getArticleCategories = cache(async () => {
   return articleCategories;
 });
 
-function formatArticleDate(dateValue: string) {
+function formatArticleDate(dateValue: string, locale: Locale) {
   const normalizedValue = /^\d{4}-\d{2}-\d{2}$/.test(dateValue)
     ? `${dateValue}T00:00:00.000Z`
     : dateValue;
@@ -132,7 +136,7 @@ function formatArticleDate(dateValue: string) {
   }
 
   return {
-    date: new Intl.DateTimeFormat("en-US", {
+    date: new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
       day: "numeric",
       month: "short",
       timeZone: "UTC",
@@ -142,31 +146,49 @@ function formatArticleDate(dateValue: string) {
   };
 }
 
-function mapArticle(article: ApiArticle): Article {
-  const content = article.contents?.[0];
-  const slug = content?.slug ?? article.slug;
+function mapArticle(article: ApiArticle, locale: Locale): Article {
+  const translatedContent = article.contents?.find(
+    (item) => item.language_id === locale,
+  );
+  const content =
+    translatedContent ?? (article.language_id === locale ? article : undefined);
+
+  if (!content) {
+    throw new ArticlesApiError(
+      "Article content is unavailable in this language.",
+    );
+  }
+
+  const slug = content.slug;
 
   if (!slug) {
     throw new ArticlesApiError("An article is missing its slug.");
   }
 
-  const date = formatArticleDate(article.issue_date ?? article.created_at);
+  const date = formatArticleDate(
+    article.issue_date ?? article.created_at,
+    locale,
+  );
   const tone = mediaTones[article.id % mediaTones.length];
+  const alternateSlugs = Object.fromEntries(
+    (article.contents ?? []).map((item) => [item.language_id, item.slug]),
+  ) as Partial<Record<Locale, string>>;
 
   return {
+    alternateSlugs,
     author: article.cp_name,
-    category: article.article_category?.name ?? "Articles",
+    category: article.article_category?.name ?? "",
     categoryId: article.article_category_id,
-    content: content?.content ?? "",
+    content: content.content ?? "",
     date: date.date,
     dateTime: date.dateTime,
-    description: content?.summary ?? article.summary ?? "",
+    description: content.summary ?? "",
     id: article.id,
     imageUrl: getMediaUrl(article.primary_photo_url),
     mediaTone: tone,
-    readTime: `${content?.read_time ?? article.read_time ?? 1} min read`,
+    readTime: content.read_time ?? 1,
     slug,
-    title: content?.title ?? article.title ?? "",
+    title: content.title ?? "",
   };
 }
 
@@ -201,10 +223,11 @@ function resolveCategoryId(
 }
 
 export async function getHomeArticleData(
+  locale: Locale,
   requestedCategoryId?: number,
 ): Promise<HomeArticleData> {
   const [languageId, categories] = await Promise.all([
-    getIndonesianLanguageId(),
+    getLanguageId(locale),
     getArticleCategories(),
   ]);
   const categoryId = resolveCategoryId(categories, requestedCategoryId);
@@ -217,17 +240,18 @@ export async function getHomeArticleData(
 
   return {
     activeCategoryId: categoryId ?? null,
-    articles: articles.map(mapArticle),
+    articles: articles.map((article) => mapArticle(article, locale)),
     categories,
   };
 }
 
 export async function getArticleListingData(options: {
   categoryId?: number;
+  locale: Locale;
   page: number;
 }): Promise<ArticleListingData> {
   const [languageId, categories] = await Promise.all([
-    getIndonesianLanguageId(),
+    getLanguageId(options.locale),
     getArticleCategories(),
   ]);
   const categoryId = resolveCategoryId(categories, options.categoryId);
@@ -260,7 +284,9 @@ export async function getArticleListingData(options: {
 
   return {
     activeCategoryId: categoryId ?? null,
-    articles: uniqueArticles.map(mapArticle),
+    articles: uniqueArticles.map((article) =>
+      mapArticle(article, options.locale),
+    ),
     categories,
     page: currentPage,
     totalPages,
@@ -268,7 +294,7 @@ export async function getArticleListingData(options: {
 }
 
 export const getArticleBySlug = cache(
-  async (slug: string): Promise<Article | null> => {
+  async (slug: string, locale: Locale): Promise<Article | null> => {
     let response: ApiArticleDetailResponse;
 
     try {
@@ -285,29 +311,25 @@ export const getArticleBySlug = cache(
 
     const article = response.article;
     const content = article.contents?.find(
-      (item) => item.slug === slug && item.status === "PUBLISHED",
+      (item) =>
+        item.slug === slug &&
+        item.language_id === locale &&
+        item.status === "PUBLISHED",
     );
 
     if (!content) {
       return null;
     }
 
-    return mapArticle({
-      ...article,
-      contents: [content],
-      slug: content.slug,
-      status: content.status,
-      summary: content.summary,
-      title: content.title,
-      read_time: content.read_time,
-    });
+    return mapArticle(article, locale);
   },
 );
 
 export async function getRelatedArticles(
   articleId: number,
+  locale: Locale,
 ): Promise<Article[]> {
-  const languageId = await getIndonesianLanguageId();
+  const languageId = await getLanguageId(locale);
   const { articles } = await getPublishedArticlePage({
     languageId,
     limit: RELATED_ARTICLE_LIMIT,
@@ -317,5 +339,5 @@ export async function getRelatedArticles(
   return articles
     .filter((article) => article.id !== articleId)
     .slice(0, 3)
-    .map(mapArticle);
+    .map((article) => mapArticle(article, locale));
 }

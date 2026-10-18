@@ -1,5 +1,5 @@
 import { ArrowDown } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import { ArticleCard } from "@/module/articles/components/article-card";
 import type { ArticleListingData } from "@/module/articles/lib/articles-api";
@@ -7,6 +7,7 @@ import { CategoryFilters } from "@/shared/components/category-filters";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
+import { useCopy } from "@/i18n/use-copy";
 
 type ArticleBrowserProps = {
   data: ArticleListingData | null;
@@ -26,6 +27,7 @@ function getPageHref(categoryId: number | null, page: number) {
 }
 
 export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
+  const copy = useCopy();
   const featuredArticle = data?.articles[0];
   const supportingArticles = data?.articles.slice(1) ?? [];
 
@@ -37,15 +39,15 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
       variant="default"
     >
       <h2 className="sr-only" id="article-browser-heading">
-        Browse articles
+        {copy("Browse articles")}
       </h2>
 
       {data ? (
         <CategoryFilters
           activeCategoryId={data.activeCategoryId}
-          allLabel="All"
+          allLabel={copy("All")}
           anchorId="articles"
-          ariaLabel="Filter articles by category"
+          ariaLabel={copy("Filter articles by category")}
           categories={data.categories}
           pathname="/articles"
           queryKey="category"
@@ -54,22 +56,27 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
 
       {error ? (
         <ContentStatus
-          description="Article updates are currently unavailable."
-          title="Articles are temporarily unavailable."
+          description={copy("Article updates are currently unavailable.")}
+          title={copy("Articles are temporarily unavailable.")}
           variant="error"
         />
       ) : null}
 
       {!error && data && data.articles.length === 0 ? (
         <ContentStatus
-          description="There are no published articles in this category yet."
-          title="No articles found."
+          description={copy(
+            "There are no published articles in this category yet.",
+          )}
+          title={copy("No articles found.")}
           variant="empty"
         />
       ) : null}
 
       {featuredArticle ? (
-        <ul aria-label="Featured article" className="-m-2 mt-6 flex flex-wrap">
+        <ul
+          aria-label={copy("Featured article")}
+          className="-m-2 mt-6 flex flex-wrap"
+        >
           <li className="flex w-full p-2">
             <ArticleCard
               article={featuredArticle}
@@ -83,7 +90,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
 
       {supportingArticles.length > 0 ? (
         <ul
-          aria-label="More articles"
+          aria-label={copy("More articles")}
           className="-m-2 mt-4 flex flex-wrap lg:mt-6"
         >
           {supportingArticles.map((article) => (
@@ -102,7 +109,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
             variant="outline"
           >
             <Link href={getPageHref(data.activeCategoryId, data.page + 1)}>
-              Load More Articles
+              {copy("Load More Articles")}
               <ArrowDown aria-hidden="true" className="size-3.5" />
             </Link>
           </Button>

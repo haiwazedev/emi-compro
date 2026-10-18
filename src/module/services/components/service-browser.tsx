@@ -8,6 +8,7 @@ import { SectionContainer } from "@/shared/components/section-container";
 import { Dialog } from "@/shared/ui/dialog";
 import { ServiceDivisionDetailCard } from "./service-division-detail-card";
 import { ServiceDetailDialog } from "./service-detail-dialog";
+import { useCopy } from "@/i18n/use-copy";
 
 type ServiceBrowserProps = {
   data: ServiceDivision[] | null;
@@ -15,6 +16,7 @@ type ServiceBrowserProps = {
 };
 
 export function ServiceBrowser({ data, error }: ServiceBrowserProps) {
+  const copy = useCopy();
   const [activeServiceId, setActiveServiceId] = React.useState<number | null>(
     null,
   );
@@ -47,21 +49,23 @@ export function ServiceBrowser({ data, error }: ServiceBrowserProps) {
         variant="muted"
       >
         <h2 className="sr-only" id="services-browser-heading">
-          Our service divisions
+          {copy("Our service divisions")}
         </h2>
 
         {error ? (
           <ContentStatus
-            description="Service information is currently unavailable. Please try again later."
-            title="Our service divisions are temporarily unavailable."
+            description={copy(
+              "Service information is currently unavailable. Please try again later.",
+            )}
+            title={copy("Our service divisions are temporarily unavailable.")}
             variant="error"
           />
         ) : null}
 
         {!error && data?.length === 0 ? (
           <ContentStatus
-            description="Published service divisions will appear here."
-            title="No service divisions are available yet."
+            description={copy("Published service divisions will appear here.")}
+            title={copy("No service divisions are available yet.")}
             variant="empty"
           />
         ) : null}

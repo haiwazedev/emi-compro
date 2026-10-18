@@ -1,11 +1,12 @@
 import { ArrowDown } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import type { CommitmentListingData } from "@/module/commitment/lib/commitments-api";
 import { Button } from "@/shared/ui/button";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { CommitmentDocumentCard } from "./commitment-document-card";
+import { useCopy } from "@/i18n/use-copy";
 
 type CommitmentBrowserProps = {
   data: CommitmentListingData | null;
@@ -17,6 +18,8 @@ function getPageHref(page: number) {
 }
 
 export function CommitmentBrowser({ data, error }: CommitmentBrowserProps) {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="commitment-browser-heading"
@@ -25,28 +28,30 @@ export function CommitmentBrowser({ data, error }: CommitmentBrowserProps) {
       variant="default"
     >
       <h2 className="sr-only" id="commitment-browser-heading">
-        Commitment documents
+        {copy("Commitment documents")}
       </h2>
 
       {error ? (
         <ContentStatus
-          description="Silakan coba lagi beberapa saat."
-          title="Dokumen komitmen sedang tidak tersedia."
+          description={copy("Silakan coba lagi beberapa saat.")}
+          title={copy("Dokumen komitmen sedang tidak tersedia.")}
           variant="error"
         />
       ) : null}
 
       {!error && data && data.documents.length === 0 ? (
         <ContentStatus
-          description="Dokumen yang dipublikasikan akan ditampilkan di sini."
-          title="Belum ada dokumen komitmen."
+          description={copy(
+            "Dokumen yang dipublikasikan akan ditampilkan di sini.",
+          )}
+          title={copy("Belum ada dokumen komitmen.")}
           variant="empty"
         />
       ) : null}
 
       {data && data.documents.length > 0 ? (
         <ul
-          aria-label="PLN EMI commitment documents"
+          aria-label={copy("PLN EMI commitment documents")}
           className="-m-3 mt-6 flex flex-wrap"
         >
           {data.documents.map((document) => (
@@ -65,7 +70,7 @@ export function CommitmentBrowser({ data, error }: CommitmentBrowserProps) {
             variant="outline"
           >
             <Link href={getPageHref(data.page + 1)}>
-              Muat lebih banyak dokumen
+              {copy("Muat lebih banyak dokumen")}
               <ArrowDown aria-hidden="true" className="size-3.5" />
             </Link>
           </Button>

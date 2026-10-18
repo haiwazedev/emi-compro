@@ -27,8 +27,6 @@ export const footerContent = {
   emailAddresses: ["emi@pln.co.id", "pemasaran@emipersero.co.id"],
   phone: "021–27881925",
   phoneHref: "tel:+622127881925",
-  copyright:
-    "© 2026 PT Energy Management Indonesia (Persero). All rights reserved.",
   navGroups: [
     {
       id: "company",

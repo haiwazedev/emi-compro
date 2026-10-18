@@ -7,6 +7,7 @@ import {
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
+import { useCopy } from "@/i18n/use-copy";
 
 type ServicesSectionProps = {
   data: ServiceDivision[] | null;
@@ -14,6 +15,8 @@ type ServicesSectionProps = {
 };
 
 export function ServicesSection({ data, error }: ServicesSectionProps) {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="services-heading"
@@ -21,7 +24,7 @@ export function ServicesSection({ data, error }: ServicesSectionProps) {
       id="services"
       variant="muted"
     >
-      <nav aria-label="Service resources">
+      <nav aria-label={copy("Service resources")}>
         <ul className="shadow-foreground/10 flex flex-col overflow-hidden rounded-2xl shadow-xl lg:flex-row">
           {serviceNavigationItems.map((item) => (
             <ServiceNavigationItem item={item} key={item.title} />
@@ -30,28 +33,32 @@ export function ServicesSection({ data, error }: ServicesSectionProps) {
       </nav>
 
       <SectionIntro
-        action={{ href: "/services", label: "All Services" }}
+        action={{ href: "/services", label: copy("All Services") }}
         className="mt-16 lg:mt-20"
-        description="Explore the expertise and services that can help your organization move forward."
-        eyebrow="WHAT WE OFFER"
+        description={copy(
+          "Explore the expertise and services that can help your organization move forward.",
+        )}
+        eyebrow={copy("WHAT WE OFFER")}
         headingId="services-heading"
         theme="muted"
-        title="Our Service"
-        accent="Divisions"
+        title={copy("Services section title")}
+        accent={copy("Services section accent")}
       />
 
       {error ? (
         <ContentStatus
-          description="Service information is currently unavailable. Please try again later."
-          title="Our service divisions are temporarily unavailable."
+          description={copy(
+            "Service information is currently unavailable. Please try again later.",
+          )}
+          title={copy("Our service divisions are temporarily unavailable.")}
           variant="error"
         />
       ) : null}
 
       {!error && data?.length === 0 ? (
         <ContentStatus
-          description="Published service divisions will appear here."
-          title="No service divisions are available yet."
+          description={copy("Published service divisions will appear here.")}
+          title={copy("No service divisions are available yet.")}
           variant="empty"
         />
       ) : null}

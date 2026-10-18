@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import { apiGet } from "@/shared/lib/api-client";
 
 export type SiteContentPage = "home" | "about-us";
@@ -19,9 +20,12 @@ type ApiSiteContentsResponse = {
   };
 };
 
-export async function getSiteContentItems(page: SiteContentPage) {
+export async function getSiteContentItems(
+  page: SiteContentPage,
+  locale: Locale,
+) {
   const response = await apiGet<ApiSiteContentsResponse>("/site_contents", {
-    language_id: "id",
+    language_id: locale,
     page,
   });
 

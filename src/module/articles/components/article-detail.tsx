@@ -1,6 +1,6 @@
 import { ArrowLeft, CalendarDays, Clock3, PenLine } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import {
   articleMediaToneClassNames,
@@ -10,12 +10,19 @@ import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
 import { sanitizeRichText } from "@/shared/lib/sanitize-rich-text";
 import { Badge } from "@/shared/ui/badge";
+import { useLocale } from "next-intl";
+import { useCopy } from "@/i18n/use-copy";
 
 type ArticleDetailProps = {
   article: Article;
 };
 
 export function ArticleDetail({ article }: ArticleDetailProps) {
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(
+    locale === "id" ? "id-ID" : "en-US",
+  );
+  const copy = useCopy();
   const safeContent = sanitizeRichText(article.content);
 
   return (
@@ -29,7 +36,7 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
         href="/articles"
       >
         <ArrowLeft aria-hidden="true" className="size-3.5" />
-        Back to News
+        {copy("Back to News")}
       </Link>
 
       <div
@@ -51,12 +58,15 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
         ) : null}
       </div>
 
-      <article className="mx-auto mt-8 max-w-3xl sm:mt-10 lg:mt-12" lang="id">
+      <article
+        className="mx-auto mt-8 max-w-3xl sm:mt-10 lg:mt-12"
+        lang={locale}
+      >
         <Badge
           className="bg-primary text-accent h-auto rounded-full border-transparent px-3 py-1 text-xs font-semibold"
           variant="secondary"
         >
-          {article.category}
+          {article.category || copy("Articles")}
         </Badge>
 
         <h1
@@ -82,7 +92,9 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
           ) : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock3 aria-hidden="true" className="size-3.5" />
-            {article.readTime}
+            {copy("Read time", {
+              count: numberFormatter.format(article.readTime),
+            })}
           </span>
         </div>
 

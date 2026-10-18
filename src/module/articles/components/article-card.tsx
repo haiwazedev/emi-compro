@@ -1,6 +1,6 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import {
   articleMediaToneClassNames,
@@ -9,6 +9,8 @@ import {
 } from "@/module/articles/content/articles";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
+import { useLocale } from "next-intl";
+import { useCopy } from "@/i18n/use-copy";
 
 type ArticleCardProps = {
   article: Article;
@@ -24,6 +26,11 @@ export function ArticleCard({
   showReadAction = false,
 }: ArticleCardProps) {
   const isHorizontal = orientation === "horizontal";
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(
+    locale === "id" ? "id-ID" : "en-US",
+  );
+  const copy = useCopy();
 
   return (
     <article
@@ -31,10 +38,10 @@ export function ArticleCard({
         "bg-background shadow-foreground/10 flex h-full w-full flex-col overflow-hidden rounded-2xl shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none",
         isHorizontal && "lg:flex-row",
       )}
-      lang="id"
+      lang={locale}
     >
       <Link
-        aria-label={`Read ${article.title}`}
+        aria-label={copy("Read {title}", { title: article.title })}
         className={cn(
           "focus-visible:ring-secondary flex h-full w-full flex-col focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
           isHorizontal && "lg:flex-row",
@@ -65,7 +72,7 @@ export function ArticleCard({
             className="bg-background text-accent shadow-foreground/10 absolute bottom-3 left-3 h-auto rounded-full border-transparent px-3 py-1 text-xs font-semibold shadow-sm"
             variant="secondary"
           >
-            {article.category}
+            {article.category || copy("Articles")}
           </Badge>
         </div>
 
@@ -104,7 +111,12 @@ export function ArticleCard({
 
           {showReadAction ? (
             <span className="text-secondary mt-5 inline-flex items-center gap-1.5 text-sm font-semibold">
-              Read article
+              {copy("Read article")}
+              <span className="sr-only">
+                {copy("Read time", {
+                  count: numberFormatter.format(article.readTime),
+                })}
+              </span>
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </span>
           ) : null}

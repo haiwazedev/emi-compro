@@ -3,6 +3,7 @@ import type { AboutHistoryItem } from "@/module/about/content/about-page";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
+import { useCopy } from "@/i18n/use-copy";
 
 type OurHistoryProps = {
   error: boolean;
@@ -10,6 +11,7 @@ type OurHistoryProps = {
 };
 
 export function OurHistory({ error, items }: OurHistoryProps) {
+  const copy = useCopy();
   const { description, eyebrow, title } = aboutPageContent.history;
 
   return (
@@ -20,11 +22,11 @@ export function OurHistory({ error, items }: OurHistoryProps) {
       variant="muted"
     >
       <SectionIntro
-        description={description}
-        eyebrow={eyebrow}
+        description={copy(description)}
+        eyebrow={copy(eyebrow)}
         headingId="our-history-heading"
         theme="muted"
-        title={title}
+        title={copy(title)}
       />
 
       {items.length > 0 ? (
@@ -58,11 +60,15 @@ export function OurHistory({ error, items }: OurHistoryProps) {
         <ContentStatus
           description={
             error
-              ? "Company history is temporarily unavailable. Please try again later."
-              : "Company history is not available at this time."
+              ? copy(
+                  "Company history is temporarily unavailable. Please try again later.",
+                )
+              : copy("Company history is not available at this time.")
           }
           title={
-            error ? "Company history is unavailable." : "No history found."
+            error
+              ? copy("Company history is unavailable.")
+              : copy("No history found.")
           }
           variant={error ? "error" : "empty"}
         />

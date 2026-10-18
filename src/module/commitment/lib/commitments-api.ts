@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
 import {
   commitmentDocumentMediaToneClassNames,
@@ -43,24 +44,26 @@ export type CommitmentListingData = {
   totalPages: number;
 };
 
-function formatFileSize(sizeInKilobytes: number) {
+function formatFileSize(sizeInKilobytes: number, locale: Locale) {
+  const localeTag = locale === "id" ? "id-ID" : "en-US";
+
   if (sizeInKilobytes < 1024) {
-    return `${sizeInKilobytes} KB`;
+    return `${new Intl.NumberFormat(localeTag).format(sizeInKilobytes)} KB`;
   }
 
-  return `${new Intl.NumberFormat("id-ID", {
+  return `${new Intl.NumberFormat(localeTag, {
     maximumFractionDigits: 1,
   }).format(sizeInKilobytes / 1024)} MB`;
 }
 
-function formatUploadDate(value: string) {
+function formatUploadDate(value: string, locale: Locale) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Tanggal tidak tersedia";
+    return null;
   }
 
-  return new Intl.DateTimeFormat("id-ID", {
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
     day: "numeric",
     month: "short",
     timeZone: "UTC",
@@ -70,15 +73,16 @@ function formatUploadDate(value: string) {
 
 function mapCommitmentDocument(
   document: ApiCommitmentDocument,
+  locale: Locale,
 ): CommitmentDocument {
   return {
-    category: document.document_commitment_category?.name ?? "Dokumen",
-    fileSize: formatFileSize(document.size),
+    category: document.document_commitment_category?.name ?? "",
+    fileSize: formatFileSize(document.size, locale),
     fileUrl: resolveApiAssetUrl(document.file_path),
     id: document.id,
     mediaTone: mediaTones[document.id % mediaTones.length],
     title: document.title,
-    uploadedAt: formatUploadDate(document.uploaded_at),
+    uploadedAt: formatUploadDate(document.uploaded_at, locale),
   };
 }
 
@@ -93,6 +97,7 @@ async function getCommitmentDocuments(page: number) {
 }
 
 export async function getCommitmentListingData(options: {
+  locale: Locale;
   page: number;
 }): Promise<CommitmentListingData> {
   const firstPage = await getCommitmentDocuments(1);
@@ -108,7 +113,7 @@ export async function getCommitmentListingData(options: {
     documents: [
       ...firstPage.documentCommitments,
       ...remainingPages.flatMap((result) => result.documentCommitments),
-    ].map(mapCommitmentDocument),
+    ].map((document) => mapCommitmentDocument(document, options.locale)),
     page,
     totalPages,
   };

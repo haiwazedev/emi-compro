@@ -5,19 +5,30 @@ import type { ServiceDivision } from "@/module/services/content/services";
 import { getServiceDirectoryData } from "@/module/services/lib/services-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
+import { getLocalizedMetadata } from "@/i18n/metadata";
+import type { Locale } from "@/i18n/routing";
 
-export const metadata: Metadata = {
-  title: "Services | PLN EMI",
-  description:
+type ServicesPageProps = { params: Promise<{ locale: Locale }> };
+
+export async function generateMetadata({
+  params,
+}: ServicesPageProps): Promise<Metadata> {
+  const { locale } = await params;
+
+  return getLocalizedMetadata(
+    locale,
+    "Services | PLN EMI",
     "Explore PLN EMI's service divisions and solutions for energy management and environmental sustainability.",
-};
+  );
+}
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ params }: ServicesPageProps) {
+  const { locale } = await params;
   let data: ServiceDivision[] | null = null;
   let error = false;
 
   try {
-    data = await getServiceDirectoryData();
+    data = await getServiceDirectoryData(locale);
   } catch {
     error = true;
   }

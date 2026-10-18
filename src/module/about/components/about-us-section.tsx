@@ -5,6 +5,7 @@ import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
 import { Badge } from "@/shared/ui/badge";
 import { AboutMetrics } from "./about-metrics";
+import { useCopy } from "@/i18n/use-copy";
 
 type AboutUsSectionProps = {
   data: HomeSiteContentData | null;
@@ -12,6 +13,7 @@ type AboutUsSectionProps = {
 };
 
 export function AboutUsSection({ data, error }: AboutUsSectionProps) {
+  const copy = useCopy();
   const { actionLabel, description, title } = data?.teaser ?? {
     actionLabel: null,
     description: null,
@@ -30,7 +32,7 @@ export function AboutUsSection({ data, error }: AboutUsSectionProps) {
         <SectionIntro
           action={{ href: "/about-us", label: actionLabel! }}
           description={description!}
-          eyebrow="SEKILAS EMI"
+          eyebrow={copy("SEKILAS EMI")}
           headingId="about-heading"
           theme="light"
           title={title!}
@@ -39,20 +41,24 @@ export function AboutUsSection({ data, error }: AboutUsSectionProps) {
         <ContentStatus
           description={
             error
-              ? "The company introduction is temporarily unavailable. Please try again later."
-              : "Company introduction content is not available at this time."
+              ? copy(
+                  "The company introduction is temporarily unavailable. Please try again later.",
+                )
+              : copy(
+                  "Company introduction content is not available at this time.",
+                )
           }
           title={
             error
-              ? "Company introduction is unavailable."
-              : "No company introduction found."
+              ? copy("Company introduction is unavailable.")
+              : copy("No company introduction found.")
           }
           variant={error ? "error" : "empty"}
         />
       )}
 
       <ul
-        aria-label="About PLN EMI focus areas"
+        aria-label={copy("About PLN EMI focus areas")}
         className="mt-14 flex flex-wrap gap-2 lg:mt-16"
       >
         {aboutBadges.map((badge) => (
@@ -62,7 +68,7 @@ export function AboutUsSection({ data, error }: AboutUsSectionProps) {
               variant="secondary"
             >
               <span aria-hidden="true">{badge.emoji}</span>
-              {badge.label}
+              {copy(badge.label)}
             </Badge>
           </li>
         ))}

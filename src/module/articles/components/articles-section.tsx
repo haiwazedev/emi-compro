@@ -4,6 +4,7 @@ import { CategoryFilters } from "@/shared/components/category-filters";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
+import { useCopy } from "@/i18n/use-copy";
 
 type ArticlesSectionProps = {
   data: HomeArticleData | null;
@@ -11,6 +12,7 @@ type ArticlesSectionProps = {
 };
 
 export function ArticlesSection({ data, error }: ArticlesSectionProps) {
+  const copy = useCopy();
   const [featuredArticle, ...supportingArticles] = data?.articles ?? [];
 
   return (
@@ -21,22 +23,24 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
       variant="subtle"
     >
       <SectionIntro
-        accent="Articles"
-        action={{ href: "/articles", label: "See All News" }}
-        description="Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth."
-        eyebrow="MEDIA & INFORMATION"
+        accent={copy("Articles section accent")}
+        action={{ href: "/articles", label: copy("See All News") }}
+        description={copy(
+          "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth.",
+        )}
+        eyebrow={copy("MEDIA & INFORMATION")}
         headingId="articles-heading"
         theme="muted"
-        title="Our Latest"
+        title={copy("Articles section title")}
       />
 
       {data ? (
         <div className="mt-10">
           <CategoryFilters
             activeCategoryId={data.activeCategoryId}
-            allLabel="All"
+            allLabel={copy("All")}
             anchorId="articles"
-            ariaLabel="Filter articles by category"
+            ariaLabel={copy("Filter articles by category")}
             categories={data.categories}
             pathname="/"
             queryKey="homeCategory"
@@ -46,22 +50,27 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
 
       {error ? (
         <ContentStatus
-          description="Article updates are currently unavailable."
-          title="Articles are temporarily unavailable."
+          description={copy("Article updates are currently unavailable.")}
+          title={copy("Articles are temporarily unavailable.")}
           variant="error"
         />
       ) : null}
 
       {!error && data && data.articles.length === 0 ? (
         <ContentStatus
-          description="There are no published articles in this category yet."
-          title="No articles found."
+          description={copy(
+            "There are no published articles in this category yet.",
+          )}
+          title={copy("No articles found.")}
           variant="empty"
         />
       ) : null}
 
       {featuredArticle && supportingArticles.length === 0 ? (
-        <ul aria-label="Latest articles" className="-m-2 mt-6 flex flex-wrap">
+        <ul
+          aria-label={copy("Latest articles")}
+          className="-m-2 mt-6 flex flex-wrap"
+        >
           <li className="flex w-full p-2">
             <ArticleCard article={featuredArticle} isFeatured />
           </li>
@@ -69,7 +78,10 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
       ) : null}
 
       {featuredArticle && supportingArticles.length > 0 ? (
-        <ul aria-label="Latest articles" className="-m-2 mt-6 flex flex-wrap">
+        <ul
+          aria-label={copy("Latest articles")}
+          className="-m-2 mt-6 flex flex-wrap"
+        >
           <li className="flex w-full p-2 lg:w-5/12">
             <ArticleCard article={featuredArticle} isFeatured />
           </li>

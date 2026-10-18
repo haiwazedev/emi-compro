@@ -11,26 +11,28 @@ import { getPartners } from "@/module/partners/lib/clients-api";
 import { PartnersSection } from "@/module/partners/components/partners-section";
 import { ServicesSection } from "@/module/services/components/services-section";
 import { getServiceDirectoryData } from "@/module/services/lib/services-api";
+import type { Locale } from "@/i18n/routing";
 import {
   getFirstSearchParamValue,
   parsePositiveInteger,
 } from "@/shared/lib/utils";
 
 type HomeProps = {
+  params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
     homeCategory?: string | string[];
   }>;
 };
 
-export default async function Home({ searchParams }: HomeProps) {
-  const params = await searchParams;
-  const categoryValue = getFirstSearchParamValue(params.homeCategory);
+export default async function Home({ params, searchParams }: HomeProps) {
+  const [{ locale }, search] = await Promise.all([params, searchParams]);
+  const categoryValue = getFirstSearchParamValue(search.homeCategory);
   const categoryId = parsePositiveInteger(categoryValue);
   const [homeResult, articleResult, servicesResult, partnersResult] =
     await Promise.allSettled([
-      getHomeSiteContentData(),
-      getHomeArticleData(categoryId),
-      getServiceDirectoryData(),
+      getHomeSiteContentData(locale),
+      getHomeArticleData(locale, categoryId),
+      getServiceDirectoryData(locale),
       getPartners(),
     ]);
   const homeData = homeResult.status === "fulfilled" ? homeResult.value : null;

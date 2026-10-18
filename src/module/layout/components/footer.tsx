@@ -1,11 +1,13 @@
 import { AtSign, Globe2, Play } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
+import { useLocale } from "next-intl";
 
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
 import type { FooterSocialIcon } from "@/module/layout/content/footer";
 import { footerContent } from "@/module/layout/content/footer";
 import { sectionContainerRailClassName } from "@/shared/components/section-container";
+import { useCopy } from "@/i18n/use-copy";
 
 function SocialIcon({ icon }: { icon: FooterSocialIcon }) {
   const iconClassName = "size-3.5 sm:size-4";
@@ -39,21 +41,27 @@ function SocialIcon({ icon }: { icon: FooterSocialIcon }) {
 }
 
 export function Footer() {
+  const copy = useCopy();
+  const locale = useLocale();
+  const currentYear = new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+  }).format(new Date());
+
   return (
     <footer
-      aria-label="Site footer"
+      aria-label={copy("Site footer")}
       className="bg-primary text-foreground/80 py-6 sm:py-10 lg:py-12"
       id="footer"
     >
       <div className={sectionContainerRailClassName}>
         <div className="flex flex-col items-center text-center">
           <Link
-            aria-label="Danantara Indonesia home"
+            aria-label={copy("Danantara Indonesia home")}
             className="focus-visible:ring-secondary/50 inline-flex rounded-sm focus-visible:ring-2 focus-visible:outline-none"
             href="/"
           >
             <Image
-              alt="Danantara Indonesia"
+              alt={copy("Danantara Indonesia")}
               className="h-9 w-auto sm:h-10 lg:h-11"
               height={1073}
               sizes="(min-width: 1024px) 170px, 145px"
@@ -66,7 +74,7 @@ export function Footer() {
             <p className="text-accent font-bold">{footerContent.companyName}</p>
             <p>{footerContent.address}</p>
             <p>
-              <span className="text-accent font-bold">Email:</span>{" "}
+              <span className="text-accent font-bold">{copy("Email:")}</span>{" "}
               {footerContent.emailAddresses.map((email, index) => (
                 <span key={email}>
                   {index > 0 && " · "}
@@ -79,7 +87,9 @@ export function Footer() {
                 </span>
               ))}
               {" · "}
-              <span className="text-accent font-bold">Telp:</span>{" "}
+              <span className="text-accent font-bold">
+                {copy("Telp:")}
+              </span>{" "}
               <a
                 className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 href={footerContent.phoneHref}
@@ -90,7 +100,7 @@ export function Footer() {
           </address>
         </div>
 
-        <nav aria-label="Footer navigation" className="mt-12 lg:mt-14">
+        <nav aria-label={copy("Footer navigation")} className="mt-12 lg:mt-14">
           <div className="flex flex-col gap-10 lg:flex-row lg:gap-8">
             {footerContent.navGroups.map((group) => (
               <FooterNavGroup group={group} key={group.id} />
@@ -100,17 +110,18 @@ export function Footer() {
 
         <div className="border-foreground/20 mt-12 flex flex-col gap-5 border-t pt-5 sm:mt-16 sm:pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
           <p className="text-foreground/60 text-xs leading-5 sm:text-sm">
-            {footerContent.copyright}
+            © {currentYear} {footerContent.companyName}.{" "}
+            {copy("All rights reserved.")}
           </p>
 
           <ul
-            aria-label="Social and contact links"
+            aria-label={copy("Social and contact links")}
             className="flex items-center gap-2"
           >
             {footerContent.socialLinks.map((link) => (
               <li key={link.label}>
                 <a
-                  aria-label={link.label}
+                  aria-label={copy(link.label)}
                   className="border-foreground/20 bg-background text-accent hover:border-secondary hover:bg-primary hover:text-accent focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:size-10"
                   href={link.href}
                 >

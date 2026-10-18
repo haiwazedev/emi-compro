@@ -10,6 +10,7 @@ import { HeroBackground } from "./hero-background";
 import { HeroContent } from "./hero-content";
 import { HeroIndicators } from "./hero-indicators";
 import { useHeroCarousel } from "../hooks/use-hero-carousel";
+import { useCopy } from "@/i18n/use-copy";
 
 type HomeHeroProps = {
   error: boolean;
@@ -17,10 +18,11 @@ type HomeHeroProps = {
 };
 
 export function HomeHero({ error, slides }: HomeHeroProps) {
+  const copy = useCopy();
   if (slides.length === 0) {
     return (
       <section
-        aria-label="PLN EMI home hero"
+        aria-label={copy("PLN EMI home hero")}
         className="bg-accent text-background relative isolate -mt-20 flex min-h-svh items-center overflow-hidden"
         id="home"
       >
@@ -28,13 +30,15 @@ export function HomeHero({ error, slides }: HomeHeroProps) {
           <ContentStatus
             description={
               error
-                ? "Home highlights are temporarily unavailable. Please try again later."
-                : "Home highlights are not available at this time."
+                ? copy(
+                    "Home highlights are temporarily unavailable. Please try again later.",
+                  )
+                : copy("Home highlights are not available at this time.")
             }
             title={
               error
-                ? "Home highlights are unavailable."
-                : "No home highlights found."
+                ? copy("Home highlights are unavailable.")
+                : copy("No home highlights found.")
             }
             variant={error ? "error" : "empty"}
           />
@@ -57,6 +61,7 @@ function HomeHeroCarousel({ slides }: { slides: HomeSlide[] }) {
     setApi,
     setIsPaused,
   } = useHeroCarousel(slides);
+  const copy = useCopy();
 
   const handleBlurCapture = (event: React.FocusEvent<HTMLElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -67,7 +72,7 @@ function HomeHeroCarousel({ slides }: { slides: HomeSlide[] }) {
   return (
     <section
       id="home"
-      aria-label="PLN EMI home hero"
+      aria-label={copy("PLN EMI home hero")}
       className="bg-accent text-background relative isolate -mt-20 min-h-svh overflow-hidden"
       onBlurCapture={handleBlurCapture}
       onFocusCapture={() => setIsPaused(true)}

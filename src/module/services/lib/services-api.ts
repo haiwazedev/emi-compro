@@ -2,6 +2,7 @@ import "server-only";
 
 import sanitizeHtml from "sanitize-html";
 
+import type { Locale } from "@/i18n/routing";
 import type {
   ServiceDetailImage,
   ServiceDivision,
@@ -50,7 +51,6 @@ type ApiServicesResponse = {
   services: ApiService[];
 };
 
-const languageId = "id";
 const iconTones: ServiceDivision["iconTone"][] = [
   "blue",
   "yellow",
@@ -60,10 +60,11 @@ const iconTones: ServiceDivision["iconTone"][] = [
 const safeIconColor =
   /^(?:none|currentcolor|transparent|#[\da-f]{3,8}|[a-z]{1,20})$/i;
 
-function getIndonesianContent<T extends { language_id: string }>(
+function getLocalizedContent<T extends { language_id: string }>(
   contents: T[],
+  locale: Locale,
 ) {
-  return contents.find((content) => content.language_id === languageId);
+  return contents.find((content) => content.language_id === locale);
 }
 
 function sanitizeDivisionIcon(iconSvg: string | null) {
@@ -135,8 +136,11 @@ function sanitizeDivisionIcon(iconSvg: string | null) {
     : null;
 }
 
-function mapServiceOffering(service: ApiService): ServiceOffering | null {
-  const content = getIndonesianContent(service.contents);
+function mapServiceOffering(
+  service: ApiService,
+  locale: Locale,
+): ServiceOffering | null {
+  const content = getLocalizedContent(service.contents, locale);
 
   if (!content) {
     return null;
@@ -157,7 +161,9 @@ function mapServiceOffering(service: ApiService): ServiceOffering | null {
   };
 }
 
-export async function getServiceDirectoryData(): Promise<ServiceDivision[]> {
+export async function getServiceDirectoryData(
+  locale: Locale,
+): Promise<ServiceDivision[]> {
   const [divisionsResponse, servicesResponse] = await Promise.all([
     apiGet<ApiDivisionsResponse>("/divisions", { status: "PUBLISHED" }),
     apiGet<ApiServicesResponse>("/services"),
@@ -165,7 +171,7 @@ export async function getServiceDirectoryData(): Promise<ServiceDivision[]> {
   const offeringsByDivision = new Map<number, ServiceOffering[]>();
 
   for (const service of servicesResponse.services) {
-    const offering = mapServiceOffering(service);
+    const offering = mapServiceOffering(service, locale);
 
     if (!offering) {
       continue;
@@ -177,7 +183,7 @@ export async function getServiceDirectoryData(): Promise<ServiceDivision[]> {
   }
 
   return divisionsResponse.divisions.flatMap((division) => {
-    const content = getIndonesianContent(division.contents);
+    const content = getLocalizedContent(division.contents, locale);
 
     if (!content) {
       return [];

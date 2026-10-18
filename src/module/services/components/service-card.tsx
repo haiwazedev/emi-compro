@@ -1,15 +1,18 @@
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import type { ServiceDivision } from "@/module/services/content/services";
 import { Badge } from "@/shared/ui/badge";
 import { ServiceDivisionIcon } from "./service-division-icon";
+import { useCopy } from "@/i18n/use-copy";
 
 type ServiceCardProps = {
   service: ServiceDivision;
 };
 
 export function ServiceCard({ service }: ServiceCardProps) {
+  const copy = useCopy();
+
   return (
     <article className="border-background/80 bg-background shadow-foreground/10 flex h-full flex-col rounded-2xl border p-6 shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none sm:p-7">
       <ServiceDivisionIcon
@@ -40,7 +43,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         className="group text-secondary hover:text-accent focus-visible:ring-secondary/50 mt-auto inline-flex w-fit items-center gap-1 pt-6 text-xs font-bold transition-colors focus-visible:rounded-sm focus-visible:ring-2 focus-visible:outline-none"
         href={service.href}
       >
-        Explore {service.code}
+        {copy("Explore {code}", { code: service.code })}
         <ArrowRight
           aria-hidden="true"
           className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"

@@ -2,18 +2,29 @@
 
 import { MenuIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/i18n/navigation";
 import * as React from "react";
 
+import { usePathname } from "@/i18n/navigation";
+import { useCopy } from "@/i18n/use-copy";
+import type { Article } from "@/module/articles/content/articles";
 import { navLinks } from "@/module/layout/content/navigation";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import LanguageSwitcher from "./language-switcher";
 import MobileNavbarDropmenu from "./mobile-navbar-dropmenu";
 
-export function Navbar() {
+export function Navbar({
+  articleAlternateSlugs,
+}: {
+  articleAlternateSlugs?: Article["alternateSlugs"];
+}) {
   const pathname = usePathname();
+  const copy = useCopy();
+  const localizedNavLinks = navLinks.map((link) => ({
+    ...link,
+    label: copy(link.label),
+  }));
   const isAboutPage = pathname === "/about-us";
   const isServicesPage = pathname === "/services";
   const isArticlesPage =
@@ -78,16 +89,16 @@ export function Navbar() {
       )}
     >
       <nav
-        aria-label="Primary navigation"
+        aria-label={copy("Primary navigation")}
         className="mx-auto flex w-full max-w-7xl items-center justify-between gap-8 px-10 py-4 lg:justify-start"
       >
         <Link
-          aria-label="Danantara Indonesia home"
+          aria-label={copy("Danantara Indonesia home")}
           className="min-w-0 shrink-0 justify-self-start"
           href="/"
         >
           <Image
-            alt="Danantara Indonesia"
+            alt={copy("Danantara Indonesia")}
             className="drop-shadow-foreground/25 h-7 w-auto drop-shadow-md transition-[filter] duration-500 group-hover/nav:drop-shadow-none sm:h-8"
             height={1073}
             priority
@@ -97,7 +108,7 @@ export function Navbar() {
         </Link>
 
         <div className="hidden min-w-0 flex-1 items-center gap-1.5 px-6 lg:flex">
-          {navLinks.map((link) => {
+          {localizedNavLinks.map((link) => {
             const isActive = link.href === activeHref;
 
             return (
@@ -121,26 +132,26 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:gap-4">
-          <LanguageSwitcher />
+          <LanguageSwitcher articleAlternateSlugs={articleAlternateSlugs} />
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <Link
-              aria-label="PLN Energy Management Indonesia home"
+              aria-label={copy("PLN Energy Management Indonesia home")}
               href="/"
               className="hidden gap-2 lg:flex"
             >
               <div className="relative aspect-square w-12">
                 <Image
-                  alt="PLN Energy Management Indonesia"
+                  alt={copy("PLN Energy Management Indonesia")}
                   fill
                   priority
                   src="/pln-logo.svg"
                 />
               </div>
               <div className="flex flex-col items-start text-xs font-bold">
-                <span>PLN</span>
-                <span>Energy Management</span>
-                <span>Indonesia</span>
+                <span>{copy("PLN")}</span>
+                <span>{copy("Energy Management")}</span>
+                <span>{copy("Indonesia")}</span>
               </div>
             </Link>
 
@@ -149,8 +160,8 @@ export function Navbar() {
               aria-expanded={isMobileMenuOpen}
               aria-label={
                 isMobileMenuOpen
-                  ? "Close navigation menu"
-                  : "Open navigation menu"
+                  ? copy("Close navigation menu")
+                  : copy("Open navigation menu")
               }
               className={cn(
                 "hover:text-accent group-hover/nav:text-accent bg-transparent hover:cursor-pointer hover:bg-transparent lg:hidden",
@@ -175,7 +186,7 @@ export function Navbar() {
       <MobileNavbarDropmenu
         activeHref={activeHref ?? undefined}
         isOpen={isMobileMenuOpen}
-        navLinks={navLinks}
+        navLinks={localizedNavLinks}
         onClose={() => setIsMobileMenuOpen(false)}
       />
     </header>

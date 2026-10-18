@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
 
 type ApiBoardMemberType = {
@@ -50,22 +51,20 @@ export type ManagementData = {
   types: ManagementBoardType[];
 };
 
-const languageId = "id";
-
-export async function getManagementData(): Promise<ManagementData> {
+export async function getManagementData(
+  locale: Locale,
+): Promise<ManagementData> {
   const [typesResponse, membersResponse] = await Promise.all([
     apiGet<ApiBoardMemberTypesResponse>("/board_member_types"),
     apiGet<ApiBoardMembersResponse>("/board_members"),
   ]);
-  const indonesianTypes = typesResponse.board_member_types.filter(
-    (type) => type.language_id === languageId,
+  const localizedTypes = typesResponse.board_member_types.filter(
+    (type) => type.language_id === locale,
   );
   const membersByType = new Map<number, ManagementMember[]>();
 
   for (const member of membersResponse.board_members) {
-    const content = member.contents.find(
-      (item) => item.language_id === languageId,
-    );
+    const content = member.contents.find((item) => item.language_id === locale);
 
     if (!content) {
       continue;
@@ -84,7 +83,7 @@ export async function getManagementData(): Promise<ManagementData> {
   }
 
   return {
-    types: indonesianTypes.map((type) => ({
+    types: localizedTypes.map((type) => ({
       id: type.id,
       members: membersByType.get(type.id) ?? [],
       type: type.type,

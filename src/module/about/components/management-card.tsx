@@ -1,6 +1,7 @@
 import type { ManagementMember } from "@/module/about/lib/management-api";
 import { cn } from "@/shared/lib/utils";
 import { ManagementPortrait } from "./management-portrait";
+import { useCopy } from "@/i18n/use-copy";
 
 const managementToneClassNames = [
   "bg-linear-to-br from-secondary to-accent",
@@ -20,10 +21,11 @@ type ManagementCardProps = {
 };
 
 export function ManagementCard({ member, onOpen }: ManagementCardProps) {
+  const copy = useCopy();
   return (
     <button
       aria-haspopup="dialog"
-      aria-label={`Open profile for ${member.name}`}
+      aria-label={copy("Open profile for {name}", { name: member.name })}
       className="group bg-background shadow-foreground/10 focus-visible:ring-secondary/50 flex h-full w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-xl text-left shadow-lg transition hover:shadow-xl focus-visible:ring-2 focus-visible:outline-none"
       onClick={(event) => onOpen(member, event.currentTarget)}
       type="button"

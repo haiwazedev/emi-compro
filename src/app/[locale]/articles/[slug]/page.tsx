@@ -12,20 +12,23 @@ import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { SectionContainer } from "@/shared/components/section-container";
 import { ContentStatus } from "@/shared/components/content-status";
+import { getCopyKey } from "@/i18n/keys";
+import type { Locale } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 
 type ArticlePageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: Locale; slug: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
   let article: Article | null;
 
   try {
-    article = await getArticleBySlug(slug);
+    article = await getArticleBySlug(slug, locale);
   } catch {
     return {};
   }
@@ -41,13 +44,14 @@ export async function generateMetadata({
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "copy" });
 
   let article: Article | null = null;
   let hasApiError = false;
 
   try {
-    article = await getArticleBySlug(slug);
+    article = await getArticleBySlug(slug, locale);
   } catch {
     hasApiError = true;
   }
@@ -57,12 +61,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const relatedArticles = article
-    ? await getRelatedArticles(article.id).catch(() => [])
+    ? await getRelatedArticles(article.id, locale).catch(() => [])
     : [];
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <Navbar />
+      <Navbar articleAlternateSlugs={article?.alternateSlugs ?? {}} />
 
       <main>
         {article ? (
@@ -73,8 +77,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         ) : (
           <SectionContainer className="py-12 lg:py-20">
             <ContentStatus
-              description="This article cannot be displayed right now."
-              title="This article is temporarily unavailable."
+              description={t(
+                getCopyKey("This article cannot be displayed right now."),
+              )}
+              title={t(getCopyKey("This article is temporarily unavailable."))}
               variant="error"
             />
           </SectionContainer>

@@ -6,6 +6,8 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import type { CarouselApi } from "@/shared/ui/carousel";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { useCopy } from "@/i18n/use-copy";
+import { useLocale } from "next-intl";
 
 type HeroIndicatorDotButtonProps = {
   isActive: boolean;
@@ -68,6 +70,11 @@ export function HeroIndicators({
   api,
   slides,
 }: HeroIndicatorsProps) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(
+    locale === "id" ? "id-ID" : "en-US",
+  );
   return (
     <SectionContainer
       as="div"
@@ -83,9 +90,11 @@ export function HeroIndicators({
             <HeroIndicatorDotButton
               isActive={isActive}
               key={slide.id}
-              label={`Show slide ${index + 1}: ${slide.mainTitle} ${
-                slide.subtitle
-              }`}
+              label={copy("Show slide {index}: {mainTitle} {subtitle}", {
+                index: numberFormatter.format(index + 1),
+                mainTitle: slide.mainTitle,
+                subtitle: slide.subtitle,
+              })}
               onClick={() => api?.scrollTo(index)}
             />
           );
@@ -94,13 +103,13 @@ export function HeroIndicators({
 
       <div className="flex items-center gap-2">
         <HeroIndicatorArrowButton
-          aria-label="Previous slide"
+          aria-label={copy("Previous slide")}
           onClick={() => api?.scrollPrev()}
         >
           <ArrowLeftIcon aria-hidden="true" className="size-4" />
         </HeroIndicatorArrowButton>
         <HeroIndicatorArrowButton
-          aria-label="Next slide"
+          aria-label={copy("Next slide")}
           onClick={() => api?.scrollNext()}
         >
           <ArrowRightIcon aria-hidden="true" className="size-4" />

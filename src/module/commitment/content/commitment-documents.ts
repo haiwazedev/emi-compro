@@ -20,5 +20,5 @@ export type CommitmentDocument = {
   id: number;
   mediaTone: CommitmentDocumentMediaTone;
   title: string;
-  uploadedAt: string;
+  uploadedAt: string | null;
 };

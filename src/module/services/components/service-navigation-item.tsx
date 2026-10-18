@@ -1,7 +1,9 @@
 import { ArrowRight } from "lucide-react";
+import Link from "@/i18n/navigation";
 
 import type { ServiceNavigationItem as ServiceNavigationItemData } from "@/module/services/content/services";
 import { cn } from "@/shared/lib/utils";
+import { useCopy } from "@/i18n/use-copy";
 
 const navigationToneClassNames: Record<
   ServiceNavigationItemData["tone"],
@@ -18,6 +20,7 @@ type ServiceNavigationItemProps = {
 };
 
 export function ServiceNavigationItem({ item }: ServiceNavigationItemProps) {
+  const copy = useCopy();
   const Icon = item.icon;
   const panelClassName = cn(
     "group relative flex min-h-64 flex-1 flex-col justify-end overflow-hidden p-6 text-background sm:p-8 lg:min-h-80",
@@ -35,10 +38,10 @@ export function ServiceNavigationItem({ item }: ServiceNavigationItemProps) {
       />
       <div className="relative z-10 max-w-56">
         <p className="text-background/75 text-[0.6rem] font-bold tracking-[0.18em] uppercase">
-          {item.eyebrow}
+          {copy(item.eyebrow)}
         </p>
         <h3 className="text-background mt-3 font-sans text-lg leading-tight font-bold sm:text-xl">
-          {item.title}
+          {copy(item.title)}
         </h3>
         <span
           aria-hidden="true"
@@ -58,7 +61,7 @@ export function ServiceNavigationItem({ item }: ServiceNavigationItemProps) {
   return (
     <li className="flex min-w-0 flex-1">
       {item.href ? (
-        <a
+        <Link
           className={cn(
             panelClassName,
             "focus-visible:ring-background focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
@@ -66,7 +69,7 @@ export function ServiceNavigationItem({ item }: ServiceNavigationItemProps) {
           href={item.href}
         >
           {panelContent}
-        </a>
+        </Link>
       ) : (
         <div className={panelClassName}>{panelContent}</div>
       )}

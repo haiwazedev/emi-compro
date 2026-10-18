@@ -1,10 +1,13 @@
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
+import { useCopy } from "@/i18n/use-copy";
 
 export function ContactExpert() {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="contact-expert-heading"
@@ -15,15 +18,16 @@ export function ContactExpert() {
       <div className="flex justify-center">
         <div className="flex max-w-3xl flex-col items-center text-center">
           <p className="text-secondary text-xs font-bold tracking-[0.18em] uppercase">
-            NOT SURE WHERE TO START?
+            {copy("NOT SURE WHERE TO START?")}
           </p>
 
           <h2
             className="text-accent mt-4 max-w-2xl font-sans text-2xl leading-tight font-bold tracking-tight sm:text-3xl"
             id="contact-expert-heading"
           >
-            Our team can map the right service mix for your sustainability
-            goals.
+            {copy(
+              "Our team can map the right service mix for your sustainability goals.",
+            )}
           </h2>
 
           <Button
@@ -32,7 +36,7 @@ export function ContactExpert() {
             size="lg"
           >
             <Link href="/contact-us">
-              Talk to an Expert
+              {copy("Talk to an Expert")}
               <ArrowRight aria-hidden="true" className="size-3.5" />
             </Link>
           </Button>

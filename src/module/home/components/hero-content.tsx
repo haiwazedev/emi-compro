@@ -3,9 +3,11 @@ import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import Link from "@/i18n/navigation";
 
 import { ArrowRightIcon } from "lucide-react";
 import type { CopyTransitionState } from "../hooks/use-hero-carousel";
+import { useCopy } from "@/i18n/use-copy";
 
 type HeroContentProps = {
   copyAnimationClassName: string;
@@ -18,6 +20,7 @@ export function HeroContent({
   copyTransitionState,
   displayedSlide,
 }: HeroContentProps) {
+  const copy = useCopy();
   return (
     <SectionContainer
       as="div"
@@ -31,7 +34,7 @@ export function HeroContent({
           variant="outline"
         >
           <span className="animate-home-badge-pulse bg-accent-2 mr-1 size-2 rounded-full" />
-          Powering Indonesia Sustainable Future
+          {copy("Powering Indonesia Sustainable Future")}
         </Badge>
 
         <div aria-live="polite" className="mt-8">
@@ -66,7 +69,7 @@ export function HeroContent({
             className="bg-primary text-accent hover:bg-background h-12 rounded-full px-6 text-sm font-bold sm:px-7"
           >
             <div className="flex items-center gap-2">
-              <a href="#services">Explore Services</a>
+              <a href="#services">{copy("Explore Services")}</a>
               <ArrowRightIcon />
             </div>
           </Button>
@@ -75,7 +78,7 @@ export function HeroContent({
             className="border-background/70 bg-background/5 text-background hover:bg-background/15 hover:text-background h-12 rounded-full px-6 text-sm font-bold sm:px-7"
             variant="outline"
           >
-            <a href="/about-us">Learn More</a>
+            <Link href="/about-us">{copy("Learn More")}</Link>
           </Button>
         </div>
       </div>

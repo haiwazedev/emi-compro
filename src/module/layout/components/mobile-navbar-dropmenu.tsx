@@ -1,7 +1,8 @@
 import type { NavLink } from "@/module/layout/content/navigation";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 import { cn } from "@/shared/lib/utils";
 import type { FC } from "react";
+import { useCopy } from "@/i18n/use-copy";
 
 type MenuItemProps = {
   href: string;
@@ -40,6 +41,8 @@ const MobileNavbarDropmenu: FC<MobileNavbarDropmenuProps> = ({
   navLinks,
   onClose,
 }) => {
+  const copy = useCopy();
+
   return (
     <div
       aria-hidden={!isOpen}
@@ -53,7 +56,7 @@ const MobileNavbarDropmenu: FC<MobileNavbarDropmenuProps> = ({
       inert={!isOpen}
     >
       <nav
-        aria-label="Mobile navigation"
+        aria-label={copy("Mobile navigation")}
         className="bg-primary shadow-foreground/10 flex max-h-dvh flex-col overflow-y-auto px-10 py-4 shadow-sm"
       >
         <ul className="flex flex-col gap-2 font-semibold">

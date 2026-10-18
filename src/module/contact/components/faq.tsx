@@ -7,8 +7,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/ui/accordion";
+import { useCopy } from "@/i18n/use-copy";
 
 export function FAQ({ faqs }: { faqs: ContactFaqItem[] | null }) {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="faq-heading"
@@ -19,28 +22,29 @@ export function FAQ({ faqs }: { faqs: ContactFaqItem[] | null }) {
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
           <p className="text-secondary text-xs font-bold tracking-[0.18em] uppercase">
-            FAQ
+            {copy("FAQ")}
           </p>
           <h2
             className="text-accent mt-4 font-sans text-3xl leading-tight font-bold tracking-tight sm:text-4xl"
             id="faq-heading"
           >
-            Frequently Asked <span className="text-secondary">Questions</span>
+            {copy("Frequently Asked")}{" "}
+            <span className="text-secondary">{copy("Questions")}</span>
           </h2>
         </div>
 
         {faqs === null ? (
           <ContentStatus
             className="mt-8"
-            description="Please try again later."
-            title="Unable to load FAQs"
+            description={copy("Please try again later.")}
+            title={copy("Unable to load FAQs")}
             variant="error"
           />
         ) : faqs.length === 0 ? (
           <ContentStatus
             className="mt-8"
-            description="Please check back later."
-            title="No FAQs are currently available"
+            description={copy("Please check back later.")}
+            title={copy("No FAQs are currently available")}
             variant="empty"
           />
         ) : (

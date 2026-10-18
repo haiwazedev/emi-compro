@@ -3,6 +3,7 @@ import type { Partner } from "@/module/partners/content/partners";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
+import { useCopy } from "@/i18n/use-copy";
 
 type PartnersSectionProps = {
   data: Partner[] | null;
@@ -10,6 +11,8 @@ type PartnersSectionProps = {
 };
 
 export function PartnersSection({ data, error }: PartnersSectionProps) {
+  const copy = useCopy();
+
   return (
     <SectionContainer
       aria-labelledby="partners-heading"
@@ -18,27 +21,27 @@ export function PartnersSection({ data, error }: PartnersSectionProps) {
       variant="default"
     >
       <SectionIntro
-        accent="Partners"
-        description={
-          "We are proud to partner with leading organizations across various industries, driving energy efficiency and sustainability solutions together."
-        }
-        eyebrow="PARTNER PLN EMI"
+        accent={copy("Partners heading accent")}
+        description={copy(
+          "We are proud to partner with leading organizations across various industries, driving energy efficiency and sustainability solutions together.",
+        )}
+        eyebrow={copy("PARTNER PLN EMI")}
         headingId="partners-heading"
         theme="light"
-        title="Our"
+        title={copy("Partners heading title")}
       />
 
       {error ? (
         <ContentStatus
-          description="Client logos are currently unavailable."
-          title="Partners are temporarily unavailable."
+          description={copy("Client logos are currently unavailable.")}
+          title={copy("Partners are temporarily unavailable.")}
           variant="error"
         />
       ) : null}
 
       {!error && data && data.length > 0 ? (
         <ul
-          aria-label="PLN EMI partners"
+          aria-label={copy("PLN EMI partners")}
           className="-m-2 mt-10 flex flex-wrap lg:mt-8"
         >
           {data.map((partner) => (

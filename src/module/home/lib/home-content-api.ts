@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import type { HomeSlide, HomeStatistic } from "@/module/home/content/home";
 import {
   getSiteContentBlockItems,
@@ -79,8 +80,10 @@ function getTeaserField(
   return getSiteContentValue(item, field);
 }
 
-export async function getHomeSiteContentData(): Promise<HomeSiteContentData> {
-  const items = await getSiteContentItems("home");
+export async function getHomeSiteContentData(
+  locale: Locale,
+): Promise<HomeSiteContentData> {
+  const items = await getSiteContentItems("home", locale);
 
   return {
     slides: mapSlides(items),

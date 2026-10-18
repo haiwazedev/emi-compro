@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/i18n/navigation";
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";

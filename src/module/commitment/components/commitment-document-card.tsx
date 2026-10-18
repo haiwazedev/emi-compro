@@ -3,6 +3,7 @@ import { Download, FileText } from "lucide-react";
 import type { CommitmentDocument } from "@/module/commitment/content/commitment-documents";
 import { commitmentDocumentMediaToneClassNames } from "@/module/commitment/content/commitment-documents";
 import { cn } from "@/shared/lib/utils";
+import { useCopy } from "@/i18n/use-copy";
 
 type CommitmentDocumentCardProps = {
   document: CommitmentDocument;
@@ -11,6 +12,8 @@ type CommitmentDocumentCardProps = {
 export function CommitmentDocumentCard({
   document,
 }: CommitmentDocumentCardProps) {
+  const copy = useCopy();
+
   return (
     <article className="flex gap-4 lg:gap-5">
       <div
@@ -32,18 +35,21 @@ export function CommitmentDocumentCard({
         </h3>
 
         <p className="text-foreground/60 mt-1 text-xs leading-4 lg:text-sm lg:leading-5">
-          {document.category} · PDF · {document.fileSize} ·{" "}
-          {document.uploadedAt}
+          {document.category || copy("No document category")} · PDF ·{" "}
+          {document.fileSize} ·{" "}
+          {document.uploadedAt ?? copy("Tanggal tidak tersedia")}
         </p>
 
         <a
-          aria-label={`Open ${document.title} PDF in a new tab`}
+          aria-label={copy("Open {title} PDF in a new tab", {
+            title: document.title,
+          })}
           className="text-secondary focus-visible:ring-secondary/50 mt-2 inline-flex w-fit items-center gap-1 text-xs font-bold focus-visible:rounded-sm focus-visible:ring-2 focus-visible:outline-none lg:text-sm"
           href={document.fileUrl}
           rel="noopener noreferrer"
           target="_blank"
         >
-          Unduh PDF
+          {copy("Download PDF")}
           <Download aria-hidden="true" className="size-3 lg:size-3.5" />
         </a>
       </div>

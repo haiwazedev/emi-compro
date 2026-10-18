@@ -2,13 +2,17 @@
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
-import { FC, useState } from "react";
+import { useLocale } from "next-intl";
+import type { FC } from "react";
 
-export type Language = "id" | "en";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import { useCopy } from "@/i18n/use-copy";
+
+export type Language = Locale;
 
 type Props = {
-  defaultLanguage?: Language;
-  onLanguageChange?: (language: Language) => void;
+  articleAlternateSlugs?: Partial<Record<Language, string>>;
 };
 
 const languages: { label: string; value: Language }[] = [
@@ -16,25 +20,35 @@ const languages: { label: string; value: Language }[] = [
   { label: "EN", value: "en" },
 ];
 
-const LanguageSwitcher: FC<Props> = ({
-  defaultLanguage = "id",
-  onLanguageChange,
-}) => {
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<Language>(defaultLanguage);
+const LanguageSwitcher: FC<Props> = ({ articleAlternateSlugs }) => {
+  const selectedLanguage = useLocale() as Language;
+  const pathname = usePathname();
+  const router = useRouter();
+  const copy = useCopy();
 
   function handleLanguageChange(language: Language) {
     if (language === selectedLanguage) {
       return;
     }
 
-    setSelectedLanguage(language);
-    onLanguageChange?.(language);
+    const alternateSlug = articleAlternateSlugs?.[language];
+    const isArticlePage = articleAlternateSlugs !== undefined;
+    const targetPathname = articleAlternateSlugs
+      ? alternateSlug
+        ? `/articles/${encodeURIComponent(alternateSlug)}`
+        : "/articles"
+      : pathname;
+    const preserveHash = !isArticlePage || Boolean(alternateSlug);
+
+    router.replace(
+      `${targetPathname}${window.location.search}${preserveHash ? window.location.hash : ""}`,
+      { locale: language },
+    );
   }
 
   return (
     <div
-      aria-label="Language selector"
+      aria-label={copy("Language selector")}
       className="bg-background flex overflow-hidden rounded-full"
       role="group"
     >

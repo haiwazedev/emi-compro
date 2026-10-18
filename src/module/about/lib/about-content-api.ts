@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Locale } from "@/i18n/routing";
 import type {
   AboutHistoryItem,
   AboutMissionItem,
@@ -19,8 +20,10 @@ export type AboutSiteContentData = {
   vision: string | null;
 };
 
-export async function getAboutSiteContentData(): Promise<AboutSiteContentData> {
-  const items = await getSiteContentItems("about-us");
+export async function getAboutSiteContentData(
+  locale: Locale,
+): Promise<AboutSiteContentData> {
+  const items = await getSiteContentItems("about-us", locale);
   const profileItem = getSiteContentBlockItems(
     items,
     "company-profile",
