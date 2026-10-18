@@ -53,11 +53,20 @@ export function ManagementDialog({
         </DialogTitle>
 
         <DialogDescription
-          className="text-secondary mt-3 text-sm leading-5 font-semibold"
+          className="text-foreground/75 mt-3 text-base leading-7"
           id={descriptionId}
         >
-          {member.role}
+          <strong className="text-foreground font-semibold">
+            {member.role}
+          </strong>
+          {member.companyName ? ` dari ${member.companyName}` : null}
         </DialogDescription>
+
+        {member.description ? (
+          <p className="text-foreground/75 mt-6 text-sm leading-7">
+            {member.description}
+          </p>
+        ) : null}
       </div>
     </DialogContent>
   );
