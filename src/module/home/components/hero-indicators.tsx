@@ -23,8 +23,8 @@ function HeroIndicatorDotButton({
       aria-current={isActive ? "true" : undefined}
       aria-label={label}
       className={cn(
-        "h-2.5 cursor-pointer rounded-full bg-background/55 transition-all duration-300 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-accent/40",
-        isActive ? "w-8 bg-primary" : "w-2.5",
+        "bg-background/55 hover:bg-background focus-visible:ring-secondary focus-visible:ring-offset-accent/40 h-2.5 cursor-pointer rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+        isActive ? "bg-primary w-8" : "w-2.5",
       )}
       onClick={onClick}
       type="button"
@@ -46,7 +46,7 @@ function HeroIndicatorArrowButton({
   return (
     <Button
       aria-label={ariaLabel}
-      className="size-12 cursor-pointer rounded-xl border-background/60 bg-background/10 text-background hover:bg-background/20 hover:text-background focus-visible:ring-secondary"
+      className="border-background/60 bg-background/10 text-background hover:bg-background/20 hover:text-background focus-visible:ring-secondary size-12 cursor-pointer rounded-xl"
       onClick={onClick}
       size="icon-lg"
       type="button"
@@ -82,7 +82,7 @@ export function HeroIndicators({
           return (
             <HeroIndicatorDotButton
               isActive={isActive}
-              key={slide.image}
+              key={slide.id}
               label={`Show slide ${index + 1}: ${slide.mainTitle} ${
                 slide.subtitle
               }`}

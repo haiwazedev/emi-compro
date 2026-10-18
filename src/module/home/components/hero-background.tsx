@@ -16,22 +16,24 @@ export function HeroBackground({
 }: HeroBackgroundProps) {
   return (
     <div className="absolute inset-0">
-      {slides.map((slide, index) => (
-        <Image
-          alt={slide.imageAlt}
-          aria-hidden={index !== activeIndex}
-          className={cn(
-            "object-cover transition-opacity duration-700 ease-out",
-            prefersReducedMotion && "duration-0",
-            index === activeIndex ? "opacity-100" : "opacity-0",
-          )}
-          fill
-          key={slide.image}
-          priority={index === 0}
-          sizes="100vw"
-          src={slide.image}
-        />
-      ))}
+      {slides.map((slide, index) =>
+        slide.image ? (
+          <Image
+            alt={slide.imageAlt}
+            aria-hidden={index !== activeIndex}
+            className={cn(
+              "object-cover transition-opacity duration-700 ease-out",
+              prefersReducedMotion && "duration-0",
+              index === activeIndex ? "opacity-100" : "opacity-0",
+            )}
+            fill
+            key={slide.id}
+            priority={index === 0}
+            sizes="100vw"
+            src={slide.image}
+          />
+        ) : null,
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AboutPageContent } from "@/module/about/components/about-page-content";
+import { getAboutSiteContentData } from "@/module/about/lib/about-content-api";
 import { getManagementData } from "@/module/about/lib/management-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
@@ -12,14 +13,16 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutUsPage() {
-  let managementData = null;
-  let managementError = false;
-
-  try {
-    managementData = await getManagementData();
-  } catch {
-    managementError = true;
-  }
+  const [contentResult, managementResult] = await Promise.allSettled([
+    getAboutSiteContentData(),
+    getManagementData(),
+  ]);
+  const contentData =
+    contentResult.status === "fulfilled" ? contentResult.value : null;
+  const contentError = contentResult.status === "rejected";
+  const managementData =
+    managementResult.status === "fulfilled" ? managementResult.value : null;
+  const managementError = managementResult.status === "rejected";
 
   return (
     <div className="bg-background text-foreground min-h-screen">
@@ -27,6 +30,8 @@ export default async function AboutUsPage() {
 
       <main>
         <AboutPageContent
+          contentData={contentData}
+          contentError={contentError}
           managementData={managementData}
           managementError={managementError}
         />

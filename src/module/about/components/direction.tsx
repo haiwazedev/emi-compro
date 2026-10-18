@@ -1,9 +1,18 @@
 import { aboutPageContent } from "@/module/about/content/about-page";
+import type { AboutMissionItem } from "@/module/about/content/about-page";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 
-export function Direction() {
-  const { eyebrow, mission, title, vision } = aboutPageContent.direction;
+type DirectionProps = {
+  error: boolean;
+  mission: AboutMissionItem[];
+  vision: string | null;
+};
+
+export function Direction({ error, mission, vision }: DirectionProps) {
+  const { eyebrow, title } = aboutPageContent.direction;
   const [visionTitle, missionTitle] = title.split(" & ");
+  const hasContent = Boolean(vision || mission.length > 0);
 
   return (
     <SectionContainer
@@ -23,21 +32,56 @@ export function Direction() {
         <span className="text-secondary">&amp; {missionTitle}</span>
       </h2>
 
-      <div className="mt-9 flex flex-col gap-4 lg:flex-row">
-        <article className="bg-accent text-background flex min-w-0 flex-1 flex-col rounded-xl p-6 sm:p-8">
-          <h3 className="text-lg font-bold sm:text-xl">Vision</h3>
-          <p className="text-primary/75 mt-5 text-sm leading-7">{vision}</p>
-        </article>
+      {error || !hasContent ? (
+        <ContentStatus
+          description={
+            error
+              ? "Vision and mission information is temporarily unavailable. Please try again later."
+              : "Vision and mission information is not available at this time."
+          }
+          title={
+            error
+              ? "Vision and mission are unavailable."
+              : "No vision or mission found."
+          }
+          variant={error ? "error" : "empty"}
+        />
+      ) : (
+        <div className="mt-9 flex flex-col gap-4 lg:flex-row">
+          <article className="bg-accent text-background flex min-w-0 flex-1 flex-col rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold sm:text-xl">Vision</h3>
+            {vision ? (
+              <p className="text-primary/75 mt-5 text-sm leading-7">{vision}</p>
+            ) : (
+              <ContentStatus
+                description="Vision information is not available at this time."
+                title="No vision found."
+                variant="empty"
+              />
+            )}
+          </article>
 
-        <article className="bg-accent-2 text-background flex min-w-0 flex-1 flex-col rounded-xl p-6 sm:p-8">
-          <h3 className="text-lg font-bold sm:text-xl">Mission</h3>
-          <ol className="text-primary/80 mt-5 list-decimal space-y-3 pl-5 text-sm leading-7">
-            {mission.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
-        </article>
-      </div>
+          <article className="bg-accent-2 text-background flex min-w-0 flex-1 flex-col rounded-xl p-6 sm:p-8">
+            <h3 className="text-lg font-bold sm:text-xl">Mission</h3>
+            {mission.length > 0 ? (
+              <ol className="text-primary/80 mt-5 list-decimal space-y-3 pl-5 text-sm leading-7">
+                {mission.map((item) => (
+                  <li key={item.id}>
+                    <span className="font-semibold">{item.title}</span>
+                    <span> {item.description}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <ContentStatus
+                description="Mission information is not available at this time."
+                title="No mission found."
+                variant="empty"
+              />
+            )}
+          </article>
+        </div>
+      )}
     </SectionContainer>
   );
 }

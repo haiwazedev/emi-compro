@@ -4,6 +4,7 @@ import { getHomeArticleData } from "@/module/articles/lib/articles-api";
 import { CommitmentSection } from "@/module/commitment/components/commitment-section";
 import { ContactUsSection } from "@/module/contact/components/contact-us-section";
 import { HomeHero } from "@/module/home/components/home-hero";
+import { getHomeSiteContentData } from "@/module/home/lib/home-content-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { PartnersSection } from "@/module/partners/components/partners-section";
@@ -24,10 +25,13 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const categoryValue = getFirstSearchParamValue(params.homeCategory);
   const categoryId = parsePositiveInteger(categoryValue);
-  const [articleResult, servicesResult] = await Promise.allSettled([
+  const [homeResult, articleResult, servicesResult] = await Promise.allSettled([
+    getHomeSiteContentData(),
     getHomeArticleData(categoryId),
     getServiceDirectoryData(),
   ]);
+  const homeData = homeResult.status === "fulfilled" ? homeResult.value : null;
+  const homeError = homeResult.status === "rejected";
   const articleData =
     articleResult.status === "fulfilled" ? articleResult.value : null;
   const articlesError = articleResult.status === "rejected";
@@ -40,8 +44,8 @@ export default async function Home({ searchParams }: HomeProps) {
       <Navbar />
 
       <main>
-        <HomeHero />
-        <AboutUsSection />
+        <HomeHero error={homeError} slides={homeData?.slides ?? []} />
+        <AboutUsSection data={homeData} error={homeError} />
         <ServicesSection data={servicesData} error={servicesError} />
         <PartnersSection />
         <ArticlesSection data={articleData} error={articlesError} />

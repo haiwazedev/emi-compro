@@ -1,12 +1,24 @@
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import { aboutPageContent } from "@/module/about/content/about-page";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { Button } from "@/shared/ui/button";
 
-export function CompanyProfile() {
-  const { eyebrow, paragraphs, partOfLabel, partOfValue, title } =
+type CompanyProfileProps = {
+  error: boolean;
+  pictureUrl: string | null;
+  profileContent: string | null;
+};
+
+export function CompanyProfile({
+  error,
+  pictureUrl,
+  profileContent,
+}: CompanyProfileProps) {
+  const { eyebrow, partOfLabel, partOfValue, title } =
     aboutPageContent.companyProfile;
 
   return (
@@ -28,11 +40,25 @@ export function CompanyProfile() {
             {title}
           </h2>
 
-          <div className="text-foreground/70 mt-6 space-y-5 text-sm leading-7">
-            {paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
+          {profileContent ? (
+            <p className="text-foreground/70 mt-6 text-sm leading-7 whitespace-pre-line">
+              {profileContent}
+            </p>
+          ) : (
+            <ContentStatus
+              description={
+                error
+                  ? "Company profile information is temporarily unavailable. Please try again later."
+                  : "Company profile information is not available at this time."
+              }
+              title={
+                error
+                  ? "Company profile is unavailable."
+                  : "No company profile found."
+              }
+              variant={error ? "error" : "empty"}
+            />
+          )}
 
           <div className="mt-7 flex flex-wrap gap-3">
             <Button
@@ -56,6 +82,32 @@ export function CompanyProfile() {
 
         <div className="w-full min-w-0 flex-1">
           <div className="from-secondary via-accent to-foreground shadow-foreground/15 relative aspect-video overflow-hidden rounded-xl bg-linear-to-br shadow-xl">
+            {pictureUrl ? (
+              <Image
+                alt="PLN EMI company profile"
+                className="object-cover"
+                fill
+                sizes="(min-width: 64rem) 50vw, 100vw"
+                src={pictureUrl}
+              />
+            ) : (
+              <div className="absolute inset-0 z-10 flex items-center px-4">
+                <ContentStatus
+                  className="w-full"
+                  description={
+                    error
+                      ? "The company photo is temporarily unavailable. Please try again later."
+                      : "A company photo is not available at this time."
+                  }
+                  title={
+                    error
+                      ? "Company photo is unavailable."
+                      : "No company photo found."
+                  }
+                  variant={error ? "error" : "empty"}
+                />
+              </div>
+            )}
             <div
               aria-hidden="true"
               className="from-background/10 to-foreground/25 absolute inset-0 bg-linear-to-br via-transparent"

@@ -2,19 +2,51 @@
 
 import * as React from "react";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/shared/ui/carousel";
-import { homeSlides } from "@/module/home/content/home";
+import type { HomeSlide } from "@/module/home/content/home";
+import { ContentStatus } from "@/shared/components/content-status";
+import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/carousel";
 
 import { HeroBackground } from "./hero-background";
 import { HeroContent } from "./hero-content";
 import { HeroIndicators } from "./hero-indicators";
 import { useHeroCarousel } from "../hooks/use-hero-carousel";
 
-export function HomeHero() {
+type HomeHeroProps = {
+  error: boolean;
+  slides: HomeSlide[];
+};
+
+export function HomeHero({ error, slides }: HomeHeroProps) {
+  if (slides.length === 0) {
+    return (
+      <section
+        aria-label="PLN EMI home hero"
+        className="bg-accent text-background relative isolate -mt-20 flex min-h-svh items-center overflow-hidden"
+        id="home"
+      >
+        <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+          <ContentStatus
+            description={
+              error
+                ? "Home highlights are temporarily unavailable. Please try again later."
+                : "Home highlights are not available at this time."
+            }
+            title={
+              error
+                ? "Home highlights are unavailable."
+                : "No home highlights found."
+            }
+            variant={error ? "error" : "empty"}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  return <HomeHeroCarousel slides={slides} />;
+}
+
+function HomeHeroCarousel({ slides }: { slides: HomeSlide[] }) {
   const {
     activeIndex,
     api,
@@ -24,7 +56,7 @@ export function HomeHero() {
     prefersReducedMotion,
     setApi,
     setIsPaused,
-  } = useHeroCarousel(homeSlides);
+  } = useHeroCarousel(slides);
 
   const handleBlurCapture = (event: React.FocusEvent<HTMLElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -36,7 +68,7 @@ export function HomeHero() {
     <section
       id="home"
       aria-label="PLN EMI home hero"
-      className="relative isolate -mt-20 min-h-svh overflow-hidden bg-accent text-background"
+      className="bg-accent text-background relative isolate -mt-20 min-h-svh overflow-hidden"
       onBlurCapture={handleBlurCapture}
       onFocusCapture={() => setIsPaused(true)}
       onMouseEnter={() => setIsPaused(true)}
@@ -48,8 +80,8 @@ export function HomeHero() {
         setApi={setApi}
       >
         <CarouselContent className="h-full opacity-0" aria-hidden="true">
-          {homeSlides.map((slide) => (
-            <CarouselItem className="h-full pl-0" key={slide.image}>
+          {slides.map((slide) => (
+            <CarouselItem className="h-full pl-0" key={slide.id}>
               <span>{slide.mainTitle}</span>
             </CarouselItem>
           ))}
@@ -59,16 +91,16 @@ export function HomeHero() {
       <HeroBackground
         activeIndex={activeIndex}
         prefersReducedMotion={prefersReducedMotion}
-        slides={homeSlides}
+        slides={slides}
       />
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-linear-to-r from-accent-2/80 via-foreground/50 to-accent/20"
+        className="from-accent-2/80 via-foreground/50 to-accent/20 absolute inset-0 bg-linear-to-r"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-36 bg-linear-to-b from-accent/35 to-transparent"
+        className="from-accent/35 absolute inset-x-0 top-0 h-36 bg-linear-to-b to-transparent"
       />
 
       <HeroContent
@@ -76,11 +108,7 @@ export function HomeHero() {
         copyTransitionState={copyTransitionState}
         displayedSlide={displayedSlide}
       />
-      <HeroIndicators
-        activeIndex={activeIndex}
-        api={api}
-        slides={homeSlides}
-      />
+      <HeroIndicators activeIndex={activeIndex} api={api} slides={slides} />
     </section>
   );
 }
