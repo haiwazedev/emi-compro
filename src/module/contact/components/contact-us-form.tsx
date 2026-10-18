@@ -17,7 +17,9 @@ import {
   type ContactDetail,
   type ContactDetailIcon,
   type ContactPageSettings,
+  type InboxSubject,
 } from "@/module/contact/content/contact";
+import { submitContactInbox } from "@/module/contact/lib/contact-client-api";
 import { SectionContainer } from "@/shared/components/section-container";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
@@ -95,25 +97,75 @@ function RequiredIndicator() {
 
 export function ContactUsForm({
   contactSettings,
+  inboxSubjects,
 }: {
   contactSettings: ContactPageSettings | null;
+  inboxSubjects: InboxSubject[] | null;
 }) {
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
   const formContent = contactPageContent.form;
+  const subjects = inboxSubjects ?? [];
+  const subjectLoadError =
+    inboxSubjects === null
+      ? formContent.subjectLoadErrorMessage
+      : inboxSubjects.length === 0
+        ? formContent.subjectEmptyMessage
+        : null;
+  const [selectedSubjectId, setSelectedSubjectId] = React.useState(
+    String(subjects[0]?.id ?? ""),
+  );
   const contactDetails = contactSettings?.details ?? [];
   const mapLabel = contactSettings?.mapLabel ?? null;
   const socialLinks = contactSettings?.socialLinks ?? [];
   const hasContactInfo =
     contactDetails.length > 0 || mapLabel !== null || socialLinks.length > 0;
-  const defaultSubject = formContent.subjectOptions[0];
-  const [selectedSubject, setSelectedSubject] = React.useState(defaultSubject);
   const [formTitleStart, ...formTitleAccent] = formContent.title.split(" ");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    event.currentTarget.reset();
-    setSelectedSubject(defaultSubject);
-    setIsSubmitted(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const selectedSubject = subjects.find(
+      (subject) => String(subject.id) === selectedSubjectId,
+    );
+
+    if (!selectedSubject || isSubmitting) {
+      return;
+    }
+
+    const getValue = (key: string) => {
+      const value = formData.get(key);
+
+      return typeof value === "string" ? value.trim() : "";
+    };
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setIsSubmitted(false);
+
+    try {
+      await submitContactInbox({
+        name: getValue("fullName"),
+        email: getValue("email"),
+        company: getValue("company") || null,
+        phone: getValue("phone") || null,
+        inbox_subject_id: selectedSubject.id,
+        message: getValue("message"),
+      });
+
+      form.reset();
+      setSelectedSubjectId(String(subjects[0]?.id ?? ""));
+      setIsSubmitted(true);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : formContent.submitErrorMessage,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -219,7 +271,24 @@ export function ContactUsForm({
             </p>
           ) : null}
 
-          <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
+          {submitError ? (
+            <p
+              aria-live="assertive"
+              className="border-accent/20 bg-accent/10 text-accent mt-5 rounded-xl border px-4 py-3 text-xs leading-5"
+              role="alert"
+            >
+              {submitError}
+            </p>
+          ) : null}
+
+          <form
+            className="mt-6 flex flex-col gap-4"
+            onChange={() => {
+              setSubmitError(null);
+              setIsSubmitted(false);
+            }}
+            onSubmit={handleSubmit}
+          >
             <div className="flex flex-col gap-4 lg:flex-row">
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <Label
@@ -233,6 +302,7 @@ export function ContactUsForm({
                   autoComplete="name"
                   className={cn(controlClassName, "h-11 text-xs md:text-xs")}
                   id="full-name"
+                  maxLength={100}
                   name="fullName"
                   placeholder={formContent.fields.fullName.placeholder}
                   required
@@ -252,6 +322,7 @@ export function ContactUsForm({
                   autoComplete="email"
                   className={cn(controlClassName, "h-11 text-xs md:text-xs")}
                   id="email"
+                  maxLength={254}
                   name="email"
                   placeholder={formContent.fields.email.placeholder}
                   required
@@ -272,6 +343,7 @@ export function ContactUsForm({
                   autoComplete="organization"
                   className={cn(controlClassName, "h-11 text-xs md:text-xs")}
                   id="company"
+                  maxLength={200}
                   name="company"
                   placeholder={formContent.fields.company.placeholder}
                   type="text"
@@ -289,6 +361,7 @@ export function ContactUsForm({
                   autoComplete="tel"
                   className={cn(controlClassName, "h-11 text-xs md:text-xs")}
                   id="phone"
+                  maxLength={30}
                   name="phone"
                   placeholder={formContent.fields.phone.placeholder}
                   type="tel"
@@ -305,10 +378,19 @@ export function ContactUsForm({
                 <RequiredIndicator />
               </Label>
               <Select
-                name="subject"
-                onValueChange={setSelectedSubject}
+                disabled={
+                  subjectLoadError !== null ||
+                  subjects.length === 0 ||
+                  isSubmitting
+                }
+                name="inbox_subject_id"
+                onValueChange={(subjectId) => {
+                  setSelectedSubjectId(subjectId);
+                  setSubmitError(null);
+                  setIsSubmitted(false);
+                }}
                 required
-                value={selectedSubject}
+                value={selectedSubjectId}
               >
                 <SelectTrigger
                   className={cn(
@@ -317,20 +399,37 @@ export function ContactUsForm({
                   )}
                   id="subject"
                 >
-                  <SelectValue />
+                  <SelectValue placeholder={formContent.subjectPlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="border-foreground/10 bg-background text-accent">
-                  {formContent.subjectOptions.map((subject) => (
+                  {subjects.map((subject) => (
                     <SelectItem
                       className="focus:bg-primary focus:text-accent"
-                      key={subject}
-                      value={subject}
+                      key={subject.id}
+                      value={String(subject.id)}
                     >
-                      {subject}
+                      {subject.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {subjectLoadError ? (
+                <div
+                  aria-live="assertive"
+                  className="flex flex-wrap items-center gap-1 text-[0.65rem] leading-4"
+                  role="alert"
+                >
+                  <span className="text-accent">{subjectLoadError}</span>
+                  <Button
+                    className="h-auto px-1 py-0 text-[0.65rem]"
+                    onClick={() => window.location.reload()}
+                    type="button"
+                    variant="link"
+                  >
+                    {formContent.subjectReloadLabel}
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -344,6 +443,7 @@ export function ContactUsForm({
               <Textarea
                 className={cn(controlClassName, "min-h-28 resize-y py-3")}
                 id="message"
+                maxLength={5000}
                 name="message"
                 placeholder={formContent.fields.message.placeholder}
                 required
@@ -352,10 +452,20 @@ export function ContactUsForm({
 
             <Button
               className="bg-accent text-background hover:bg-accent/85 focus-visible:ring-secondary/50 mt-1 h-10 w-full rounded-full text-xs font-bold"
+              disabled={
+                isSubmitting ||
+                subjectLoadError !== null ||
+                subjects.length === 0 ||
+                selectedSubjectId === ""
+              }
               type="submit"
             >
-              {formContent.submitLabel}
-              <ArrowRight aria-hidden="true" className="size-3.5" />
+              {isSubmitting
+                ? formContent.submittingLabel
+                : formContent.submitLabel}
+              {!isSubmitting ? (
+                <ArrowRight aria-hidden="true" className="size-3.5" />
+              ) : null}
             </Button>
 
             <p className="text-foreground/55 text-[0.65rem] leading-4">

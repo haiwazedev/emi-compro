@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 
 import { ContactPageContent } from "@/module/contact/components/contact-page-content";
 import type { ContactPageSettings } from "@/module/contact/content/contact";
-import { getContactPageSettings } from "@/module/contact/lib/contact-api";
+import {
+  getContactPageSettings,
+  getInboxSubjects,
+} from "@/module/contact/lib/contact-api";
 import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 
@@ -13,20 +16,20 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactUsPage() {
-  let contactSettings: ContactPageSettings | null = null;
-
-  try {
-    contactSettings = await getContactPageSettings();
-  } catch {
-    contactSettings = null;
-  }
+  const [contactSettings, inboxSubjects] = await Promise.all([
+    getContactPageSettings().catch((): ContactPageSettings | null => null),
+    getInboxSubjects().catch(() => null),
+  ]);
 
   return (
     <div className="bg-background text-foreground min-h-screen">
       <Navbar />
 
       <main>
-        <ContactPageContent contactSettings={contactSettings} />
+        <ContactPageContent
+          contactSettings={contactSettings}
+          inboxSubjects={inboxSubjects}
+        />
       </main>
 
       <Footer />

@@ -30,6 +30,11 @@ export type ContactPageSettings = {
   socialLinks: ContactSocialLink[];
 };
 
+export type InboxSubject = {
+  id: number;
+  name: string;
+};
+
 export type ContactFaqItem = {
   question: string;
   answer: string;
@@ -55,13 +60,14 @@ export const contactPageContent = {
       subject: { label: "Subject" },
       message: { label: "Message", placeholder: "Tell us about your needs..." },
     },
-    subjectOptions: [
-      "General Inquiry",
-      "Services",
-      "Media & Information",
-      "Partnerships",
-    ],
     submitLabel: "Send Message",
+    submittingLabel: "Sending...",
+    subjectPlaceholder: "Select a subject",
+    subjectLoadErrorMessage:
+      "Unable to load message subjects. Please try again.",
+    subjectEmptyMessage: "No message subjects are currently available.",
+    subjectReloadLabel: "Reload page",
+    submitErrorMessage: "We could not send your message. Please try again.",
     disclaimer:
       "By submitting, you agree to be contacted by EMI regarding your inquiry. Your data is handled in our privacy policy.",
     successMessage:

@@ -16,12 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Article API
+## API Configuration
 
 The homepage and article pages fetch published Indonesian content from the API
 server-side. Set `API_BASE_URL` to the API origin before starting or building
 the application. The app exits with a configuration error if it is missing or
 is not a valid HTTP or HTTPS URL.
+
+The contact form reads its subject options and submits messages directly from
+the browser. Set `NEXT_PUBLIC_API_BASE_URL` to the same API origin as
+`API_BASE_URL`. This public value is included in the browser bundle, so it must
+not contain credentials.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

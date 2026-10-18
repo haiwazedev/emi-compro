@@ -4,6 +4,7 @@ import type {
   ContactDetail,
   ContactDetailIcon,
   ContactPageSettings,
+  InboxSubject,
 } from "@/module/contact/content/contact";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
 
@@ -30,6 +31,10 @@ type ApiSiteSettings = {
 
 type ApiSiteSettingsResponse = {
   site_settings: ApiSiteSettings;
+};
+
+type ApiInboxSubjectsResponse = {
+  inbox_subjects: InboxSubject[];
 };
 
 function getSettingValue(value: string | null | undefined) {
@@ -122,4 +127,10 @@ export async function getContactPageSettings(): Promise<ContactPageSettings | nu
   });
 
   return mapSiteSettings(response.site_settings);
+}
+
+export async function getInboxSubjects(): Promise<InboxSubject[]> {
+  const response = await apiGet<ApiInboxSubjectsResponse>("/inbox-subjects");
+
+  return response.inbox_subjects;
 }
