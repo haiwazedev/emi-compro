@@ -4,6 +4,7 @@ import type {
   ContactDetail,
   ContactDetailIcon,
   ContactPageSettings,
+  CompanyLocationCoordinates,
   InboxSubject,
 } from "@/module/contact/content/contact";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
@@ -19,6 +20,8 @@ type ApiSocialMedia = {
 
 type ApiSiteSettings = {
   company_address: string | null;
+  company_location_lat: number | null;
+  company_location_long: number | null;
   company_phone_number: string | null;
   company_whatsapp_number: string | null;
   main_email: string | null;
@@ -59,10 +62,34 @@ function createDetail(
   return { icon, label, value };
 }
 
+function getLocationCoordinates(
+  latitude: number | null,
+  longitude: number | null,
+): CompanyLocationCoordinates | null {
+  if (
+    latitude === null ||
+    longitude === null ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return null;
+  }
+
+  return { latitude, longitude };
+}
+
 function mapSiteSettings(
   settings: ApiSiteSettings,
 ): ContactPageSettings | null {
   const address = getSettingValue(settings.company_address);
+  const mapCoordinates = getLocationCoordinates(
+    settings.company_location_lat,
+    settings.company_location_long,
+  );
   const phone = getSettingValue(settings.company_phone_number);
   const whatsapp = getSettingValue(settings.company_whatsapp_number);
   const mainEmail = getSettingValue(settings.main_email);
@@ -110,12 +137,17 @@ function mapSiteSettings(
       ];
     });
 
-  if (details.length === 0 && socialLinks.length === 0) {
+  if (
+    details.length === 0 &&
+    socialLinks.length === 0 &&
+    mapCoordinates === null
+  ) {
     return null;
   }
 
   return {
     details,
+    mapCoordinates,
     mapLabel: address,
     socialLinks,
   };

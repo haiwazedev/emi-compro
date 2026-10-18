@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   Clock,
+  ExternalLink,
   Globe2,
   Mail,
   MapPin,
@@ -14,6 +15,7 @@ import * as React from "react";
 
 import {
   contactPageContent,
+  type CompanyLocationCoordinates,
   type ContactDetail,
   type ContactDetailIcon,
   type ContactPageSettings,
@@ -86,6 +88,78 @@ function SocialIcon({ iconUrl }: { iconUrl: string | null }) {
   return <Globe2 aria-hidden="true" className="size-3.5" />;
 }
 
+function CompanyLocationMap({
+  coordinates,
+  label,
+}: {
+  coordinates: CompanyLocationCoordinates | null;
+  label: string | null;
+}) {
+  const embedUrl = coordinates
+    ? `https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`
+    : null;
+  const googleMapsUrl = coordinates
+    ? `https://www.google.com/maps/search/?api=1&query=${coordinates.latitude},${coordinates.longitude}`
+    : null;
+
+  return (
+    <div
+      aria-label="PLN EMI head office location"
+      className="bg-primary relative isolate mt-5 min-h-40 flex-1 overflow-hidden rounded-xl p-3"
+    >
+      {embedUrl ? (
+        <iframe
+          allowFullScreen
+          className="absolute inset-0 size-full border-0"
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          src={embedUrl}
+          title="PLN EMI head office location on Google Maps"
+        />
+      ) : (
+        <>
+          <div
+            aria-hidden="true"
+            className="from-background/75 via-primary to-secondary/20 absolute inset-0 bg-linear-to-br"
+          />
+          <div
+            aria-hidden="true"
+            className="border-background/50 absolute top-5 left-8 size-24 rounded-full border"
+          />
+          <div
+            aria-hidden="true"
+            className="border-background/40 absolute right-5 bottom-8 size-16 rounded-full border"
+          />
+          <MapPin
+            aria-hidden="true"
+            className="text-secondary absolute inset-0 m-auto size-8 drop-shadow-sm"
+            fill="currentColor"
+            strokeWidth={1.5}
+          />
+        </>
+      )}
+
+      {googleMapsUrl ? (
+        <a
+          className="bg-background/95 text-accent hover:text-secondary focus-visible:ring-secondary absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          href={googleMapsUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <ExternalLink aria-hidden="true" className="size-3.5" />
+          Open in Google Maps
+        </a>
+      ) : null}
+
+      {label ? (
+        <span className="text-accent bg-background absolute inset-x-3 bottom-3 z-10 w-fit max-w-full rounded-lg px-3 py-2 text-[0.65rem] font-bold whitespace-normal shadow-sm">
+          {label}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 function RequiredIndicator() {
   return (
     <>
@@ -117,10 +191,14 @@ export function ContactUsForm({
     String(subjects[0]?.id ?? ""),
   );
   const contactDetails = contactSettings?.details ?? [];
+  const mapCoordinates = contactSettings?.mapCoordinates ?? null;
   const mapLabel = contactSettings?.mapLabel ?? null;
   const socialLinks = contactSettings?.socialLinks ?? [];
   const hasContactInfo =
-    contactDetails.length > 0 || mapLabel !== null || socialLinks.length > 0;
+    contactDetails.length > 0 ||
+    mapCoordinates !== null ||
+    mapLabel !== null ||
+    socialLinks.length > 0;
   const [formTitleStart, ...formTitleAccent] = formContent.title.split(" ");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -193,33 +271,11 @@ export function ContactUsForm({
               </ul>
             ) : null}
 
-            {mapLabel ? (
-              <div
-                aria-label="PLN EMI head office location"
-                className="bg-primary relative isolate mt-5 min-h-40 flex-1 overflow-hidden rounded-xl p-3"
-              >
-                <div
-                  aria-hidden="true"
-                  className="from-background/75 via-primary to-secondary/20 absolute inset-0 bg-linear-to-br"
-                />
-                <div
-                  aria-hidden="true"
-                  className="border-background/50 absolute top-5 left-8 size-24 rounded-full border"
-                />
-                <div
-                  aria-hidden="true"
-                  className="border-background/40 absolute right-5 bottom-8 size-16 rounded-full border"
-                />
-                <MapPin
-                  aria-hidden="true"
-                  className="text-secondary absolute inset-0 m-auto size-8 drop-shadow-sm"
-                  fill="currentColor"
-                  strokeWidth={1.5}
-                />
-                <span className="text-accent bg-background absolute inset-x-3 bottom-3 w-fit max-w-full rounded-lg px-3 py-2 text-[0.65rem] font-bold whitespace-normal shadow-sm">
-                  {mapLabel}
-                </span>
-              </div>
+            {mapCoordinates !== null || mapLabel !== null ? (
+              <CompanyLocationMap
+                coordinates={mapCoordinates}
+                label={mapLabel}
+              />
             ) : null}
 
             {socialLinks.length > 0 ? (

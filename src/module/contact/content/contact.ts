@@ -24,8 +24,14 @@ export type ContactSocialLink = {
   href: string;
 };
 
+export type CompanyLocationCoordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 export type ContactPageSettings = {
   details: ContactDetail[];
+  mapCoordinates: CompanyLocationCoordinates | null;
   mapLabel: string | null;
   socialLinks: ContactSocialLink[];
 };
