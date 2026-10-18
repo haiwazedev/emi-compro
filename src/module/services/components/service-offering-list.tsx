@@ -21,7 +21,7 @@ export function ServiceOfferingList({
       className={cn("flex flex-wrap gap-2", className)}
     >
       {offerings.map((offering) => (
-        <li key={offering.label}>
+        <li key={offering.id}>
           <Badge
             className="border-primary bg-primary/50 text-accent h-auto min-h-7 px-3 py-1 text-xs leading-4 font-semibold whitespace-normal"
             variant="outline"

@@ -4,7 +4,7 @@ export function ServicesHero() {
   return (
     <PageHero
       breadcrumb="Home / Services"
-      description="Explore five integrated service divisions and discover the scope, instruments, and expertise that can help your organization move forward."
+      description="Explore our service divisions and discover the expertise that can help your organization move forward."
       headingId="services-page-heading"
       id="services-hero"
       title="Layanan"

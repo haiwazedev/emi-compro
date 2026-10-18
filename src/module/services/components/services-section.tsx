@@ -1,13 +1,19 @@
 import { ServiceCard } from "@/module/services/components/service-card";
 import { ServiceNavigationItem } from "@/module/services/components/service-navigation-item";
 import {
-  serviceDivisions,
   serviceNavigationItems,
+  type ServiceDivision,
 } from "@/module/services/content/services";
+import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
 
-export function ServicesSection() {
+type ServicesSectionProps = {
+  data: ServiceDivision[] | null;
+  error: boolean;
+};
+
+export function ServicesSection({ data, error }: ServicesSectionProps) {
   return (
     <SectionContainer
       aria-labelledby="services-heading"
@@ -26,7 +32,7 @@ export function ServicesSection() {
       <SectionIntro
         action={{ href: "/services", label: "All Services" }}
         className="mt-16 lg:mt-20"
-        description="Five integrated pillars — from decarbonization strategy and energy conservation to waste circularity, sustainability consulting, and environmental compliance."
+        description="Explore the expertise and services that can help your organization move forward."
         eyebrow="WHAT WE OFFER"
         headingId="services-heading"
         theme="muted"
@@ -34,16 +40,34 @@ export function ServicesSection() {
         accent="Divisions"
       />
 
-      <ul className="mt-10 flex flex-wrap gap-4 lg:mt-12 lg:gap-5">
-        {serviceDivisions.map((service) => (
-          <li
-            className="min-w-0 basis-full lg:basis-[calc((100%-2.5rem)/3)]"
-            key={service.code}
-          >
-            <ServiceCard service={service} />
-          </li>
-        ))}
-      </ul>
+      {error ? (
+        <ContentStatus
+          description="Service information is currently unavailable. Please try again later."
+          title="Our service divisions are temporarily unavailable."
+          variant="error"
+        />
+      ) : null}
+
+      {!error && data?.length === 0 ? (
+        <ContentStatus
+          description="Published service divisions will appear here."
+          title="No service divisions are available yet."
+          variant="empty"
+        />
+      ) : null}
+
+      {!error && data && data.length > 0 ? (
+        <ul className="mt-10 flex flex-wrap gap-4 lg:mt-12 lg:gap-5">
+          {data.map((service) => (
+            <li
+              className="min-w-0 basis-full lg:basis-[calc((100%-2.5rem)/3)]"
+              key={service.id}
+            >
+              <ServiceCard service={service} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </SectionContainer>
   );
 }

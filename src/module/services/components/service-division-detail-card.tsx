@@ -1,8 +1,7 @@
 import type { ServiceDivision } from "@/module/services/content/services";
-import { serviceIconToneClassNames } from "@/module/services/components/service-visuals";
-import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { ServiceOfferingList } from "@/module/services/components/service-offering-list";
+import { ServiceDivisionIcon } from "@/module/services/components/service-division-icon";
 
 type ServiceDivisionDetailCardProps = {
   onOpen: (trigger: HTMLElement) => void;
@@ -13,7 +12,6 @@ export function ServiceDivisionDetailCard({
   onOpen,
   service,
 }: ServiceDivisionDetailCardProps) {
-  const Icon = service.icon;
   const headingId = `${service.slug}-heading`;
 
   return (
@@ -34,15 +32,11 @@ export function ServiceDivisionDetailCard({
       tabIndex={0}
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div
-          aria-hidden="true"
-          className={cn(
-            "text-background shadow-foreground/20 flex size-12 shrink-0 items-center justify-center rounded-xl shadow-md lg:size-16",
-            serviceIconToneClassNames[service.iconTone],
-          )}
-        >
-          <Icon className="size-5 sm:size-6" strokeWidth={2} />
-        </div>
+        <ServiceDivisionIcon
+          className="size-12 rounded-xl lg:size-16"
+          iconClassName="size-5 sm:size-6"
+          service={service}
+        />
 
         <div className="min-w-0">
           <Badge
@@ -61,15 +55,19 @@ export function ServiceDivisionDetailCard({
         </div>
       </div>
 
-      <p className="text-foreground/70 mt-5 text-xs leading-6 sm:text-sm sm:leading-7">
-        {service.detailDescription}
-      </p>
+      {service.description ? (
+        <p className="text-foreground/70 mt-5 text-xs leading-6 sm:text-sm sm:leading-7">
+          {service.description}
+        </p>
+      ) : null}
 
-      <ServiceOfferingList
-        ariaLabel={`${service.title} offerings`}
-        className="mt-5"
-        offerings={service.offerings}
-      />
+      {service.offerings.length > 0 ? (
+        <ServiceOfferingList
+          ariaLabel={`${service.title} offerings`}
+          className="mt-5"
+          offerings={service.offerings}
+        />
+      ) : null}
     </article>
   );
 }
