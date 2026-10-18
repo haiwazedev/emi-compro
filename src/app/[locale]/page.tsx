@@ -3,6 +3,7 @@ import { ArticlesSection } from "@/module/articles/components/articles-section";
 import { getHomeArticleData } from "@/module/articles/lib/articles-api";
 import { CommitmentSection } from "@/module/commitment/components/commitment-section";
 import { ContactUsSection } from "@/module/contact/components/contact-us-section";
+import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { HomeHero } from "@/module/home/components/home-hero";
 import { getHomeSiteContentData } from "@/module/home/lib/home-content-api";
 import { Footer } from "@/module/layout/components/footer";
@@ -28,13 +29,19 @@ export default async function Home({ params, searchParams }: HomeProps) {
   const [{ locale }, search] = await Promise.all([params, searchParams]);
   const categoryValue = getFirstSearchParamValue(search.homeCategory);
   const categoryId = parsePositiveInteger(categoryValue);
-  const [homeResult, articleResult, servicesResult, partnersResult] =
-    await Promise.allSettled([
-      getHomeSiteContentData(locale),
-      getHomeArticleData(locale, categoryId),
-      getServiceDirectoryData(locale),
-      getPartners(),
-    ]);
+  const [
+    homeResult,
+    articleResult,
+    servicesResult,
+    partnersResult,
+    settingsResult,
+  ] = await Promise.allSettled([
+    getHomeSiteContentData(locale),
+    getHomeArticleData(locale, categoryId),
+    getServiceDirectoryData(locale),
+    getPartners(),
+    getPublicSiteSettings(locale),
+  ]);
   const homeData = homeResult.status === "fulfilled" ? homeResult.value : null;
   const homeError = homeResult.status === "rejected";
   const articleData =
@@ -46,6 +53,8 @@ export default async function Home({ params, searchParams }: HomeProps) {
   const partnersData =
     partnersResult.status === "fulfilled" ? partnersResult.value : null;
   const partnersError = partnersResult.status === "rejected";
+  const siteSettings =
+    settingsResult.status === "fulfilled" ? settingsResult.value : null;
 
   return (
     <div className="bg-background text-foreground min-h-screen">
@@ -58,10 +67,10 @@ export default async function Home({ params, searchParams }: HomeProps) {
         <PartnersSection data={partnersData} error={partnersError} />
         <ArticlesSection data={articleData} error={articlesError} />
         <CommitmentSection />
-        <ContactUsSection />
+        <ContactUsSection settings={siteSettings} />
       </main>
 
-      <Footer />
+      <Footer settings={siteSettings} />
     </div>
   );
 }

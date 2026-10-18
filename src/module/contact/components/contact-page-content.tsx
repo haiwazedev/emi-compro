@@ -1,7 +1,7 @@
 import type {
   ContactFaqItem,
-  ContactPageSettings,
   InboxSubject,
+  PublicSiteSettings,
 } from "@/module/contact/content/contact";
 
 import { ContactHero } from "@/module/contact/components/contact-hero";
@@ -13,7 +13,7 @@ export function ContactPageContent({
   faqs,
   inboxSubjects,
 }: {
-  contactSettings: ContactPageSettings | null;
+  contactSettings: PublicSiteSettings | null;
   faqs: ContactFaqItem[] | null;
   inboxSubjects: InboxSubject[] | null;
 }) {

@@ -6,6 +6,7 @@ import { getRequiredApiBaseUrl } from "./src/shared/lib/api-config";
 const apiUrl = getRequiredApiBaseUrl();
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       {

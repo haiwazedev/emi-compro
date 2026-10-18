@@ -28,6 +28,28 @@ the browser. Set `NEXT_PUBLIC_API_BASE_URL` to the same API origin as
 `API_BASE_URL`. This public value is included in the browser bundle, so it must
 not contain credentials.
 
+## Docker Deployment
+
+Build the production image with both API origins set to the same URL:
+
+```bash
+docker build \
+  --build-arg API_BASE_URL=https://api.example.com \
+  --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.example.com \
+  -t pln-emi-landing .
+```
+
+Run the container and provide `API_BASE_URL` for server-side API requests:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e API_BASE_URL=https://api.example.com \
+  pln-emi-landing
+```
+
+The public API URL is embedded in the browser bundle at build time. The server
+API URL must also be set at runtime and should match the build-time value.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

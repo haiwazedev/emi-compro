@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 import { ContactPageContent } from "@/module/contact/components/contact-page-content";
-import type { ContactPageSettings } from "@/module/contact/content/contact";
+import type { PublicSiteSettings } from "@/module/contact/content/contact";
 import { getContactFaqs } from "@/module/contact/lib/faq-api";
 import {
-  getContactPageSettings,
+  getPublicSiteSettings,
   getInboxSubjects,
 } from "@/module/contact/lib/contact-api";
 import { Footer } from "@/module/layout/components/footer";
@@ -29,9 +29,7 @@ export async function generateMetadata({
 export default async function ContactUsPage({ params }: ContactUsPageProps) {
   const { locale } = await params;
   const [contactSettings, inboxSubjects, faqs] = await Promise.all([
-    getContactPageSettings(locale).catch(
-      (): ContactPageSettings | null => null,
-    ),
+    getPublicSiteSettings(locale).catch((): PublicSiteSettings | null => null),
     getInboxSubjects().catch(() => null),
     getContactFaqs(locale).catch(() => null),
   ]);
@@ -48,7 +46,7 @@ export default async function ContactUsPage({ params }: ContactUsPageProps) {
         />
       </main>
 
-      <Footer />
+      <Footer settings={contactSettings} />
     </div>
   );
 }

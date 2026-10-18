@@ -131,9 +131,9 @@ const phrases: Record<string, Record<Locale, string>> = {
     id: "Dokumen yang dipublikasikan akan ditampilkan di sini.",
   },
   Email: { en: "Email", id: "Email" },
-  "Email PLN EMI marketing": {
-    en: "Email PLN EMI marketing",
-    id: "Kirim email ke tim pemasaran PLN EMI",
+  "Email PLN EMI": {
+    en: "Email PLN EMI",
+    id: "Kirim email ke PLN EMI",
   },
   "Email Us": { en: "Email Us", id: "Kirim Email" },
   "Energy Conservation": { en: "Energy Conservation", id: "Konservasi Energi" },

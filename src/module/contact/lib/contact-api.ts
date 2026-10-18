@@ -1,12 +1,14 @@
 import "server-only";
 
+import { cache } from "react";
+
 import type { Locale } from "@/i18n/routing";
 import type {
   ContactDetail,
   ContactDetailIcon,
-  ContactPageSettings,
   CompanyLocationCoordinates,
   InboxSubject,
+  PublicSiteSettings,
 } from "@/module/contact/content/contact";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
 
@@ -21,6 +23,7 @@ type ApiSocialMedia = {
 
 type ApiSiteSettings = {
   company_address: string | null;
+  company_name: string | null;
   company_location_lat: number | null;
   company_location_long: number | null;
   company_phone_number: string | null;
@@ -45,6 +48,85 @@ function getSettingValue(value: string | null | undefined) {
   const trimmedValue = value?.trim();
 
   return trimmedValue || null;
+}
+
+function getEmailValue(value: string | null | undefined) {
+  const email = getSettingValue(value);
+
+  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+function getInternationalPhoneDigits(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const digits = value.replace(/\D/g, "");
+
+  if (!digits) {
+    return null;
+  }
+
+  let internationalDigits: string;
+
+  if (digits.startsWith("0")) {
+    internationalDigits = `62${digits.slice(1)}`;
+  } else if (digits.startsWith("62") || value.trim().startsWith("+")) {
+    internationalDigits = digits;
+  } else if (digits.startsWith("8")) {
+    internationalDigits = `62${digits}`;
+  } else {
+    return null;
+  }
+
+  return /^\d{8,15}$/.test(internationalDigits) ? internationalDigits : null;
+}
+
+function getSocialUrl(platformName: string, value: string) {
+  try {
+    const url = new URL(value);
+
+    if (
+      ["http:", "https:"].includes(url.protocol) &&
+      !url.username &&
+      !url.password
+    ) {
+      return url.toString();
+    }
+  } catch {
+    // Account names are supported for known platforms below.
+  }
+
+  const platform = platformName.toLowerCase().replace(/[^a-z]/g, "");
+  const account = value
+    .trim()
+    .replace(/^@/, "")
+    .replace(/^\/+|\/+$/g, "");
+
+  if (!account || /\s/.test(account)) {
+    return null;
+  }
+
+  const encodedAccount = account
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+  switch (platform) {
+    case "facebook":
+      return `https://www.facebook.com/${encodedAccount}`;
+    case "instagram":
+      return `https://www.instagram.com/${encodedAccount}`;
+    case "linkedin":
+      return `https://www.linkedin.com/${/^(company|in|school)\//i.test(account) ? encodedAccount : `company/${encodedAccount}`}`;
+    case "twitter":
+    case "x":
+      return `https://x.com/${encodedAccount}`;
+    case "youtube":
+      return `https://www.youtube.com/${/^(channel|c|user)\//i.test(account) ? encodedAccount : `@${encodedAccount}`}`;
+    default:
+      return null;
+  }
 }
 
 function createDetail(
@@ -83,9 +165,8 @@ function getLocationCoordinates(
   return { latitude, longitude };
 }
 
-function mapSiteSettings(
-  settings: ApiSiteSettings,
-): ContactPageSettings | null {
+function mapSiteSettings(settings: ApiSiteSettings): PublicSiteSettings | null {
+  const companyName = getSettingValue(settings.company_name);
   const address = getSettingValue(settings.company_address);
   const mapCoordinates = getLocationCoordinates(
     settings.company_location_lat,
@@ -93,8 +174,14 @@ function mapSiteSettings(
   );
   const phone = getSettingValue(settings.company_phone_number);
   const whatsapp = getSettingValue(settings.company_whatsapp_number);
-  const mainEmail = getSettingValue(settings.main_email);
-  const marketingEmail = getSettingValue(settings.marketing_email);
+  const phoneDigits = getInternationalPhoneDigits(phone);
+  const whatsappDigits = getInternationalPhoneDigits(whatsapp);
+  const mainEmail = getEmailValue(settings.main_email);
+  const marketingEmail = getEmailValue(settings.marketing_email);
+  const emailAddresses = [...new Set([mainEmail, marketingEmail])].filter(
+    (email): email is string => email !== null,
+  );
+  const primaryEmail = marketingEmail ?? mainEmail;
   const operationalDay = getSettingValue(settings.operational_day);
   const startTime = getSettingValue(settings.operational_start_time);
   const endTime = getSettingValue(settings.operational_end_time);
@@ -111,7 +198,7 @@ function mapSiteSettings(
       phone,
       whatsapp ? `WA ${whatsapp}` : null,
     ]),
-    createDetail("email", "EMAIL", [mainEmail, marketingEmail]),
+    createDetail("email", "EMAIL", emailAddresses),
     createDetail("hours", "OFFICE HOURS", [operatingHours || null]),
   ].filter((detail): detail is ContactDetail => detail !== null);
 
@@ -120,18 +207,24 @@ function mapSiteSettings(
     .sort((left, right) => left.sort_order - right.sort_order)
     .flatMap((social) => {
       const label = getSettingValue(social.platform_name);
-      const href = getSettingValue(social.platform_url_or_account_name);
+      const value = getSettingValue(social.platform_url_or_account_name);
 
-      if (!label || !href) {
+      if (!label || !value) {
         return [];
       }
+
+      const href = getSocialUrl(label, value);
+
+      if (!href) {
+        return [];
+      }
+
+      const iconPath = getSettingValue(social.icon_filepath);
 
       return [
         {
           id: social.id,
-          iconUrl: social.icon_filepath
-            ? resolveApiAssetUrl(social.icon_filepath)
-            : null,
+          iconUrl: iconPath ? resolveApiAssetUrl(iconPath) : null,
           label,
           href,
         },
@@ -139,6 +232,11 @@ function mapSiteSettings(
     });
 
   if (
+    companyName === null &&
+    address === null &&
+    phone === null &&
+    whatsapp === null &&
+    emailAddresses.length === 0 &&
     details.length === 0 &&
     socialLinks.length === 0 &&
     mapCoordinates === null
@@ -147,22 +245,27 @@ function mapSiteSettings(
   }
 
   return {
+    address,
+    companyName,
     details,
+    emailAddresses,
     mapCoordinates,
     mapLabel: address,
+    phone,
+    phoneHref: phoneDigits ? `tel:+${phoneDigits}` : null,
+    primaryEmail,
     socialLinks,
+    whatsappHref: whatsappDigits ? `https://wa.me/${whatsappDigits}` : null,
   };
 }
 
-export async function getContactPageSettings(
-  locale: Locale,
-): Promise<ContactPageSettings | null> {
+export const getPublicSiteSettings = cache(async (locale: Locale) => {
   const response = await apiGet<ApiSiteSettingsResponse>("/site_settings", {
     language_id: locale,
   });
 
   return mapSiteSettings(response.site_settings);
-}
+});
 
 export async function getInboxSubjects(): Promise<InboxSubject[]> {
   const response = await apiGet<ApiInboxSubjectsResponse>("/inbox-subjects");

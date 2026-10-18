@@ -1,51 +1,60 @@
-import { AtSign, Globe2, Play } from "lucide-react";
+import { Globe2 } from "lucide-react";
 import Image from "next/image";
 import Link from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 
+import type { PublicSiteSettings } from "@/module/contact/content/contact";
+import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
-import type { FooterSocialIcon } from "@/module/layout/content/footer";
 import { footerContent } from "@/module/layout/content/footer";
 import { sectionContainerRailClassName } from "@/shared/components/section-container";
-import { useCopy } from "@/i18n/use-copy";
+import { getCopyKey } from "@/i18n/keys";
+import type { Locale } from "@/i18n/routing";
 
-function SocialIcon({ icon }: { icon: FooterSocialIcon }) {
-  const iconClassName = "size-3.5 sm:size-4";
-
-  switch (icon) {
-    case "website":
-      return <Globe2 aria-hidden="true" className={iconClassName} />;
-    case "linkedin":
-      return (
-        <span aria-hidden="true" className="text-xs font-bold sm:text-sm">
-          in
-        </span>
-      );
-    case "x":
-      return (
-        <span aria-hidden="true" className="text-xs font-medium sm:text-sm">
-          𝕏
-        </span>
-      );
-    case "email":
-      return <AtSign aria-hidden="true" className={iconClassName} />;
-    case "youtube":
-      return (
-        <Play
-          aria-hidden="true"
-          className={iconClassName}
-          fill="currentColor"
-        />
-      );
+function SocialIcon({ iconUrl }: { iconUrl: string | null }) {
+  if (iconUrl) {
+    return (
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="size-3.5 object-contain sm:size-4"
+        height={16}
+        src={iconUrl}
+        unoptimized
+        width={16}
+      />
+    );
   }
+
+  return <Globe2 aria-hidden="true" className="size-3.5 sm:size-4" />;
 }
 
-export function Footer() {
-  const copy = useCopy();
-  const locale = useLocale();
+export async function Footer({
+  settings,
+}: {
+  settings?: PublicSiteSettings | null;
+}) {
+  const locale = await getLocale();
+  const translate = await getTranslations({ locale, namespace: "copy" });
+  const copy = (source: string) => translate(getCopyKey(source));
+  const siteSettings =
+    settings === undefined
+      ? await getPublicSiteSettings(locale as Locale).catch(() => null)
+      : settings;
   const currentYear = new Intl.DateTimeFormat(locale, {
     year: "numeric",
   }).format(new Date());
+  const emailAddresses = siteSettings?.emailAddresses ?? [];
+  const companyName = siteSettings?.companyName;
+  const address = siteSettings?.address;
+  const phone = siteSettings?.phone;
+  const phoneHref = siteSettings?.phoneHref;
+  const socialLinks = siteSettings?.socialLinks ?? [];
+  const hasEmailAddresses = emailAddresses.length > 0;
+  const hasPhone = Boolean(phone);
+  const hasCompanyDetails = Boolean(
+    companyName || address || hasEmailAddresses || hasPhone,
+  );
 
   return (
     <footer
@@ -70,34 +79,54 @@ export function Footer() {
             />
           </Link>
 
-          <address className="text-foreground/80 mt-5 max-w-4xl text-xs leading-5 not-italic sm:text-sm sm:leading-6">
-            <p className="text-accent font-bold">{footerContent.companyName}</p>
-            <p>{footerContent.address}</p>
-            <p>
-              <span className="text-accent font-bold">{copy("Email:")}</span>{" "}
-              {footerContent.emailAddresses.map((email, index) => (
-                <span key={email}>
-                  {index > 0 && " · "}
-                  <a
-                    className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                    href={`mailto:${email}`}
-                  >
-                    {email}
-                  </a>
-                </span>
-              ))}
-              {" · "}
-              <span className="text-accent font-bold">
-                {copy("Telp:")}
-              </span>{" "}
-              <a
-                className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                href={footerContent.phoneHref}
-              >
-                {footerContent.phone}
-              </a>
-            </p>
-          </address>
+          {hasCompanyDetails ? (
+            <address className="text-foreground/80 mt-5 max-w-4xl text-xs leading-5 not-italic sm:text-sm sm:leading-6">
+              {companyName ? (
+                <p className="text-accent font-bold">{companyName}</p>
+              ) : null}
+              {address ? <p>{address}</p> : null}
+              {hasEmailAddresses || hasPhone ? (
+                <p>
+                  {hasEmailAddresses ? (
+                    <>
+                      <span className="text-accent font-bold">
+                        {copy("Email:")}
+                      </span>{" "}
+                      {emailAddresses.map((email, index) => (
+                        <span key={email}>
+                          {index > 0 && " · "}
+                          <a
+                            className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                            href={`mailto:${email}`}
+                          >
+                            {email}
+                          </a>
+                        </span>
+                      ))}
+                    </>
+                  ) : null}
+                  {hasEmailAddresses && hasPhone ? " · " : null}
+                  {hasPhone ? (
+                    <>
+                      <span className="text-accent font-bold">
+                        {copy("Telp:")}
+                      </span>{" "}
+                      {phoneHref ? (
+                        <a
+                          className="hover:text-secondary focus-visible:ring-secondary/50 rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                          href={phoneHref}
+                        >
+                          {phone}
+                        </a>
+                      ) : (
+                        phone
+                      )}
+                    </>
+                  ) : null}
+                </p>
+              ) : null}
+            </address>
+          ) : null}
         </div>
 
         <nav aria-label={copy("Footer navigation")} className="mt-12 lg:mt-14">
@@ -110,26 +139,31 @@ export function Footer() {
 
         <div className="border-foreground/20 mt-12 flex flex-col gap-5 border-t pt-5 sm:mt-16 sm:pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
           <p className="text-foreground/60 text-xs leading-5 sm:text-sm">
-            © {currentYear} {footerContent.companyName}.{" "}
+            © {currentYear}
+            {companyName ? ` ${companyName}` : ""}.{" "}
             {copy("All rights reserved.")}
           </p>
 
-          <ul
-            aria-label={copy("Social and contact links")}
-            className="flex items-center gap-2"
-          >
-            {footerContent.socialLinks.map((link) => (
-              <li key={link.label}>
-                <a
-                  aria-label={copy(link.label)}
-                  className="border-foreground/20 bg-background text-accent hover:border-secondary hover:bg-primary hover:text-accent focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:size-10"
-                  href={link.href}
-                >
-                  <SocialIcon icon={link.icon} />
-                </a>
-              </li>
-            ))}
-          </ul>
+          {socialLinks.length > 0 ? (
+            <ul
+              aria-label={copy("Social and contact links")}
+              className="flex items-center gap-2"
+            >
+              {socialLinks.map((link) => (
+                <li key={link.id}>
+                  <a
+                    aria-label={link.label}
+                    className="border-foreground/20 bg-background text-accent hover:border-secondary hover:bg-primary hover:text-accent focus-visible:ring-secondary/50 flex size-8 items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:size-10"
+                    href={link.href}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <SocialIcon iconUrl={link.iconUrl} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
     </footer>

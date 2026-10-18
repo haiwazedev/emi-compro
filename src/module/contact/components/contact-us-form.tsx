@@ -18,8 +18,8 @@ import {
   type CompanyLocationCoordinates,
   type ContactDetail,
   type ContactDetailIcon,
-  type ContactPageSettings,
   type InboxSubject,
+  type PublicSiteSettings,
 } from "@/module/contact/content/contact";
 import { submitContactInbox } from "@/module/contact/lib/contact-client-api";
 import { SectionContainer } from "@/shared/components/section-container";
@@ -178,7 +178,7 @@ export function ContactUsForm({
   contactSettings,
   inboxSubjects,
 }: {
-  contactSettings: ContactPageSettings | null;
+  contactSettings: PublicSiteSettings | null;
   inboxSubjects: InboxSubject[] | null;
 }) {
   const copy = useCopy();

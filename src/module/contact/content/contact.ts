@@ -1,8 +1,4 @@
 export const contactContent = {
-  email: "pemasaran@emipersero.co.id",
-  emailAddresses: ["emi@pln.co.id", "pemasaran@emipersero.co.id"],
-  // TODO: Replace with the official PLN EMI wa.me number once it is confirmed.
-  whatsappHref: "#contact",
   title: "Ready to Start Your",
   subtitle: "Sustainability Journey?",
   description:
@@ -29,11 +25,18 @@ export type CompanyLocationCoordinates = {
   longitude: number;
 };
 
-export type ContactPageSettings = {
+export type PublicSiteSettings = {
+  address: string | null;
+  companyName: string | null;
   details: ContactDetail[];
+  emailAddresses: string[];
   mapCoordinates: CompanyLocationCoordinates | null;
   mapLabel: string | null;
+  phone: string | null;
+  phoneHref: string | null;
+  primaryEmail: string | null;
   socialLinks: ContactSocialLink[];
+  whatsappHref: string | null;
 };
 
 export type InboxSubject = {
