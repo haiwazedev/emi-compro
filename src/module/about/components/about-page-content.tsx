@@ -26,7 +26,7 @@ export function AboutPageContent({
       <CompanyProfile
         error={contentError}
         pictureUrl={contentData?.companyPictureUrl ?? null}
-        profileContent={contentData?.profileContent ?? null}
+        profileContentHtml={contentData?.profileContentHtml ?? null}
       />
       <OurHistory error={contentError} items={contentData?.history ?? []} />
       <Direction

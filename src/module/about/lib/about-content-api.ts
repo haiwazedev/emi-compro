@@ -11,12 +11,13 @@ import {
   getSiteContentValue,
 } from "@/shared/lib/site-content-api";
 import { resolveApiAssetUrl } from "@/shared/lib/api-client";
+import { sanitizeRichText } from "@/shared/lib/sanitize-rich-text";
 
 export type AboutSiteContentData = {
   companyPictureUrl: string | null;
   history: AboutHistoryItem[];
   mission: AboutMissionItem[];
-  profileContent: string | null;
+  profileContentHtml: string | null;
   vision: string | null;
 };
 
@@ -40,6 +41,7 @@ export async function getAboutSiteContentData(
     "vision",
   )[0];
   const companyPicturePath = getSiteContentValue(pictureItem, "media_filepath");
+  const profileContent = getSiteContentValue(profileItem, "content");
 
   const mission = getSiteContentBlockItems(
     items,
@@ -72,7 +74,9 @@ export async function getAboutSiteContentData(
       : null,
     history,
     mission,
-    profileContent: getSiteContentValue(profileItem, "content"),
+    profileContentHtml: profileContent
+      ? sanitizeRichText(profileContent)
+      : null,
     vision: getSiteContentValue(visionItem, "content"),
   };
 }

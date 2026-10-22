@@ -11,13 +11,13 @@ import { useCopy } from "@/i18n/use-copy";
 type CompanyProfileProps = {
   error: boolean;
   pictureUrl: string | null;
-  profileContent: string | null;
+  profileContentHtml: string | null;
 };
 
 export function CompanyProfile({
   error,
   pictureUrl,
-  profileContent,
+  profileContentHtml,
 }: CompanyProfileProps) {
   const copy = useCopy();
   const { eyebrow, partOfLabel, partOfValue, title } =
@@ -42,10 +42,11 @@ export function CompanyProfile({
             {copy(title)}
           </h2>
 
-          {profileContent ? (
-            <p className="text-foreground/70 mt-6 text-sm leading-7 whitespace-pre-line">
-              {profileContent}
-            </p>
+          {profileContentHtml ? (
+            <div
+              className="text-foreground/70 mt-6 text-sm leading-7 [&_p+p]:mt-5"
+              dangerouslySetInnerHTML={{ __html: profileContentHtml }}
+            />
           ) : (
             <ContentStatus
               description={
