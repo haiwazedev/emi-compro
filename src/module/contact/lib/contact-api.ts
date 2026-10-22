@@ -28,11 +28,13 @@ type ApiSiteSettings = {
   company_location_long: number | null;
   company_phone_number: string | null;
   company_whatsapp_number: string | null;
+  danantara_logo_filepath: string | null;
   main_email: string | null;
   marketing_email: string | null;
   operational_day: string | null;
   operational_end_time: string | null;
   operational_start_time: string | null;
+  pln_logo_filepath: string | null;
   social_medias: ApiSocialMedia[];
 };
 
@@ -168,6 +170,10 @@ function getLocationCoordinates(
 function mapSiteSettings(settings: ApiSiteSettings): PublicSiteSettings | null {
   const companyName = getSettingValue(settings.company_name);
   const address = getSettingValue(settings.company_address);
+  const danantaraLogoPath = getSettingValue(settings.danantara_logo_filepath);
+  const danantaraLogoUrl = danantaraLogoPath
+    ? resolveApiAssetUrl(danantaraLogoPath)
+    : null;
   const mapCoordinates = getLocationCoordinates(
     settings.company_location_lat,
     settings.company_location_long,
@@ -202,6 +208,9 @@ function mapSiteSettings(settings: ApiSiteSettings): PublicSiteSettings | null {
     createDetail("hours", "OFFICE HOURS", [operatingHours || null]),
   ].filter((detail): detail is ContactDetail => detail !== null);
 
+  const plnLogoPath = getSettingValue(settings.pln_logo_filepath);
+  const plnLogoUrl = plnLogoPath ? resolveApiAssetUrl(plnLogoPath) : null;
+
   const socialLinks = (settings.social_medias ?? [])
     .filter((social) => social.status === "PUBLISHED")
     .sort((left, right) => left.sort_order - right.sort_order)
@@ -234,7 +243,9 @@ function mapSiteSettings(settings: ApiSiteSettings): PublicSiteSettings | null {
   if (
     companyName === null &&
     address === null &&
+    danantaraLogoUrl === null &&
     phone === null &&
+    plnLogoUrl === null &&
     whatsapp === null &&
     emailAddresses.length === 0 &&
     details.length === 0 &&
@@ -247,12 +258,14 @@ function mapSiteSettings(settings: ApiSiteSettings): PublicSiteSettings | null {
   return {
     address,
     companyName,
+    danantaraLogoUrl,
     details,
     emailAddresses,
     mapCoordinates,
     mapLabel: address,
     phone,
     phoneHref: phoneDigits ? `tel:+${phoneDigits}` : null,
+    plnLogoUrl,
     primaryEmail,
     socialLinks,
     whatsappHref: whatsappDigits ? `https://wa.me/${whatsappDigits}` : null,

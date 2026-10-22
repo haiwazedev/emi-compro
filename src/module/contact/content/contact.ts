@@ -28,12 +28,14 @@ export type CompanyLocationCoordinates = {
 export type PublicSiteSettings = {
   address: string | null;
   companyName: string | null;
+  danantaraLogoUrl: string | null;
   details: ContactDetail[];
   emailAddresses: string[];
   mapCoordinates: CompanyLocationCoordinates | null;
   mapLabel: string | null;
   phone: string | null;
   phoneHref: string | null;
+  plnLogoUrl: string | null;
   primaryEmail: string | null;
   socialLinks: ContactSocialLink[];
   whatsappHref: string | null;
