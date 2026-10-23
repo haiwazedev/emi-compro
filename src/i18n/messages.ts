@@ -300,7 +300,7 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "Open navigation menu",
     id: "Buka menu navigasi",
   },
-  "PARTNER PLN EMI": { en: "PLN EMI PARTNERS", id: "MITRA PLN EMI" },
+  "PARTNER PLN EMI": { en: "PLN EMI CLIENTS", id: "KLIEN PLN EMI" },
   "PLN EMI": { en: "PLN EMI", id: "PLN EMI" },
   "PLN EMI commitment documents": {
     en: "PLN EMI commitment documents",
@@ -947,8 +947,8 @@ const phrases: Record<string, Record<Locale, string>> = {
   "Commitment page title accent": { en: "Documents", id: "Komitmen" },
   "Commitment heading title": { en: "Our", id: "Komitmen" },
   "Commitment heading accent": { en: "Commitment", id: "Kami" },
-  "Partners heading title": { en: "Our", id: "Mitra" },
-  "Partners heading accent": { en: "Partners", id: "Kami" },
+  "Partners heading title": { en: "Our", id: "Klien" },
+  "Partners heading accent": { en: "Clients", id: "Kami" },
   "from {company}": { en: "from {company}", id: "dari {company}" },
   X: { en: "X", id: "X" },
   "Learn about PT Energy Management Indonesia (Persero), our history, direction, and management team.":
