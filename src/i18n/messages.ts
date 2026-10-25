@@ -739,6 +739,7 @@ const phrases: Record<string, Record<Locale, string>> = {
   "HEAD OFFICE": { en: "HEAD OFFICE", id: "KANTOR PUSAT" },
   "PHONE / WHATSAPP": { en: "PHONE / WHATSAPP", id: "TELEPON / WHATSAPP" },
   "OFFICE HOURS": { en: "OFFICE HOURS", id: "JAM OPERASIONAL" },
+  EMAIL: { en: "EMAIL", id: "EMAIL" },
   "EMAIL:": { en: "EMAIL:", id: "EMAIL:" },
   "TELP:": { en: "PHONE:", id: "TELEPON:" },
   "COMPANY PROFILE": { en: "COMPANY PROFILE", id: "PROFIL PERUSAHAAN" },
