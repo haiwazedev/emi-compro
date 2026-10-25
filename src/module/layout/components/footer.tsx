@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { getCommitmentCategories } from "@/module/commitment/lib/commitments-api";
 import type { PublicSiteSettings } from "@/module/contact/content/contact";
 import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
@@ -37,10 +38,27 @@ export async function Footer({
   const locale = await getLocale();
   const translate = await getTranslations({ locale, namespace: "copy" });
   const copy = (source: string) => translate(getCopyKey(source));
-  const siteSettings =
+  const [siteSettings, commitmentCategories] = await Promise.all([
     settings === undefined
-      ? await getPublicSiteSettings(locale as Locale).catch(() => null)
-      : settings;
+      ? getPublicSiteSettings(locale as Locale).catch(() => null)
+      : Promise.resolve(settings),
+    getCommitmentCategories().catch(() => []),
+  ]);
+  const commitmentGroup =
+    commitmentCategories.length > 0
+      ? [
+          {
+            id: "commitment",
+            title: "Commitment",
+            links: commitmentCategories.map((category) => ({
+              label: category.name,
+              href: `/commitments?category=${category.id}#commitment-browser`,
+              translateLabel: false,
+            })),
+          },
+        ]
+      : [];
+  const footerNavGroups = [...footerContent.navGroups, ...commitmentGroup];
   const currentYear = new Intl.DateTimeFormat(locale, {
     year: "numeric",
   }).format(new Date());
@@ -131,7 +149,7 @@ export async function Footer({
 
         <nav aria-label={copy("Footer navigation")} className="mt-12 lg:mt-14">
           <div className="flex flex-col gap-10 lg:flex-row lg:gap-8">
-            {footerContent.navGroups.map((group) => (
+            {footerNavGroups.map((group) => (
               <FooterNavGroup group={group} key={group.id} />
             ))}
           </div>

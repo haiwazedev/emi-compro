@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { CommitmentsPageContent } from "@/module/commitment/components/commitments-page-content";
 import {
   getCommitmentListingData,
@@ -17,6 +18,7 @@ import {
 type CommitmentsPageProps = {
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
+    category?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -39,22 +41,35 @@ export default async function CommitmentsPage({
 }: CommitmentsPageProps) {
   const { locale } = await routeParams;
   const params = await searchParams;
+  const categoryId = parsePositiveInteger(
+    getFirstSearchParamValue(params.category),
+  );
   const page = parsePositiveInteger(getFirstSearchParamValue(params.page)) ?? 1;
   let data: CommitmentListingData | null = null;
   let error = false;
+  const siteSettingsPromise = getPublicSiteSettings(locale).catch(() => null);
 
   try {
-    data = await getCommitmentListingData({ locale, page });
+    data = await getCommitmentListingData({ categoryId, locale, page });
   } catch {
     error = true;
   }
+
+  const siteSettings = await siteSettingsPromise;
 
   return (
     <div className="bg-background text-foreground min-h-screen">
       <Navbar />
 
       <main>
-        <CommitmentsPageContent data={data} error={error} />
+        <CommitmentsPageContent
+          data={data}
+          error={error}
+          logos={{
+            danantaraLogoUrl: siteSettings?.danantaraLogoUrl ?? null,
+            plnLogoUrl: siteSettings?.plnLogoUrl ?? null,
+          }}
+        />
       </main>
 
       <Footer />

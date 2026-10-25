@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import type { Locale } from "@/i18n/routing";
 import { apiGet, resolveApiAssetUrl } from "@/shared/lib/api-client";
 import {
@@ -13,9 +15,15 @@ const mediaTones = Object.keys(
   commitmentDocumentMediaToneClassNames,
 ) as CommitmentDocumentMediaTone[];
 
-type ApiCommitmentCategory = {
+export type CommitmentCategory = {
   id: number;
   name: string;
+};
+
+type ApiCommitmentCategory = CommitmentCategory;
+
+type CommitmentCategoriesResponse = {
+  documentCommitmentCategories: ApiCommitmentCategory[];
 };
 
 type ApiCommitmentDocument = {
@@ -39,6 +47,8 @@ type CommitmentDocumentsResponse = {
 };
 
 export type CommitmentListingData = {
+  activeCategoryId: number | null;
+  categories: CommitmentCategory[];
   documents: CommitmentDocument[];
   page: number;
   totalPages: number;
@@ -86,30 +96,50 @@ function mapCommitmentDocument(
   };
 }
 
-async function getCommitmentDocuments(page: number) {
+export const getCommitmentCategories = cache(async () => {
+  const { documentCommitmentCategories } =
+    await apiGet<CommitmentCategoriesResponse>(
+      "/document_commitment_categories",
+    );
+
+  return documentCommitmentCategories;
+});
+
+async function getCommitmentDocuments(page: number, categoryId?: number) {
   const query: Record<string, number | string> = {
     limit: DOCUMENTS_PER_PAGE,
     page,
     status: "PUBLISHED",
   };
 
+  if (categoryId !== undefined) {
+    query.document_commitment_category_id = categoryId;
+  }
+
   return apiGet<CommitmentDocumentsResponse>("/document_commitments", query);
 }
 
 export async function getCommitmentListingData(options: {
+  categoryId?: number;
   locale: Locale;
   page: number;
 }): Promise<CommitmentListingData> {
-  const firstPage = await getCommitmentDocuments(1);
+  const categories = await getCommitmentCategories();
+  const activeCategoryId = categories.find(
+    (category) => category.id === options.categoryId,
+  )?.id;
+  const firstPage = await getCommitmentDocuments(1, activeCategoryId);
   const totalPages = Math.max(1, firstPage.pagination.totalPages);
   const page = Math.min(options.page, totalPages);
   const remainingPages = await Promise.all(
     Array.from({ length: page - 1 }, (_, index) =>
-      getCommitmentDocuments(index + 2),
+      getCommitmentDocuments(index + 2, activeCategoryId),
     ),
   );
 
   return {
+    activeCategoryId: activeCategoryId ?? null,
+    categories,
     documents: [
       ...firstPage.documentCommitments,
       ...remainingPages.flatMap((result) => result.documentCommitments),

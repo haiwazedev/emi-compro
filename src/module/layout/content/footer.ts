@@ -1,6 +1,7 @@
 export type FooterLink = {
   label: string;
   href: string;
+  translateLabel?: boolean;
 };
 
 export type FooterNavGroup = {
@@ -8,8 +9,6 @@ export type FooterNavGroup = {
   title: string;
   links: readonly FooterLink[];
 };
-
-const footerPlaceholderHref = "#footer";
 
 export const footerContent = {
   navGroups: [
@@ -53,16 +52,6 @@ export const footerContent = {
         { label: "News & Articles", href: "/articles" },
         { label: "Press Releases", href: "/articles" },
         { label: "FAQ", href: "/contact-us#faq" },
-      ],
-    },
-    {
-      id: "commitment",
-      title: "Commitment",
-      links: [
-        { label: "Certifications", href: "/#commitment" },
-        { label: "Corporate Policies", href: "/#commitment" },
-        { label: "Sustainability Reports", href: "/#commitment" },
-        { label: "Kebijakan Privasi", href: footerPlaceholderHref },
       ],
     },
   ] satisfies readonly FooterNavGroup[],

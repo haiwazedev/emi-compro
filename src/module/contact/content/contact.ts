@@ -41,6 +41,11 @@ export type PublicSiteSettings = {
   whatsappHref: string | null;
 };
 
+export type PublicSiteLogos = Pick<
+  PublicSiteSettings,
+  "danantaraLogoUrl" | "plnLogoUrl"
+>;
+
 export type InboxSubject = {
   id: number;
   name: string;

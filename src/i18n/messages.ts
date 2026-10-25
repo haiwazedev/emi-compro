@@ -8,6 +8,7 @@ const phrases: Record<string, Record<Locale, string>> = {
   },
   "About Us": { en: "About Us", id: "Tentang Kami" },
   All: { en: "All", id: "Semua" },
+  "All Documents": { en: "All Documents", id: "Semua Dokumen" },
   "All News": { en: "All News", id: "Semua Berita" },
   "All Services": { en: "All Services", id: "Semua Layanan" },
   "Annual reports and disclosures highlighting our measurable commitment.": {
@@ -163,6 +164,10 @@ const phrases: Record<string, Record<Locale, string>> = {
   "Filter articles by category": {
     en: "Filter articles by category",
     id: "Filter artikel berdasarkan kategori",
+  },
+  "Filter commitment documents by category": {
+    en: "Filter commitment documents by category",
+    id: "Filter dokumen komitmen berdasarkan kategori",
   },
   "Footer navigation": { en: "Footer navigation", id: "Navigasi footer" },
   "Frequently Asked": { en: "Frequently Asked", id: "Pertanyaan yang" },
