@@ -185,6 +185,7 @@ export function ContactUsForm({
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [phone, setPhone] = React.useState("");
   const formContent = contactPageContent.form;
   const localizedFormContent = {
     ...formContent,
@@ -279,6 +280,7 @@ export function ContactUsForm({
       });
 
       form.reset();
+      setPhone("");
       setSelectedSubjectId(String(subjects[0]?.id ?? ""));
       setIsSubmitted(true);
     } catch {
@@ -459,10 +461,15 @@ export function ContactUsForm({
                   autoComplete="tel"
                   className={cn(controlClassName, "h-11 text-xs md:text-xs")}
                   id="phone"
+                  inputMode="numeric"
                   maxLength={30}
                   name="phone"
+                  onChange={(event) => {
+                    setPhone(event.currentTarget.value.replace(/\D/g, ""));
+                  }}
                   placeholder={localizedFormContent.fields.phone.placeholder}
                   type="tel"
+                  value={phone}
                 />
               </div>
             </div>

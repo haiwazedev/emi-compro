@@ -881,7 +881,7 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "Please try again later.",
     id: "Silakan coba lagi beberapa saat.",
   },
-  "+62 ...": { en: "+62 ...", id: "+62 ..." },
+  "6281234567890": { en: "6281234567890", id: "6281234567890" },
   "PT Energy Management Indonesia (Persero)": {
     en: "PT Energy Management Indonesia (Persero)",
     id: "PT Energy Management Indonesia (Persero)",
