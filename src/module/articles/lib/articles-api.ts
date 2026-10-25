@@ -96,6 +96,10 @@ export type HomeArticleData = {
   categories: ArticleCategory[];
 };
 
+export type PublishedArticleSitemapEntry = {
+  slug: string;
+};
+
 function getMediaUrl(path: string | null) {
   if (!path) {
     return null;
@@ -211,6 +215,53 @@ async function getPublishedArticlePage(options: {
   }
 
   return apiGet<ApiArticleListResponse>("/articles", query);
+}
+
+export async function getPublishedArticleSitemapEntries(
+  locale: Locale,
+): Promise<PublishedArticleSitemapEntry[]> {
+  const languageId = await getLanguageId(locale);
+  const firstPage = await getPublishedArticlePage({
+    languageId,
+    limit: ARTICLES_PER_PAGE,
+    page: 1,
+  });
+  const remainingPages = await Promise.all(
+    Array.from(
+      { length: Math.max(0, firstPage.pagination.totalPages - 1) },
+      (_, index) =>
+        getPublishedArticlePage({
+          languageId,
+          limit: ARTICLES_PER_PAGE,
+          page: index + 2,
+        }),
+    ),
+  );
+  const articles = [firstPage, ...remainingPages].flatMap(
+    (page) => page.articles,
+  );
+  const slugs = articles.flatMap((article) => {
+    const localizedContent = article.contents?.find(
+      (content) =>
+        content.language_id === languageId && content.status === "PUBLISHED",
+    );
+
+    if (localizedContent?.slug) {
+      return [localizedContent.slug];
+    }
+
+    if (
+      article.language_id === languageId &&
+      article.status === "PUBLISHED" &&
+      article.slug
+    ) {
+      return [article.slug];
+    }
+
+    return [];
+  });
+
+  return Array.from(new Set(slugs), (slug) => ({ slug }));
 }
 
 function resolveCategoryId(

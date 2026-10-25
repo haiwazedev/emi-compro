@@ -28,6 +28,11 @@ the browser. Set `NEXT_PUBLIC_API_BASE_URL` to the same API origin as
 `API_BASE_URL`. This public value is included in the browser bundle, so it must
 not contain credentials.
 
+Set `SITE_URL` to the public site's HTTP or HTTPS origin, such as
+`https://www.example.com`. It must not include a path, credentials, query, or
+fragment. The `/robots.txt` and `/sitemap.xml` routes use it to build absolute
+URLs and require it at runtime.
+
 ## Docker Deployment
 
 Build the production image with both API origins set to the same URL:
@@ -39,11 +44,13 @@ docker build \
   -t pln-emi-landing .
 ```
 
-Run the container and provide `API_BASE_URL` for server-side API requests:
+Run the container and provide `API_BASE_URL` for server-side API requests and
+`SITE_URL` for the public site origin:
 
 ```bash
 docker run --rm -p 3000:3000 \
   -e API_BASE_URL=https://api.example.com \
+  -e SITE_URL=https://www.example.com \
   pln-emi-landing
 ```
 
