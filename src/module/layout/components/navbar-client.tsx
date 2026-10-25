@@ -69,6 +69,7 @@ export function NavbarClient({
   }, [isHomePage]);
 
   const isHomeActive = isHomePage && isHomeSectionActive;
+  const isLightNavbar = !isHomeActive || isMobileMenuOpen;
   const activeHref = isAboutPage
     ? "/about-us"
     : isServicesPage
@@ -87,9 +88,9 @@ export function NavbarClient({
     <header
       className={cn(
         "group/nav hover:bg-primary hover:text-accent hover:shadow-foreground/10 sticky top-0 z-50 transition-all duration-500 hover:shadow-sm",
-        isHomeActive && !isMobileMenuOpen
-          ? "text-background bg-transparent shadow-none"
-          : "text-accent bg-primary shadow-foreground/10 shadow-sm",
+        isLightNavbar
+          ? "text-accent bg-primary shadow-foreground/10 shadow-sm"
+          : "text-background bg-transparent shadow-none",
       )}
     >
       <nav
@@ -146,9 +147,16 @@ export function NavbarClient({
               <Link
                 aria-label={copy("PLN Energy Management Indonesia home")}
                 href="/"
-                className="hidden lg:flex"
+                className={cn(
+                  "hidden px-6 lg:flex",
+                  isLightNavbar && "bg-accent rounded-full",
+                )}
               >
-                <div className="relative aspect-video w-24">
+                <div
+                  className={cn(
+                    "relative aspect-video w-24 transition-colors duration-500",
+                  )}
+                >
                   <Image
                     alt={copy("PLN Energy Management Indonesia")}
                     className="object-contain"
