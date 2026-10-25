@@ -41,11 +41,13 @@ Build the production image with both API origins set to the same URL:
 docker build \
   --build-arg API_BASE_URL=https://api.example.com \
   --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.example.com \
+  --build-arg SITE_URL=https://www.example.com \
   -t pln-emi-landing .
 ```
 
 Run the container and provide `API_BASE_URL` for server-side API requests and
-`SITE_URL` for the public site origin:
+`SITE_URL` for the public site origin. `SITE_URL` must also be set as a build
+argument because Next.js uses it while generating page metadata:
 
 ```bash
 docker run --rm -p 3000:3000 \
