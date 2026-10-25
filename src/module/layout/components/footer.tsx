@@ -8,6 +8,7 @@ import type { PublicSiteSettings } from "@/module/contact/content/contact";
 import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
 import { footerContent } from "@/module/layout/content/footer";
+import { getServiceDivisionFooterLinks } from "@/module/services/lib/services-api";
 import { sectionContainerRailClassName } from "@/shared/components/section-container";
 import { getCopyKey } from "@/i18n/keys";
 import type { Locale } from "@/i18n/routing";
@@ -38,12 +39,26 @@ export async function Footer({
   const locale = await getLocale();
   const translate = await getTranslations({ locale, namespace: "copy" });
   const copy = (source: string) => translate(getCopyKey(source));
-  const [siteSettings, commitmentCategories] = await Promise.all([
+  const [siteSettings, commitmentCategories, serviceLinks] = await Promise.all([
     settings === undefined
       ? getPublicSiteSettings(locale as Locale).catch(() => null)
       : Promise.resolve(settings),
     getCommitmentCategories().catch(() => []),
+    getServiceDivisionFooterLinks(locale as Locale).catch(() => []),
   ]);
+  const serviceGroup =
+    serviceLinks.length > 0
+      ? [
+          {
+            id: "services",
+            title: "Services",
+            links: serviceLinks.map((link) => ({
+              ...link,
+              translateLabel: false,
+            })),
+          },
+        ]
+      : [];
   const commitmentGroup =
     commitmentCategories.length > 0
       ? [
@@ -58,7 +73,11 @@ export async function Footer({
           },
         ]
       : [];
-  const footerNavGroups = [...footerContent.navGroups, ...commitmentGroup];
+  const footerNavGroups = footerContent.navGroups.flatMap((group) => [
+    group,
+    ...(group.id === "company" ? serviceGroup : []),
+  ]);
+  footerNavGroups.push(...commitmentGroup);
   const currentYear = new Intl.DateTimeFormat(locale, {
     year: "numeric",
   }).format(new Date());
