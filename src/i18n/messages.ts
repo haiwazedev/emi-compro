@@ -259,6 +259,10 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "No mission found.",
     id: "Informasi misi belum tersedia.",
   },
+  "No home highlights found.": {
+    en: "No home highlights found.",
+    id: "Belum ada sorotan di beranda.",
+  },
   "No service divisions are available yet.": {
     en: "No service divisions are available yet.",
     id: "Belum ada divisi layanan yang tersedia.",
