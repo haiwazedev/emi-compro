@@ -766,10 +766,10 @@ const phrases: Record<string, Record<Locale, string>> = {
       en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises, available for download.",
       id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang mewujudkan komitmen kami dan tersedia untuk diunduh.",
     },
-  "Certifications, corporate policies, and sustainability reports — the documents behind our promises. Uploaded and managed via CMS.":
+  "Certifications, corporate policies, and sustainability reports — the documents behind our promises.":
     {
-      en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises. Uploaded and managed via CMS.",
-      id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang menjadi bukti komitmen kami. Diunggah dan dikelola melalui CMS.",
+      en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises.",
+      id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang menjadi bukti komitmen kami.",
     },
   "Our company introduction": {
     en: "Our company introduction",
@@ -819,11 +819,6 @@ const phrases: Record<string, Record<Locale, string>> = {
     {
       en: "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth.",
       id: "Informasi tepercaya tentang perkembangan bisnis, inovasi, dan kontribusi kami bagi ketahanan energi dan pertumbuhan berkelanjutan.",
-    },
-  "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth. Managed via CMS.":
-    {
-      en: "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth. Managed via CMS.",
-      id: "Informasi tepercaya tentang perkembangan bisnis, inovasi, dan kontribusi kami bagi ketahanan energi dan pertumbuhan berkelanjutan. Dikelola melalui CMS.",
     },
   "See All News": { en: "See All News", id: "Lihat Semua Berita" },
   "MEDIA & INFORMATION": { en: "MEDIA & INFORMATION", id: "MEDIA & INFORMASI" },

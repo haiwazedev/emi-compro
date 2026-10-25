@@ -8,7 +8,7 @@ export function CommitmentHero() {
     <PageHero
       breadcrumb={copy("Home / Commitment")}
       description={copy(
-        "Certifications, corporate policies, and sustainability reports — the documents behind our promises. Uploaded and managed via CMS.",
+        "Certifications, corporate policies, and sustainability reports — the documents behind our promises.",
       )}
       headingId="commitment-page-heading"
       id="commitment-hero"

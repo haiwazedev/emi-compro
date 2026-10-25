@@ -7,7 +7,7 @@ export function ArticlesHero() {
     <PageHero
       breadcrumb={copy("Home / Media & Information")}
       description={copy(
-        "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth. Managed via CMS.",
+        "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth.",
       )}
       headingId="articles-page-heading"
       id="articles-hero"
