@@ -696,6 +696,15 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "No content found.",
     id: "Konten tidak ditemukan.",
   },
+  "Page not found": {
+    en: "Page not found",
+    id: "Halaman tidak ditemukan",
+  },
+  "The page you’re looking for doesn’t exist or may have moved.": {
+    en: "The page you’re looking for doesn’t exist or may have moved.",
+    id: "Halaman yang Anda cari tidak ditemukan atau mungkin telah dipindahkan.",
+  },
+  "Back to home.": { en: "Back to home.", id: "Kembali ke Beranda." },
   "No partners are available yet.": {
     en: "No partners are available yet.",
     id: "Belum ada mitra yang tersedia.",
