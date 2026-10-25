@@ -97,6 +97,9 @@ export type HomeArticleData = {
 };
 
 export type PublishedArticleSitemapEntry = {
+  alternateSlugs: Partial<Record<Locale, string>>;
+  articleId: number;
+  locale: Locale;
   slug: string;
 };
 
@@ -106,6 +109,20 @@ function getMediaUrl(path: string | null) {
   }
 
   return resolveApiAssetUrl(path);
+}
+
+function getPublishedAlternateSlugs(
+  contents: ApiArticleContent[] = [],
+): Partial<Record<Locale, string>> {
+  return Object.fromEntries(
+    contents
+      .filter(
+        (content) =>
+          content.status === "PUBLISHED" &&
+          (content.language_id === "id" || content.language_id === "en"),
+      )
+      .map((content) => [content.language_id, content.slug]),
+  ) as Partial<Record<Locale, string>>;
 }
 
 const getLanguageId = cache(async (locale: Locale) => {
@@ -174,9 +191,7 @@ function mapArticle(article: ApiArticle, locale: Locale): Article {
     locale,
   );
   const tone = mediaTones[article.id % mediaTones.length];
-  const alternateSlugs = Object.fromEntries(
-    (article.contents ?? []).map((item) => [item.language_id, item.slug]),
-  ) as Partial<Record<Locale, string>>;
+  const alternateSlugs = getPublishedAlternateSlugs(article.contents);
 
   return {
     alternateSlugs,
@@ -240,28 +255,37 @@ export async function getPublishedArticleSitemapEntries(
   const articles = [firstPage, ...remainingPages].flatMap(
     (page) => page.articles,
   );
-  const slugs = articles.flatMap((article) => {
+  const entries = articles.flatMap((article) => {
     const localizedContent = article.contents?.find(
       (content) =>
         content.language_id === languageId && content.status === "PUBLISHED",
     );
+    const slug =
+      localizedContent?.slug ??
+      (article.language_id === languageId && article.status === "PUBLISHED"
+        ? article.slug
+        : undefined);
 
-    if (localizedContent?.slug) {
-      return [localizedContent.slug];
+    if (!slug) {
+      return [];
     }
 
-    if (
-      article.language_id === languageId &&
-      article.status === "PUBLISHED" &&
-      article.slug
-    ) {
-      return [article.slug];
-    }
+    const alternateSlugs = getPublishedAlternateSlugs(article.contents);
+    alternateSlugs[locale] = slug;
 
-    return [];
+    return [
+      {
+        alternateSlugs,
+        articleId: article.id,
+        locale,
+        slug,
+      },
+    ];
   });
 
-  return Array.from(new Set(slugs), (slug) => ({ slug }));
+  return Array.from(
+    new Map(entries.map((entry) => [entry.slug, entry])).values(),
+  );
 }
 
 function resolveCategoryId(

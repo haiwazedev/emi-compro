@@ -31,6 +31,7 @@ export async function generateMetadata({
     locale,
     "News & Articles | PLN EMI",
     "Trusted updates on PLN EMI business developments, innovation, and contribution to energy resilience and sustainable growth.",
+    "/articles",
   );
 }
 

@@ -19,6 +19,7 @@ export async function generateMetadata({
     locale,
     "About Us | PLN EMI",
     "Learn about PT Energy Management Indonesia (Persero), our history, direction, and management team.",
+    "/about-us",
   );
 }
 

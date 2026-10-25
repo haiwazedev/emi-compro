@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { AboutUsSection } from "@/module/about/components/about-us-section";
 import { ArticlesSection } from "@/module/articles/components/articles-section";
 import { getHomeArticleData } from "@/module/articles/lib/articles-api";
@@ -12,6 +14,7 @@ import { getPartners } from "@/module/partners/lib/clients-api";
 import { PartnersSection } from "@/module/partners/components/partners-section";
 import { ServicesSection } from "@/module/services/components/services-section";
 import { getServiceDirectoryData } from "@/module/services/lib/services-api";
+import { getLocalizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
 import {
   getFirstSearchParamValue,
@@ -24,6 +27,14 @@ type HomeProps = {
     homeCategory?: string | string[];
   }>;
 };
+
+export async function generateMetadata({
+  params,
+}: Pick<HomeProps, "params">): Promise<Metadata> {
+  const { locale } = await params;
+
+  return { alternates: getLocalizedAlternates(locale) };
+}
 
 export default async function Home({ params, searchParams }: HomeProps) {
   const [{ locale }, search] = await Promise.all([params, searchParams]);

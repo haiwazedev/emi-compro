@@ -32,6 +32,7 @@ export async function generateMetadata({
     locale,
     "Commitment Documents | PLN EMI",
     "Explore PLN EMI certifications, corporate policies, and sustainability reports.",
+    "/commitments",
   );
 }
 

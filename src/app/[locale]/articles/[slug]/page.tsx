@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { DEFAULT_OPEN_GRAPH_IMAGE } from "@/i18n/metadata";
+import {
+  DEFAULT_OPEN_GRAPH_IMAGE,
+  getArticleAlternates,
+} from "@/i18n/metadata";
 import { getCopyKey } from "@/i18n/keys";
 import type { Locale } from "@/i18n/routing";
 import { ArticleDetail } from "@/module/articles/components/article-detail";
@@ -31,14 +34,19 @@ export async function generateMetadata({
   try {
     article = await getArticleBySlug(slug, locale);
   } catch {
-    return {};
+    return {
+      alternates: getArticleAlternates(locale, slug, {}),
+    };
   }
 
   if (!article) {
-    return {};
+    return {
+      alternates: getArticleAlternates(locale, slug, {}),
+    };
   }
 
   return {
+    alternates: getArticleAlternates(locale, slug, article.alternateSlugs),
     description: article.description,
     openGraph: {
       description: article.description,
