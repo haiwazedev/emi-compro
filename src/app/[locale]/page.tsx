@@ -77,7 +77,7 @@ export default async function Home({ params, searchParams }: HomeProps) {
         <ServicesSection data={servicesData} error={servicesError} />
         <PartnersSection data={partnersData} error={partnersError} />
         <ArticlesSection data={articleData} error={articlesError} />
-        <CommitmentSection />
+        <CommitmentSection data={servicesData} error={servicesError} />
         <ContactUsSection settings={siteSettings} />
       </main>
 
