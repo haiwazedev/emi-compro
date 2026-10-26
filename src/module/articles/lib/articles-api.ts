@@ -83,7 +83,7 @@ export class ArticlesApiError extends ApiClientError {
 }
 
 export type ArticleListingData = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   articles: Article[];
   categories: ArticleCategory[];
   page: number;
@@ -91,7 +91,7 @@ export type ArticleListingData = {
 };
 
 export type HomeArticleData = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   articles: Article[];
   categories: ArticleCategory[];
 };
@@ -212,12 +212,12 @@ function mapArticle(article: ApiArticle, locale: Locale): Article {
 }
 
 async function getPublishedArticlePage(options: {
-  categoryId?: number;
+  categorySlug?: string;
   languageId: string;
   limit: number;
   page: number;
 }) {
-  const { categoryId, languageId, limit, page } = options;
+  const { categorySlug, languageId, limit, page } = options;
   const query: Record<string, number | string> = {
     language_id: languageId,
     limit,
@@ -225,8 +225,8 @@ async function getPublishedArticlePage(options: {
     status: "PUBLISHED",
   };
 
-  if (categoryId !== undefined) {
-    query.article_category_id = categoryId;
+  if (categorySlug !== undefined) {
+    query.article_category_slug = categorySlug;
   }
 
   return apiGet<ApiArticleListResponse>("/articles", query);
@@ -288,40 +288,31 @@ export async function getPublishedArticleSitemapEntries(
   );
 }
 
-function resolveCategoryId(
-  categories: ArticleCategory[],
-  categoryId: number | undefined,
-) {
-  return categories.some((category) => category.id === categoryId)
-    ? categoryId!
-    : undefined;
-}
-
 export async function getHomeArticleData(
   locale: Locale,
-  requestedCategoryId?: number,
+  requestedCategorySlug?: string,
 ): Promise<HomeArticleData> {
   const [languageId, categories] = await Promise.all([
     getLanguageId(locale),
     getArticleCategories(),
   ]);
-  const categoryId = resolveCategoryId(categories, requestedCategoryId);
+  const categorySlug = requestedCategorySlug || undefined;
   const { articles } = await getPublishedArticlePage({
-    categoryId,
+    categorySlug,
     languageId,
     limit: HOME_ARTICLE_LIMIT,
     page: 1,
   });
 
   return {
-    activeCategoryId: categoryId ?? null,
+    activeCategorySlug: categorySlug ?? null,
     articles: articles.map((article) => mapArticle(article, locale)),
     categories,
   };
 }
 
 export async function getArticleListingData(options: {
-  categoryId?: number;
+  categorySlug?: string;
   locale: Locale;
   page: number;
 }): Promise<ArticleListingData> {
@@ -329,9 +320,9 @@ export async function getArticleListingData(options: {
     getLanguageId(options.locale),
     getArticleCategories(),
   ]);
-  const categoryId = resolveCategoryId(categories, options.categoryId);
+  const categorySlug = options.categorySlug || undefined;
   const firstPage = await getPublishedArticlePage({
-    categoryId,
+    categorySlug,
     languageId,
     limit: ARTICLES_PER_PAGE,
     page: 1,
@@ -342,7 +333,7 @@ export async function getArticleListingData(options: {
   const remainingPages = await Promise.all(
     Array.from({ length: currentPage - 1 }, (_, index) =>
       getPublishedArticlePage({
-        categoryId,
+        categorySlug,
         languageId,
         limit: ARTICLES_PER_PAGE,
         page: index + 2,
@@ -358,7 +349,7 @@ export async function getArticleListingData(options: {
   );
 
   return {
-    activeCategoryId: categoryId ?? null,
+    activeCategorySlug: categorySlug ?? null,
     articles: uniqueArticles.map((article) =>
       mapArticle(article, options.locale),
     ),

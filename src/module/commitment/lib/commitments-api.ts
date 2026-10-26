@@ -18,6 +18,7 @@ const mediaTones = Object.keys(
 export type CommitmentCategory = {
   id: number;
   name: string;
+  slug: string;
 };
 
 type ApiCommitmentCategory = CommitmentCategory;
@@ -47,7 +48,7 @@ type CommitmentDocumentsResponse = {
 };
 
 export type CommitmentListingData = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   categories: CommitmentCategory[];
   documents: CommitmentDocument[];
   page: number;
@@ -105,40 +106,38 @@ export const getCommitmentCategories = cache(async () => {
   return documentCommitmentCategories;
 });
 
-async function getCommitmentDocuments(page: number, categoryId?: number) {
+async function getCommitmentDocuments(page: number, categorySlug?: string) {
   const query: Record<string, number | string> = {
     limit: DOCUMENTS_PER_PAGE,
     page,
     status: "PUBLISHED",
   };
 
-  if (categoryId !== undefined) {
-    query.document_commitment_category_id = categoryId;
+  if (categorySlug !== undefined) {
+    query.document_commitment_category_slug = categorySlug;
   }
 
   return apiGet<CommitmentDocumentsResponse>("/document_commitments", query);
 }
 
 export async function getCommitmentListingData(options: {
-  categoryId?: number;
+  categorySlug?: string;
   locale: Locale;
   page: number;
 }): Promise<CommitmentListingData> {
   const categories = await getCommitmentCategories();
-  const activeCategoryId = categories.find(
-    (category) => category.id === options.categoryId,
-  )?.id;
-  const firstPage = await getCommitmentDocuments(1, activeCategoryId);
+  const categorySlug = options.categorySlug || undefined;
+  const firstPage = await getCommitmentDocuments(1, categorySlug);
   const totalPages = Math.max(1, firstPage.pagination.totalPages);
   const page = Math.min(options.page, totalPages);
   const remainingPages = await Promise.all(
     Array.from({ length: page - 1 }, (_, index) =>
-      getCommitmentDocuments(index + 2, activeCategoryId),
+      getCommitmentDocuments(index + 2, categorySlug),
     ),
   );
 
   return {
-    activeCategoryId: activeCategoryId ?? null,
+    activeCategorySlug: categorySlug ?? null,
     categories,
     documents: [
       ...firstPage.documentCommitments,

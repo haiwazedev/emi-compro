@@ -15,6 +15,7 @@ type ApiDivisionContent = {
   description: string | null;
   language_id: string;
   name: string;
+  slug: string;
 };
 
 type ApiDivision = {
@@ -67,12 +68,8 @@ function getLocalizedContent<T extends { language_id: string }>(
   return contents.find((content) => content.language_id === locale);
 }
 
-function getDivisionSlug(id: number) {
-  return `division-${id}`;
-}
-
-function getDivisionHref(id: number) {
-  return `/services#${getDivisionSlug(id)}`;
+function getDivisionHref(slug: string) {
+  return `/services#${encodeURIComponent(slug)}`;
 }
 
 function sanitizeDivisionIcon(iconSvg: string | null) {
@@ -180,7 +177,7 @@ export async function getServiceDivisionFooterLinks(
     const content = getLocalizedContent(division.contents, locale);
 
     return content
-      ? [{ href: getDivisionHref(division.id), label: content.name }]
+      ? [{ href: getDivisionHref(content.slug), label: content.name }]
       : [];
   });
 }
@@ -213,13 +210,13 @@ export async function getServiceDirectoryData(
       return [];
     }
 
-    const slug = getDivisionSlug(division.id);
+    const slug = content.slug;
 
     return [
       {
         code: content.abbr,
         description: content.description?.trim() || null,
-        href: getDivisionHref(division.id),
+        href: getDivisionHref(slug),
         iconSvg: sanitizeDivisionIcon(division.icon_svg),
         iconTone: iconTones[(division.id - 1) % iconTones.length],
         id: division.id,

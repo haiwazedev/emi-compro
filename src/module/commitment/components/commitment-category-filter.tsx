@@ -5,15 +5,15 @@ import { cn } from "@/shared/lib/utils";
 import { useCopy } from "@/i18n/use-copy";
 
 type CommitmentCategoryFilterProps = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   categories: CommitmentListingData["categories"];
 };
 
-function getCategoryHref(categoryId: number | null) {
+function getCategoryHref(categorySlug: string | null) {
   const query = new URLSearchParams();
 
-  if (categoryId !== null) {
-    query.set("category", String(categoryId));
+  if (categorySlug !== null) {
+    query.set("category", categorySlug);
   }
 
   const queryString = query.toString();
@@ -22,14 +22,14 @@ function getCategoryHref(categoryId: number | null) {
 }
 
 export function CommitmentCategoryFilter({
-  activeCategoryId,
+  activeCategorySlug,
   categories,
 }: CommitmentCategoryFilterProps) {
   const copy = useCopy();
   const filters = [
-    { id: null, label: copy("All Documents") },
+    { slug: null, label: copy("All Documents") },
     ...categories.map((category) => ({
-      id: category.id,
+      slug: category.slug,
       label: category.name,
     })),
   ];
@@ -38,10 +38,10 @@ export function CommitmentCategoryFilter({
     <nav aria-label={copy("Filter commitment documents by category")}>
       <ul className="flex flex-wrap gap-2 lg:flex-col">
         {filters.map((filter) => {
-          const isActive = filter.id === activeCategoryId;
+          const isActive = filter.slug === activeCategorySlug;
 
           return (
-            <li className="flex" key={filter.id ?? "all"}>
+            <li className="flex" key={filter.slug ?? "all"}>
               <Link
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
@@ -50,7 +50,7 @@ export function CommitmentCategoryFilter({
                     ? "bg-accent text-background shadow-md"
                     : "bg-background text-accent hover:bg-primary/60 shadow-sm",
                 )}
-                href={getCategoryHref(filter.id)}
+                href={getCategoryHref(filter.slug)}
               >
                 {filter.label}
               </Link>

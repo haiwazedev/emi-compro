@@ -16,11 +16,11 @@ type CommitmentBrowserProps = {
   logos: PublicSiteLogos;
 };
 
-function getPageHref(categoryId: number | null, page: number) {
+function getPageHref(categorySlug: string | null, page: number) {
   const query = new URLSearchParams();
 
-  if (categoryId !== null) {
-    query.set("category", String(categoryId));
+  if (categorySlug !== null) {
+    query.set("category", categorySlug);
   }
 
   query.set("page", String(page));
@@ -58,7 +58,7 @@ export function CommitmentBrowser({
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:gap-8">
           <div className="w-full lg:w-1/4 lg:shrink-0">
             <CommitmentCategoryFilter
-              activeCategoryId={data.activeCategoryId}
+              activeCategorySlug={data.activeCategorySlug}
               categories={data.categories}
             />
           </div>
@@ -103,7 +103,7 @@ export function CommitmentBrowser({
                   variant="outline"
                 >
                   <Link
-                    href={getPageHref(data.activeCategoryId, data.page + 1)}
+                    href={getPageHref(data.activeCategorySlug, data.page + 1)}
                   >
                     {copy("Muat lebih banyak dokumen")}
                     <ArrowDown aria-hidden="true" className="size-3.5" />

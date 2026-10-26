@@ -42,16 +42,14 @@ export default async function CommitmentsPage({
 }: CommitmentsPageProps) {
   const { locale } = await routeParams;
   const params = await searchParams;
-  const categoryId = parsePositiveInteger(
-    getFirstSearchParamValue(params.category),
-  );
+  const categorySlug = getFirstSearchParamValue(params.category) || undefined;
   const page = parsePositiveInteger(getFirstSearchParamValue(params.page)) ?? 1;
   let data: CommitmentListingData | null = null;
   let error = false;
   const siteSettingsPromise = getPublicSiteSettings(locale).catch(() => null);
 
   try {
-    data = await getCommitmentListingData({ categoryId, locale, page });
+    data = await getCommitmentListingData({ categorySlug, locale, page });
   } catch {
     error = true;
   }

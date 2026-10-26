@@ -67,7 +67,7 @@ export async function Footer({
             title: "Commitment",
             links: commitmentCategories.map((category) => ({
               label: category.name,
-              href: `/commitments?category=${category.id}#commitment-browser`,
+              href: `/commitments?category=${encodeURIComponent(category.slug)}#commitment-browser`,
               translateLabel: false,
             })),
           },

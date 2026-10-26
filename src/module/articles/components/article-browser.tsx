@@ -14,11 +14,11 @@ type ArticleBrowserProps = {
   error: boolean;
 };
 
-function getPageHref(categoryId: number | null, page: number) {
+function getPageHref(categorySlug: string | null, page: number) {
   const query = new URLSearchParams();
 
-  if (categoryId !== null) {
-    query.set("category", String(categoryId));
+  if (categorySlug !== null) {
+    query.set("category", categorySlug);
   }
 
   query.set("page", String(page));
@@ -44,7 +44,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
 
       {data ? (
         <CategoryFilters
-          activeCategoryId={data.activeCategoryId}
+          activeCategorySlug={data.activeCategorySlug}
           allLabel={copy("All")}
           anchorId="articles"
           ariaLabel={copy("Filter articles by category")}
@@ -108,7 +108,7 @@ export function ArticleBrowser({ data, error }: ArticleBrowserProps) {
             className="h-10 rounded-full px-5 text-xs font-semibold"
             variant="outline"
           >
-            <Link href={getPageHref(data.activeCategoryId, data.page + 1)}>
+            <Link href={getPageHref(data.activeCategorySlug, data.page + 1)}>
               {copy("Load More Articles")}
               <ArrowDown aria-hidden="true" className="size-3.5" />
             </Link>

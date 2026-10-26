@@ -3,12 +3,12 @@ import Link from "@/i18n/navigation";
 import { cn } from "@/shared/lib/utils";
 
 type FilterCategory = {
-  id: number;
   name: string;
+  slug: string;
 };
 
 type CategoryFiltersProps = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   allLabel: string;
   anchorId: string;
   ariaLabel: string;
@@ -19,7 +19,7 @@ type CategoryFiltersProps = {
 };
 
 export function CategoryFilters({
-  activeCategoryId,
+  activeCategorySlug,
   allLabel,
   anchorId,
   ariaLabel,
@@ -29,9 +29,9 @@ export function CategoryFilters({
   queryKey,
 }: CategoryFiltersProps) {
   const filters = [
-    { id: null, label: allLabel },
+    { slug: null, label: allLabel },
     ...categories.map((category) => ({
-      id: category.id,
+      slug: category.slug,
       label: category.name,
     })),
   ];
@@ -39,7 +39,7 @@ export function CategoryFilters({
   return (
     <div aria-label={ariaLabel} className="flex flex-wrap gap-2" role="group">
       {filters.map((filter) => {
-        const isActive = filter.id === activeCategoryId;
+        const isActive = filter.slug === activeCategorySlug;
         const query = new URLSearchParams();
 
         for (const [key, value] of Object.entries(preserveQuery ?? {})) {
@@ -48,8 +48,8 @@ export function CategoryFilters({
           }
         }
 
-        if (filter.id !== null) {
-          query.set(queryKey, String(filter.id));
+        if (filter.slug !== null) {
+          query.set(queryKey, filter.slug);
         }
 
         const queryString = query.toString();
@@ -65,7 +65,7 @@ export function CategoryFilters({
                 : "border-foreground/20 bg-background text-accent hover:border-secondary hover:text-secondary",
             )}
             href={href}
-            key={filter.id ?? "all"}
+            key={filter.slug ?? "all"}
           >
             {filter.label}
           </Link>
