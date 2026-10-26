@@ -43,7 +43,7 @@ export async function Footer({
     settings === undefined
       ? getPublicSiteSettings(locale as Locale).catch(() => null)
       : Promise.resolve(settings),
-    getCommitmentCategories().catch(() => []),
+    getCommitmentCategories(locale as Locale).catch(() => []),
     getServiceDivisionFooterLinks(locale as Locale).catch(() => []),
   ]);
   const serviceGroup =

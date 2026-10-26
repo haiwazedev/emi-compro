@@ -58,7 +58,7 @@ export default async function CommitmentsPage({
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <Navbar />
+      <Navbar commitmentCategoryAlternateSlugs={data?.categoryAlternateSlugs} />
 
       <main>
         <CommitmentsPageContent

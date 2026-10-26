@@ -13,6 +13,7 @@ export type Language = Locale;
 
 type Props = {
   articleAlternateSlugs?: Partial<Record<Language, string>>;
+  commitmentCategoryAlternateSlugs?: Partial<Record<Language, string>>;
 };
 
 const languages: { label: string; value: Language }[] = [
@@ -20,7 +21,10 @@ const languages: { label: string; value: Language }[] = [
   { label: "EN", value: "en" },
 ];
 
-const LanguageSwitcher: FC<Props> = ({ articleAlternateSlugs }) => {
+const LanguageSwitcher: FC<Props> = ({
+  articleAlternateSlugs,
+  commitmentCategoryAlternateSlugs,
+}) => {
   const selectedLanguage = useLocale() as Language;
   const pathname = usePathname();
   const router = useRouter();
@@ -33,15 +37,31 @@ const LanguageSwitcher: FC<Props> = ({ articleAlternateSlugs }) => {
 
     const alternateSlug = articleAlternateSlugs?.[language];
     const isArticlePage = articleAlternateSlugs !== undefined;
+    const isCommitmentsPage = pathname === "/commitments";
     const targetPathname = articleAlternateSlugs
       ? alternateSlug
         ? `/articles/${encodeURIComponent(alternateSlug)}`
         : "/articles"
       : pathname;
     const preserveHash = !isArticlePage || Boolean(alternateSlug);
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (isCommitmentsPage && searchParams.has("category")) {
+      const alternateCategorySlug =
+        commitmentCategoryAlternateSlugs?.[language];
+
+      if (alternateCategorySlug) {
+        searchParams.set("category", alternateCategorySlug);
+      } else {
+        searchParams.delete("category");
+        searchParams.delete("page");
+      }
+    }
+
+    const search = searchParams.toString();
 
     router.replace(
-      `${targetPathname}${window.location.search}${preserveHash ? window.location.hash : ""}`,
+      `${targetPathname}${search ? `?${search}` : ""}${preserveHash ? window.location.hash : ""}`,
       { locale: language },
     );
   }

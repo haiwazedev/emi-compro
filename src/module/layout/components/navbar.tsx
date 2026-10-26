@@ -7,8 +7,10 @@ import { NavbarClient } from "./navbar-client";
 
 export async function Navbar({
   articleAlternateSlugs,
+  commitmentCategoryAlternateSlugs,
 }: {
   articleAlternateSlugs?: Article["alternateSlugs"];
+  commitmentCategoryAlternateSlugs?: Partial<Record<Locale, string>>;
 }) {
   const locale = (await getLocale()) as Locale;
   const siteSettings = await getPublicSiteSettings(locale).catch(() => null);
@@ -16,6 +18,7 @@ export async function Navbar({
   return (
     <NavbarClient
       articleAlternateSlugs={articleAlternateSlugs}
+      commitmentCategoryAlternateSlugs={commitmentCategoryAlternateSlugs}
       danantaraLogoUrl={siteSettings?.danantaraLogoUrl ?? null}
       plnLogoUrl={siteSettings?.plnLogoUrl ?? null}
     />

@@ -49,6 +49,7 @@ type CommitmentDocumentsResponse = {
 
 export type CommitmentListingData = {
   activeCategorySlug: string | null;
+  categoryAlternateSlugs: Partial<Record<Locale, string>>;
   categories: CommitmentCategory[];
   documents: CommitmentDocument[];
   page: number;
@@ -97,17 +98,23 @@ function mapCommitmentDocument(
   };
 }
 
-export const getCommitmentCategories = cache(async () => {
+export const getCommitmentCategories = cache(async (locale: Locale) => {
   const { documentCommitmentCategories } =
     await apiGet<CommitmentCategoriesResponse>(
       "/document_commitment_categories",
+      { language_id: locale },
     );
 
   return documentCommitmentCategories;
 });
 
-async function getCommitmentDocuments(page: number, categorySlug?: string) {
+async function getCommitmentDocuments(
+  page: number,
+  locale: Locale,
+  categorySlug?: string,
+) {
   const query: Record<string, number | string> = {
+    language_id: locale,
     limit: DOCUMENTS_PER_PAGE,
     page,
     status: "PUBLISHED",
@@ -120,24 +127,43 @@ async function getCommitmentDocuments(page: number, categorySlug?: string) {
   return apiGet<CommitmentDocumentsResponse>("/document_commitments", query);
 }
 
+function getAlternateLocale(locale: Locale): Locale {
+  return locale === "id" ? "en" : "id";
+}
+
 export async function getCommitmentListingData(options: {
   categorySlug?: string;
   locale: Locale;
   page: number;
 }): Promise<CommitmentListingData> {
-  const categories = await getCommitmentCategories();
   const categorySlug = options.categorySlug || undefined;
-  const firstPage = await getCommitmentDocuments(1, categorySlug);
+  const alternateLocale = getAlternateLocale(options.locale);
+  const [categories, alternateCategories, firstPage] = await Promise.all([
+    getCommitmentCategories(options.locale),
+    categorySlug
+      ? getCommitmentCategories(alternateLocale)
+      : Promise.resolve([]),
+    getCommitmentDocuments(1, options.locale, categorySlug),
+  ]);
   const totalPages = Math.max(1, firstPage.pagination.totalPages);
   const page = Math.min(options.page, totalPages);
   const remainingPages = await Promise.all(
     Array.from({ length: page - 1 }, (_, index) =>
-      getCommitmentDocuments(index + 2, categorySlug),
+      getCommitmentDocuments(index + 2, options.locale, categorySlug),
     ),
+  );
+  const activeCategory = categories.find(
+    (category) => category.slug === categorySlug,
+  );
+  const alternateCategory = alternateCategories.find(
+    (category) => category.id === activeCategory?.id,
   );
 
   return {
     activeCategorySlug: categorySlug ?? null,
+    categoryAlternateSlugs: alternateCategory
+      ? { [alternateLocale]: alternateCategory.slug }
+      : {},
     categories,
     documents: [
       ...firstPage.documentCommitments,
