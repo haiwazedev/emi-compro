@@ -26,6 +26,7 @@ import {
 } from "@/shared/ui/dialog";
 
 type ServiceDetailDialogProps = {
+  initialOfferingId: number | null;
   onCloseAutoFocus: React.ComponentProps<
     typeof DialogContent
   >["onCloseAutoFocus"];
@@ -33,11 +34,18 @@ type ServiceDetailDialogProps = {
 };
 
 export function ServiceDetailDialog({
+  initialOfferingId,
   onCloseAutoFocus,
   service,
 }: ServiceDetailDialogProps) {
   const copy = useCopy();
-  const [activeTagIndex, setActiveTagIndex] = React.useState(0);
+  const [activeTagIndex, setActiveTagIndex] = React.useState(() => {
+    const selectedIndex = service.offerings.findIndex(
+      (offering) => offering.id === initialOfferingId,
+    );
+
+    return selectedIndex >= 0 ? selectedIndex : 0;
+  });
   const locale = useLocale();
   const numberFormatter = new Intl.NumberFormat(
     locale === "id" ? "id-ID" : "en-US",
