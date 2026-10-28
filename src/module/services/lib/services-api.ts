@@ -30,15 +30,20 @@ type ApiDivisionsResponse = {
 };
 
 type ApiServiceContent = {
-  description: string | null;
   language_id: string;
   name: string;
+};
+
+type ApiServiceMediaContent = {
+  description: string | null;
+  language_id: string;
 };
 
 type ApiServiceMedia = {
   filename: string;
   path: string;
   type: "PICTURE" | string;
+  contents?: ApiServiceMediaContent[];
 };
 
 type ApiService = {
@@ -153,13 +158,17 @@ function mapServiceOffering(
 
   const images: ServiceDetailImage[] = (service.media ?? [])
     .filter((media) => media.type === "PICTURE" && media.path)
-    .map((media, index) => ({
-      alt: `${content.name} ${index + 1}`,
-      src: resolveApiAssetUrl(media.path),
-    }));
+    .map((media, index) => {
+      const mediaContent = getLocalizedContent(media.contents ?? [], locale);
+
+      return {
+        alt: `${content.name} ${index + 1}`,
+        description: mediaContent?.description?.trim() || null,
+        src: resolveApiAssetUrl(media.path),
+      };
+    });
 
   return {
-    description: content.description?.trim() || null,
     id: service.id,
     images,
     label: content.name,
