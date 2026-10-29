@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/i18n/navigation";
+import AutoHeight from "embla-carousel-auto-height";
 import { ArrowLeft, ArrowRight, Layers3 } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
@@ -99,6 +100,23 @@ export function ServiceDetailDialog({
     };
   }, [activeCarouselApi, activeTag]);
 
+  // AutoHeight measures on init only and Embla re-measures on width changes only, so re-init once images load
+  React.useEffect(() => {
+    if (!activeCarouselApi) {
+      return;
+    }
+
+    const reInit = () => activeCarouselApi.reInit();
+    const images = activeCarouselApi.containerNode().querySelectorAll("img");
+
+    images.forEach((image) => image.addEventListener("load", reInit));
+    reInit();
+
+    return () => {
+      images.forEach((image) => image.removeEventListener("load", reInit));
+    };
+  }, [activeCarouselApi]);
+
   function handleOfferingChange(index: number) {
     setActiveTagIndex(index);
     setSelectedImage({
@@ -116,7 +134,7 @@ export function ServiceDetailDialog({
       closeButtonClassName="top-4 right-4 size-8 lg:top-6 lg:right-6 lg:size-10 [&_svg]:size-5!"
       onCloseAutoFocus={onCloseAutoFocus}
     >
-      <DialogHeader className="mt-8 gap-4 md:mt-0 lg:gap-8 lg:pr-8">
+      <DialogHeader className="mt-8 md:mt-0 lg:pr-8">
         <div className="flex items-center gap-2 lg:gap-7">
           <div className="from-secondary to-accent text-background shadow-foreground/20 flex size-12 items-center justify-center rounded bg-linear-to-br shadow-md lg:size-20 lg:rounded-2xl">
             <span className="flex size-2/3 items-center justify-center [&_svg]:size-full">
@@ -149,7 +167,9 @@ export function ServiceDetailDialog({
             </DialogTitle>
           </div>
         </div>
+      </DialogHeader>
 
+      <div className="flex min-h-0 flex-col gap-6 overflow-y-auto lg:gap-8">
         {activeDescription ? (
           <DialogDescription
             aria-live="polite"
@@ -159,44 +179,46 @@ export function ServiceDetailDialog({
             {activeDescription}
           </DialogDescription>
         ) : null}
-      </DialogHeader>
 
-      {activeTag && activeTag.images.length > 0 ? (
-        <Carousel
-          aria-label={copy("{title} images", { title: activeTag.label })}
-          className="relative min-h-0 flex-1 overflow-hidden"
-          key={activeTag.id}
-          opts={{ loop: false }}
-          setApi={handleCarouselApi}
-        >
-          <CarouselContent className="ml-0">
-            {activeTag.images.map((image) => (
-              <CarouselItem className="pl-0" key={image.src}>
-                <figure className="bg-primary/40 relative aspect-video max-h-[40dvh] w-full rounded-2xl">
-                  <Image
-                    className="object-contain"
-                    alt={image.alt}
-                    fill
-                    sizes="(min-width: 1024px) 75vw, calc(100vw - 3rem)"
-                    src={image.src}
-                  />
-                </figure>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+        {activeTag && activeTag.images.length > 0 ? (
+          <Carousel
+            aria-label={copy("{title} images", { title: activeTag.label })}
+            key={activeTag.id}
+            opts={{ loop: false }}
+            plugins={[AutoHeight()]}
+            setApi={handleCarouselApi}
+          >
+            <CarouselContent className="ml-0 items-start">
+              {activeTag.images.map((image) => (
+                <CarouselItem className="pl-0" key={image.src}>
+                  <figure className="bg-primary/40 overflow-hidden rounded-2xl">
+                    {/* width/height 0: CMS images have no known size, so CSS sets full width and natural height */}
+                    <Image
+                      className="h-auto w-full"
+                      alt={image.alt}
+                      height={0}
+                      sizes="(min-width: 800px) 720px, calc(100vw - 5rem)"
+                      src={image.src}
+                      width={0}
+                    />
+                  </figure>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
 
-          <CarouselPrevious
-            aria-label={copy("Previous image")}
-            className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 bottom-auto left-3 my-0 size-10 rounded-lg lg:left-4"
-            size="icon-lg"
-          />
-          <CarouselNext
-            aria-label={copy("Next image")}
-            className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 right-3 bottom-auto my-0 size-10 rounded-lg lg:right-4"
-            size="icon-lg"
-          />
-        </Carousel>
-      ) : null}
+            <CarouselPrevious
+              aria-label={copy("Previous image")}
+              className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 bottom-auto left-3 my-0 size-10 rounded-lg lg:left-4"
+              size="icon-lg"
+            />
+            <CarouselNext
+              aria-label={copy("Next image")}
+              className="border-secondary/25 bg-background/90 text-accent hover:bg-background top-1/2 right-3 bottom-auto my-0 size-10 rounded-lg lg:right-4"
+              size="icon-lg"
+            />
+          </Carousel>
+        ) : null}
+      </div>
 
       <DialogFooter className="border-foreground/10 mt-2 flex-col items-stretch gap-5 border-t pt-4 lg:flex-row lg:items-center lg:justify-between">
         <Button
