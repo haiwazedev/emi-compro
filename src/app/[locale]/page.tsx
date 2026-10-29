@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { AboutUsSection } from "@/module/about/components/about-us-section";
 import { ArticlesSection } from "@/module/articles/components/articles-section";
 import { getHomeArticleData } from "@/module/articles/lib/articles-api";
@@ -12,23 +14,28 @@ import { getPartners } from "@/module/partners/lib/clients-api";
 import { PartnersSection } from "@/module/partners/components/partners-section";
 import { ServicesSection } from "@/module/services/components/services-section";
 import { getServiceDirectoryData } from "@/module/services/lib/services-api";
+import { getLocalizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
-import {
-  getFirstSearchParamValue,
-  parsePositiveInteger,
-} from "@/shared/lib/utils";
+import { getFirstSearchParamValue } from "@/shared/lib/utils";
 
 type HomeProps = {
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
-    homeCategory?: string | string[];
+    category?: string | string[];
   }>;
 };
 
+export async function generateMetadata({
+  params,
+}: Pick<HomeProps, "params">): Promise<Metadata> {
+  const { locale } = await params;
+
+  return { alternates: getLocalizedAlternates(locale) };
+}
+
 export default async function Home({ params, searchParams }: HomeProps) {
   const [{ locale }, search] = await Promise.all([params, searchParams]);
-  const categoryValue = getFirstSearchParamValue(search.homeCategory);
-  const categoryId = parsePositiveInteger(categoryValue);
+  const categorySlug = getFirstSearchParamValue(search.category) || undefined;
   const [
     homeResult,
     articleResult,
@@ -37,7 +44,7 @@ export default async function Home({ params, searchParams }: HomeProps) {
     settingsResult,
   ] = await Promise.allSettled([
     getHomeSiteContentData(locale),
-    getHomeArticleData(locale, categoryId),
+    getHomeArticleData(locale, categorySlug),
     getServiceDirectoryData(locale),
     getPartners(),
     getPublicSiteSettings(locale),
@@ -66,7 +73,7 @@ export default async function Home({ params, searchParams }: HomeProps) {
         <ServicesSection data={servicesData} error={servicesError} />
         <PartnersSection data={partnersData} error={partnersError} />
         <ArticlesSection data={articleData} error={articlesError} />
-        <CommitmentSection />
+        <CommitmentSection data={servicesData} error={servicesError} />
         <ContactUsSection settings={siteSettings} />
       </main>
 

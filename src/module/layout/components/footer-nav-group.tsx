@@ -23,7 +23,7 @@ export function FooterNavGroup({ group }: FooterNavGroupProps) {
               className="hover:text-secondary focus-visible:ring-secondary/50 inline-flex rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
               href={link.href}
             >
-              {copy(link.label)}
+              {link.translateLabel === false ? link.label : copy(link.label)}
             </Link>
           </li>
         ))}

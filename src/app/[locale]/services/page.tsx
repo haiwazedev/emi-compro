@@ -19,6 +19,7 @@ export async function generateMetadata({
     locale,
     "Services | PLN EMI",
     "Explore PLN EMI's service divisions and solutions for energy management and environmental sustainability.",
+    "/services",
   );
 }
 

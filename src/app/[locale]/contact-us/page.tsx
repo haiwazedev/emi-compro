@@ -23,6 +23,7 @@ export async function generateMetadata({
     locale,
     "Contact Us | PLN EMI",
     "Connect with PLN EMI's team of experts for energy efficiency, compliance, and climate action support.",
+    "/contact-us",
   );
 }
 

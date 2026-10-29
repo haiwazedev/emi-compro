@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { CommitmentsPageContent } from "@/module/commitment/components/commitments-page-content";
 import {
   getCommitmentListingData,
@@ -17,6 +18,7 @@ import {
 type CommitmentsPageProps = {
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
+    category?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -30,6 +32,7 @@ export async function generateMetadata({
     locale,
     "Commitment Documents | PLN EMI",
     "Explore PLN EMI certifications, corporate policies, and sustainability reports.",
+    "/commitments",
   );
 }
 
@@ -39,22 +42,33 @@ export default async function CommitmentsPage({
 }: CommitmentsPageProps) {
   const { locale } = await routeParams;
   const params = await searchParams;
+  const categorySlug = getFirstSearchParamValue(params.category) || undefined;
   const page = parsePositiveInteger(getFirstSearchParamValue(params.page)) ?? 1;
   let data: CommitmentListingData | null = null;
   let error = false;
+  const siteSettingsPromise = getPublicSiteSettings(locale).catch(() => null);
 
   try {
-    data = await getCommitmentListingData({ locale, page });
+    data = await getCommitmentListingData({ categorySlug, locale, page });
   } catch {
     error = true;
   }
 
+  const siteSettings = await siteSettingsPromise;
+
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <Navbar />
+      <Navbar commitmentCategoryAlternateSlugs={data?.categoryAlternateSlugs} />
 
       <main>
-        <CommitmentsPageContent data={data} error={error} />
+        <CommitmentsPageContent
+          data={data}
+          error={error}
+          logos={{
+            danantaraLogoUrl: siteSettings?.danantaraLogoUrl ?? null,
+            plnLogoUrl: siteSettings?.plnLogoUrl ?? null,
+          }}
+        />
       </main>
 
       <Footer />

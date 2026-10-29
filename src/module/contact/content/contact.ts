@@ -41,6 +41,11 @@ export type PublicSiteSettings = {
   whatsappHref: string | null;
 };
 
+export type PublicSiteLogos = Pick<
+  PublicSiteSettings,
+  "danantaraLogoUrl" | "plnLogoUrl"
+>;
+
 export type InboxSubject = {
   id: number;
   name: string;
@@ -68,7 +73,7 @@ export const contactPageContent = {
       fullName: { label: "Full Name", placeholder: "Your name" },
       email: { label: "Email", placeholder: "name@company.com" },
       company: { label: "Company", placeholder: "Company name" },
-      phone: { label: "Phone", placeholder: "+62 ..." },
+      phone: { label: "Phone", placeholder: "6281234567890" },
       subject: { label: "Subject" },
       message: { label: "Message", placeholder: "Tell us about your needs..." },
     },

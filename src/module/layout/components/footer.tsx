@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { getCommitmentCategories } from "@/module/commitment/lib/commitments-api";
 import type { PublicSiteSettings } from "@/module/contact/content/contact";
 import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
 import { FooterNavGroup } from "@/module/layout/components/footer-nav-group";
 import { footerContent } from "@/module/layout/content/footer";
+import { getServiceDivisionFooterLinks } from "@/module/services/lib/services-api";
 import { sectionContainerRailClassName } from "@/shared/components/section-container";
 import { getCopyKey } from "@/i18n/keys";
 import type { Locale } from "@/i18n/routing";
@@ -37,10 +39,45 @@ export async function Footer({
   const locale = await getLocale();
   const translate = await getTranslations({ locale, namespace: "copy" });
   const copy = (source: string) => translate(getCopyKey(source));
-  const siteSettings =
+  const [siteSettings, commitmentCategories, serviceLinks] = await Promise.all([
     settings === undefined
-      ? await getPublicSiteSettings(locale as Locale).catch(() => null)
-      : settings;
+      ? getPublicSiteSettings(locale as Locale).catch(() => null)
+      : Promise.resolve(settings),
+    getCommitmentCategories(locale as Locale).catch(() => []),
+    getServiceDivisionFooterLinks(locale as Locale).catch(() => []),
+  ]);
+  const serviceGroup =
+    serviceLinks.length > 0
+      ? [
+          {
+            id: "services",
+            title: "Services",
+            links: serviceLinks.map((link) => ({
+              ...link,
+              translateLabel: false,
+            })),
+          },
+        ]
+      : [];
+  const commitmentGroup =
+    commitmentCategories.length > 0
+      ? [
+          {
+            id: "commitment",
+            title: "Commitment",
+            links: commitmentCategories.map((category) => ({
+              label: category.name,
+              href: `/commitments?category=${encodeURIComponent(category.slug)}#commitment-browser`,
+              translateLabel: false,
+            })),
+          },
+        ]
+      : [];
+  const footerNavGroups = footerContent.navGroups.flatMap((group) => [
+    group,
+    ...(group.id === "company" ? serviceGroup : []),
+  ]);
+  footerNavGroups.push(...commitmentGroup);
   const currentYear = new Intl.DateTimeFormat(locale, {
     year: "numeric",
   }).format(new Date());
@@ -131,7 +168,7 @@ export async function Footer({
 
         <nav aria-label={copy("Footer navigation")} className="mt-12 lg:mt-14">
           <div className="flex flex-col gap-10 lg:flex-row lg:gap-8">
-            {footerContent.navGroups.map((group) => (
+            {footerNavGroups.map((group) => (
               <FooterNavGroup group={group} key={group.id} />
             ))}
           </div>

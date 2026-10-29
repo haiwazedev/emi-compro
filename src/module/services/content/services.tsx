@@ -15,11 +15,11 @@ export type ServiceDivision = {
 
 export type ServiceDetailImage = {
   alt: string;
+  description: string | null;
   src: string;
 };
 
 export type ServiceOffering = {
-  description: string | null;
   id: number;
   images: readonly ServiceDetailImage[];
   label: string;

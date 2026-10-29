@@ -83,7 +83,7 @@ export class ArticlesApiError extends ApiClientError {
 }
 
 export type ArticleListingData = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   articles: Article[];
   categories: ArticleCategory[];
   page: number;
@@ -91,9 +91,16 @@ export type ArticleListingData = {
 };
 
 export type HomeArticleData = {
-  activeCategoryId: number | null;
+  activeCategorySlug: string | null;
   articles: Article[];
   categories: ArticleCategory[];
+};
+
+export type PublishedArticleSitemapEntry = {
+  alternateSlugs: Partial<Record<Locale, string>>;
+  articleId: number;
+  locale: Locale;
+  slug: string;
 };
 
 function getMediaUrl(path: string | null) {
@@ -102,6 +109,20 @@ function getMediaUrl(path: string | null) {
   }
 
   return resolveApiAssetUrl(path);
+}
+
+function getPublishedAlternateSlugs(
+  contents: ApiArticleContent[] = [],
+): Partial<Record<Locale, string>> {
+  return Object.fromEntries(
+    contents
+      .filter(
+        (content) =>
+          content.status === "PUBLISHED" &&
+          (content.language_id === "id" || content.language_id === "en"),
+      )
+      .map((content) => [content.language_id, content.slug]),
+  ) as Partial<Record<Locale, string>>;
 }
 
 const getLanguageId = cache(async (locale: Locale) => {
@@ -170,9 +191,7 @@ function mapArticle(article: ApiArticle, locale: Locale): Article {
     locale,
   );
   const tone = mediaTones[article.id % mediaTones.length];
-  const alternateSlugs = Object.fromEntries(
-    (article.contents ?? []).map((item) => [item.language_id, item.slug]),
-  ) as Partial<Record<Locale, string>>;
+  const alternateSlugs = getPublishedAlternateSlugs(article.contents);
 
   return {
     alternateSlugs,
@@ -193,12 +212,12 @@ function mapArticle(article: ApiArticle, locale: Locale): Article {
 }
 
 async function getPublishedArticlePage(options: {
-  categoryId?: number;
+  categorySlug?: string;
   languageId: string;
   limit: number;
   page: number;
 }) {
-  const { categoryId, languageId, limit, page } = options;
+  const { categorySlug, languageId, limit, page } = options;
   const query: Record<string, number | string> = {
     language_id: languageId,
     limit,
@@ -206,47 +225,94 @@ async function getPublishedArticlePage(options: {
     status: "PUBLISHED",
   };
 
-  if (categoryId !== undefined) {
-    query.article_category_id = categoryId;
+  if (categorySlug !== undefined) {
+    query.article_category_slug = categorySlug;
   }
 
   return apiGet<ApiArticleListResponse>("/articles", query);
 }
 
-function resolveCategoryId(
-  categories: ArticleCategory[],
-  categoryId: number | undefined,
-) {
-  return categories.some((category) => category.id === categoryId)
-    ? categoryId!
-    : undefined;
+export async function getPublishedArticleSitemapEntries(
+  locale: Locale,
+): Promise<PublishedArticleSitemapEntry[]> {
+  const languageId = await getLanguageId(locale);
+  const firstPage = await getPublishedArticlePage({
+    languageId,
+    limit: ARTICLES_PER_PAGE,
+    page: 1,
+  });
+  const remainingPages = await Promise.all(
+    Array.from(
+      { length: Math.max(0, firstPage.pagination.totalPages - 1) },
+      (_, index) =>
+        getPublishedArticlePage({
+          languageId,
+          limit: ARTICLES_PER_PAGE,
+          page: index + 2,
+        }),
+    ),
+  );
+  const articles = [firstPage, ...remainingPages].flatMap(
+    (page) => page.articles,
+  );
+  const entries = articles.flatMap((article) => {
+    const localizedContent = article.contents?.find(
+      (content) =>
+        content.language_id === languageId && content.status === "PUBLISHED",
+    );
+    const slug =
+      localizedContent?.slug ??
+      (article.language_id === languageId && article.status === "PUBLISHED"
+        ? article.slug
+        : undefined);
+
+    if (!slug) {
+      return [];
+    }
+
+    const alternateSlugs = getPublishedAlternateSlugs(article.contents);
+    alternateSlugs[locale] = slug;
+
+    return [
+      {
+        alternateSlugs,
+        articleId: article.id,
+        locale,
+        slug,
+      },
+    ];
+  });
+
+  return Array.from(
+    new Map(entries.map((entry) => [entry.slug, entry])).values(),
+  );
 }
 
 export async function getHomeArticleData(
   locale: Locale,
-  requestedCategoryId?: number,
+  requestedCategorySlug?: string,
 ): Promise<HomeArticleData> {
   const [languageId, categories] = await Promise.all([
     getLanguageId(locale),
     getArticleCategories(),
   ]);
-  const categoryId = resolveCategoryId(categories, requestedCategoryId);
+  const categorySlug = requestedCategorySlug || undefined;
   const { articles } = await getPublishedArticlePage({
-    categoryId,
+    categorySlug,
     languageId,
     limit: HOME_ARTICLE_LIMIT,
     page: 1,
   });
 
   return {
-    activeCategoryId: categoryId ?? null,
+    activeCategorySlug: categorySlug ?? null,
     articles: articles.map((article) => mapArticle(article, locale)),
     categories,
   };
 }
 
 export async function getArticleListingData(options: {
-  categoryId?: number;
+  categorySlug?: string;
   locale: Locale;
   page: number;
 }): Promise<ArticleListingData> {
@@ -254,9 +320,9 @@ export async function getArticleListingData(options: {
     getLanguageId(options.locale),
     getArticleCategories(),
   ]);
-  const categoryId = resolveCategoryId(categories, options.categoryId);
+  const categorySlug = options.categorySlug || undefined;
   const firstPage = await getPublishedArticlePage({
-    categoryId,
+    categorySlug,
     languageId,
     limit: ARTICLES_PER_PAGE,
     page: 1,
@@ -267,7 +333,7 @@ export async function getArticleListingData(options: {
   const remainingPages = await Promise.all(
     Array.from({ length: currentPage - 1 }, (_, index) =>
       getPublishedArticlePage({
-        categoryId,
+        categorySlug,
         languageId,
         limit: ARTICLES_PER_PAGE,
         page: index + 2,
@@ -283,7 +349,7 @@ export async function getArticleListingData(options: {
   );
 
   return {
-    activeCategoryId: categoryId ?? null,
+    activeCategorySlug: categorySlug ?? null,
     articles: uniqueArticles.map((article) =>
       mapArticle(article, options.locale),
     ),

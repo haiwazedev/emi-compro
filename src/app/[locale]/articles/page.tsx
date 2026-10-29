@@ -31,6 +31,7 @@ export async function generateMetadata({
     locale,
     "News & Articles | PLN EMI",
     "Trusted updates on PLN EMI business developments, innovation, and contribution to energy resilience and sustainable growth.",
+    "/articles",
   );
 }
 
@@ -42,13 +43,13 @@ export default async function ArticlesPage({
   const params = await searchParams;
   const categoryValue = getFirstSearchParamValue(params.category);
   const pageValue = getFirstSearchParamValue(params.page);
-  const categoryId = parsePositiveInteger(categoryValue);
+  const categorySlug = categoryValue || undefined;
   const page = parsePositiveInteger(pageValue) ?? 1;
   let data: ArticleListingData | null = null;
   let error = false;
 
   try {
-    data = await getArticleListingData({ categoryId, locale, page });
+    data = await getArticleListingData({ categorySlug, locale, page });
   } catch {
     error = true;
   }

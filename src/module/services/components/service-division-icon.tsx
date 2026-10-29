@@ -16,7 +16,7 @@ export function ServiceDivisionIcon({
   service,
 }: ServiceDivisionIconProps) {
   return (
-    <div
+    <span
       aria-hidden="true"
       className={cn(
         "text-background shadow-foreground/20 flex shrink-0 items-center justify-center shadow-md",
@@ -32,6 +32,6 @@ export function ServiceDivisionIcon({
       ) : (
         <Layers3 className={iconClassName} strokeWidth={2} />
       )}
-    </div>
+    </span>
   );
 }

@@ -9,6 +9,7 @@ import { usePathname } from "@/i18n/navigation";
 import { useCopy } from "@/i18n/use-copy";
 import type { Article } from "@/module/articles/content/articles";
 import { navLinks } from "@/module/layout/content/navigation";
+import type { Locale } from "@/i18n/routing";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import LanguageSwitcher from "./language-switcher";
@@ -16,10 +17,12 @@ import MobileNavbarDropmenu from "./mobile-navbar-dropmenu";
 
 export function NavbarClient({
   articleAlternateSlugs,
+  commitmentCategoryAlternateSlugs,
   danantaraLogoUrl,
   plnLogoUrl,
 }: {
   articleAlternateSlugs?: Article["alternateSlugs"];
+  commitmentCategoryAlternateSlugs?: Partial<Record<Locale, string>>;
   danantaraLogoUrl: string | null;
   plnLogoUrl: string | null;
 }) {
@@ -69,6 +72,7 @@ export function NavbarClient({
   }, [isHomePage]);
 
   const isHomeActive = isHomePage && isHomeSectionActive;
+  const isLightNavbar = !isHomeActive || isMobileMenuOpen;
   const activeHref = isAboutPage
     ? "/about-us"
     : isServicesPage
@@ -87,9 +91,9 @@ export function NavbarClient({
     <header
       className={cn(
         "group/nav hover:bg-primary hover:text-accent hover:shadow-foreground/10 sticky top-0 z-50 transition-all duration-500 hover:shadow-sm",
-        isHomeActive && !isMobileMenuOpen
-          ? "text-background bg-transparent shadow-none"
-          : "text-accent bg-primary shadow-foreground/10 shadow-sm",
+        isLightNavbar
+          ? "text-accent bg-primary shadow-foreground/10 shadow-sm"
+          : "text-background bg-transparent shadow-none",
       )}
     >
       <nav
@@ -139,16 +143,26 @@ export function NavbarClient({
         </div>
 
         <div className="flex items-center gap-2 lg:gap-4">
-          <LanguageSwitcher articleAlternateSlugs={articleAlternateSlugs} />
+          <LanguageSwitcher
+            articleAlternateSlugs={articleAlternateSlugs}
+            commitmentCategoryAlternateSlugs={commitmentCategoryAlternateSlugs}
+          />
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             {plnLogoUrl ? (
               <Link
                 aria-label={copy("PLN Energy Management Indonesia home")}
                 href="/"
-                className="hidden lg:flex"
+                className={cn(
+                  "hidden px-6 lg:flex",
+                  isLightNavbar && "bg-accent rounded-full",
+                )}
               >
-                <div className="relative aspect-video w-24">
+                <div
+                  className={cn(
+                    "relative aspect-video w-24 transition-colors duration-500",
+                  )}
+                >
                   <Image
                     alt={copy("PLN Energy Management Indonesia")}
                     className="object-contain"

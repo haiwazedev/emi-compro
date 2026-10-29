@@ -17,27 +17,34 @@ type ServiceBrowserProps = {
 
 export function ServiceBrowser({ data, error }: ServiceBrowserProps) {
   const copy = useCopy();
-  const [activeServiceId, setActiveServiceId] = React.useState<number | null>(
-    null,
+  const [activeSelection, setActiveSelection] = React.useState<{
+    offeringId: number | null;
+    serviceId: number;
+  } | null>(null);
+  const activeTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const activeService = data?.find(
+    (service) => service.id === activeSelection?.serviceId,
   );
-  const activeCardRef = React.useRef<HTMLElement | null>(null);
-  const activeService = data?.find((service) => service.id === activeServiceId);
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      setActiveServiceId(null);
+      setActiveSelection(null);
     }
   }
 
-  function handleOpen(id: number, trigger: HTMLElement) {
-    activeCardRef.current = trigger;
-    setActiveServiceId(id);
+  function handleOpen(
+    serviceId: number,
+    offeringId: number | null,
+    trigger: HTMLButtonElement,
+  ) {
+    activeTriggerRef.current = trigger;
+    setActiveSelection({ offeringId, serviceId });
   }
 
   function handleCloseAutoFocus(event: Event) {
     event.preventDefault();
-    activeCardRef.current?.focus();
-    activeCardRef.current = null;
+    activeTriggerRef.current?.focus();
+    activeTriggerRef.current = null;
   }
 
   return (
@@ -75,7 +82,10 @@ export function ServiceBrowser({ data, error }: ServiceBrowserProps) {
             {data.map((service) => (
               <li key={service.id}>
                 <ServiceDivisionDetailCard
-                  onOpen={(trigger) => handleOpen(service.id, trigger)}
+                  onOpen={(trigger) => handleOpen(service.id, null, trigger)}
+                  onOfferingOpen={(offeringId, trigger) =>
+                    handleOpen(service.id, offeringId, trigger)
+                  }
                   service={service}
                 />
               </li>
@@ -84,10 +94,11 @@ export function ServiceBrowser({ data, error }: ServiceBrowserProps) {
         ) : null}
       </SectionContainer>
 
-      <Dialog open={activeServiceId !== null} onOpenChange={handleOpenChange}>
+      <Dialog open={activeSelection !== null} onOpenChange={handleOpenChange}>
         {activeService ? (
           <ServiceDetailDialog
-            key={activeService.id}
+            initialOfferingId={activeSelection?.offeringId ?? null}
+            key={`${activeService.id}-${activeSelection?.offeringId ?? "first"}`}
             onCloseAutoFocus={handleCloseAutoFocus}
             service={activeService}
           />

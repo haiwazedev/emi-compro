@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import {
+  DEFAULT_OPEN_GRAPH_IMAGE,
+  getArticleAlternates,
+} from "@/i18n/metadata";
+import { getCopyKey } from "@/i18n/keys";
+import type { Locale } from "@/i18n/routing";
 import { ArticleDetail } from "@/module/articles/components/article-detail";
 import { RelatedArticles } from "@/module/articles/components/related-articles";
 import type { Article } from "@/module/articles/content/articles";
@@ -12,8 +18,6 @@ import { Footer } from "@/module/layout/components/footer";
 import { Navbar } from "@/module/layout/components/navbar";
 import { SectionContainer } from "@/shared/components/section-container";
 import { ContentStatus } from "@/shared/components/content-status";
-import { getCopyKey } from "@/i18n/keys";
-import type { Locale } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 
 type ArticlePageProps = {
@@ -30,15 +34,26 @@ export async function generateMetadata({
   try {
     article = await getArticleBySlug(slug, locale);
   } catch {
-    return {};
+    return {
+      alternates: getArticleAlternates(locale, slug, {}),
+    };
   }
 
   if (!article) {
-    return {};
+    return {
+      alternates: getArticleAlternates(locale, slug, {}),
+    };
   }
 
   return {
+    alternates: getArticleAlternates(locale, slug, article.alternateSlugs),
     description: article.description,
+    openGraph: {
+      description: article.description,
+      images: [article.imageUrl ?? DEFAULT_OPEN_GRAPH_IMAGE],
+      title: article.title,
+      type: "article",
+    },
     title: `${article.title} | PLN EMI`,
   };
 }

@@ -9,8 +9,10 @@ import {
 } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { DEFAULT_OPEN_GRAPH_IMAGE } from "@/i18n/metadata";
 import { routing, type Locale } from "@/i18n/routing";
 import { getCopyKey } from "@/i18n/keys";
+import { getSiteOrigin } from "@/shared/lib/site-url";
 import "../globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -43,6 +45,33 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "copy" });
 
   return {
+    metadataBase: new URL(getSiteOrigin()),
+    icons: {
+      apple: {
+        url: "/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+      icon: [
+        {
+          url: "/favicon-32x32.png",
+          sizes: "32x32",
+          type: "image/png",
+        },
+        {
+          url: "/favicon-16x16.png",
+          sizes: "16x16",
+          type: "image/png",
+        },
+      ],
+    },
+    manifest: "/site.webmanifest",
+    openGraph: {
+      description: t(getCopyKey("Site description")),
+      images: [DEFAULT_OPEN_GRAPH_IMAGE],
+      title: t(getCopyKey("Site title")),
+      type: "website",
+    },
     title: t(getCopyKey("Site title")),
     description: t(getCopyKey("Site description")),
   };

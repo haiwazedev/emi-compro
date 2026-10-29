@@ -15,6 +15,7 @@ type ApiDivisionContent = {
   description: string | null;
   language_id: string;
   name: string;
+  slug: string;
 };
 
 type ApiDivision = {
@@ -29,15 +30,20 @@ type ApiDivisionsResponse = {
 };
 
 type ApiServiceContent = {
-  description: string | null;
   language_id: string;
   name: string;
+};
+
+type ApiServiceMediaContent = {
+  description: string | null;
+  language_id: string;
 };
 
 type ApiServiceMedia = {
   filename: string;
   path: string;
   type: "PICTURE" | string;
+  contents?: ApiServiceMediaContent[];
 };
 
 type ApiService = {
@@ -65,6 +71,10 @@ function getLocalizedContent<T extends { language_id: string }>(
   locale: Locale,
 ) {
   return contents.find((content) => content.language_id === locale);
+}
+
+function getDivisionHref(slug: string) {
+  return `/services#${encodeURIComponent(slug)}`;
 }
 
 function sanitizeDivisionIcon(iconSvg: string | null) {
@@ -148,17 +158,37 @@ function mapServiceOffering(
 
   const images: ServiceDetailImage[] = (service.media ?? [])
     .filter((media) => media.type === "PICTURE" && media.path)
-    .map((media, index) => ({
-      alt: `${content.name} ${index + 1}`,
-      src: resolveApiAssetUrl(media.path),
-    }));
+    .map((media, index) => {
+      const mediaContent = getLocalizedContent(media.contents ?? [], locale);
+
+      return {
+        alt: `${content.name} ${index + 1}`,
+        description: mediaContent?.description?.trim() || null,
+        src: resolveApiAssetUrl(media.path),
+      };
+    });
 
   return {
-    description: content.description?.trim() || null,
     id: service.id,
     images,
     label: content.name,
   };
+}
+
+export async function getServiceDivisionFooterLinks(
+  locale: Locale,
+): Promise<{ href: string; label: string }[]> {
+  const { divisions } = await apiGet<ApiDivisionsResponse>("/divisions", {
+    status: "PUBLISHED",
+  });
+
+  return divisions.flatMap((division) => {
+    const content = getLocalizedContent(division.contents, locale);
+
+    return content
+      ? [{ href: getDivisionHref(content.slug), label: content.name }]
+      : [];
+  });
 }
 
 export async function getServiceDirectoryData(
@@ -189,13 +219,13 @@ export async function getServiceDirectoryData(
       return [];
     }
 
-    const slug = `division-${division.id}`;
+    const slug = content.slug;
 
     return [
       {
         code: content.abbr,
         description: content.description?.trim() || null,
-        href: `/services#${slug}`,
+        href: getDivisionHref(slug),
         iconSvg: sanitizeDivisionIcon(division.icon_svg),
         iconTone: iconTones[(division.id - 1) % iconTones.length],
         id: division.id,

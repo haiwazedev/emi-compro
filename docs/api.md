@@ -21,7 +21,28 @@ Errors use this shape:
 The server requires `REDIS_URL`, `SESSION_SECRET`, and `FRONTEND_ORIGIN`. Use a
 random session secret of at least 32 bytes. The configured frontend origin must
 be an exact HTTP or HTTPS origin, such as `http://localhost:3000`. The server
-does not start if it cannot connect to Redis.
+does not start if it cannot connect to Redis. File uploads and public file reads
+also require `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, and `S3_SECRET_KEY`
+for the SeaweedFS S3 gateway. `S3_REGION` defaults to `us-east-1`; the bucket
+must already exist. Storage requests return `503 Service Unavailable` when S3
+is unavailable or not configured. Invite and password reset emails require
+`SMTP_HOST`, `SMTP_PORT` (465 uses TLS, other ports use STARTTLS), and
+`MAIL_FROM`; the server does not start without them. Set `SMTP_USER` and
+`SMTP_PASS` for servers that need login, such as Gmail with an App Password;
+leave them unset for relays that allow the server by IP.
+
+Operational logs are written as structured JSON to stdout. OpenObserve delivery
+is optional and uses the JSON ingestion API. Configure `OPENOBSERVE_URL` with
+the OpenObserve base URL, plus `OPENOBSERVE_ORG`, `OPENOBSERVE_USERNAME`, and
+`OPENOBSERVE_PASSWORD` to enable remote delivery. `OPENOBSERVE_STREAM` defaults
+to `pln_emi_server`; `LOG_LEVEL` defaults to `info`. Leave all OpenObserve
+settings unset to use stdout only. Incomplete or unavailable OpenObserve
+configuration does not prevent the server from starting or handling requests.
+Existing business activity actions are also sent as structured OpenObserve
+events with actor, action, resource, and available item name or count. Failed
+requests include the route, status, and safe error reason; validation failures
+may include a field path. Request bodies, query values, headers, cookies, and
+credentials are not included in request logs.
 
 ## Swagger
 
@@ -36,7 +57,7 @@ form endpoint, which accepts requests from any origin.
 
 ## Browser Sessions
 
-Registration and login create a server-side session in Redis and set the
+Login creates a server-side session in Redis and sets the
 host-only `pln_emi.sid` HttpOnly cookie. The cookie is `SameSite=Lax`, lasts
 three hours, and is marked `Secure` in production. Its lifetime is fixed and is
 not extended by activity. JavaScript cannot read the session cookie.
@@ -54,80 +75,6 @@ For Fetch examples, define the base URL once:
 
 ```js
 const API_BASE_URL = 'http://localhost:8000';
-```
-
-## Register
-
-`POST /auth/register`
-
-Create an account and start a session.
-
-### Request body
-
-| Field      | Type   | Rules                                                           |
-| ---------- | ------ | --------------------------------------------------------------- |
-| `name`     | string | Required; whitespace around the value is trimmed.               |
-| `email`    | string | Required; must be a valid email. It is trimmed and lowercased.  |
-| `password` | string | Required and non-empty. It is sent as provided and not trimmed. |
-
-```json
-{
-  "name": "Ari Putra",
-  "email": "ari@example.com",
-  "password": "correct-horse-battery-staple"
-}
-```
-
-### Success response — `201 Created`
-
-The response sets the session cookie and returns:
-
-```json
-{
-  "user": {
-    "name": "Ari Putra",
-    "email": "ari@example.com"
-  }
-}
-```
-
-### Errors
-
-| Status                    | Message                                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `400 Bad Request`         | `Name, email, and password are required.` for missing or empty fields; `Email must be valid.` for an invalid email. |
-| `403 Forbidden`           | `Request origin is not allowed.` when `Origin`/`Referer` is missing or does not match the configured origin.        |
-| `409 Conflict`            | `Email is already registered.`                                                                                      |
-| `503 Service Unavailable` | `Session service is unavailable.` when Redis session storage fails.                                                 |
-
-### Fetch example
-
-```js
-const response = await fetch(`${API_BASE_URL}/auth/register`, {
-  method: 'POST',
-  credentials: 'include',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Ari Putra',
-    email: 'ari@example.com',
-    password: 'correct-horse-battery-staple',
-  }),
-});
-
-const data = await response.json();
-if (!response.ok) throw new Error(data.message);
-
-const { user } = data;
-```
-
-### cURL example
-
-```sh
-curl -i -X POST http://localhost:8000/auth/register \
-  -H 'Origin: http://localhost:3000' \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"Ari Putra","email":"ari@example.com","password":"correct-horse-battery-staple"}' \
-  -c cookies.txt
 ```
 
 ## Login
@@ -150,8 +97,8 @@ The request body is:
 }
 ```
 
-The `200 OK` response sets the session cookie and returns the same
-`{ "user": ... }` shape as registration.
+The `200 OK` response sets the session cookie and returns the signed-in user,
+in the same shape as [Get the Current User](#get-the-current-user).
 
 ### Errors
 
@@ -159,6 +106,7 @@ The `200 OK` response sets the session cookie and returns the same
 | ------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `400 Bad Request`         | `Email and password are required.` for missing or empty fields; `Email must be valid.` for an invalid email. |
 | `401 Unauthorized`        | `Invalid email or password.`                                                                                 |
+| `403 Forbidden`           | `Your account is inactive.` when the user's status is inactive (checked after the password).                 |
 | `403 Forbidden`           | `Request origin is not allowed.` when `Origin`/`Referer` is missing or does not match the configured origin. |
 | `503 Service Unavailable` | `Session service is unavailable.` when Redis session storage fails.                                          |
 
@@ -195,7 +143,9 @@ curl -i -X POST http://localhost:8000/auth/login \
 
 `GET /auth/me`
 
-Return the current user's name and email using the session cookie.
+Return the current user's name, email, role, and allowed permission keys using
+the session cookie. `role` is `null` and `permissions` is empty for a user
+without a role. Use `permissions` to hide actions the user cannot perform.
 
 ### Success response — `200 OK`
 
@@ -203,7 +153,9 @@ Return the current user's name and email using the session cookie.
 {
   "user": {
     "name": "Ari Putra",
-    "email": "ari@example.com"
+    "email": "ari@example.com",
+    "role": { "id": 1, "name": "Super Admin" },
+    "permissions": ["write", "publish", "delete", "manage_users"]
   }
 }
 ```
@@ -270,6 +222,140 @@ curl -i -X POST http://localhost:8000/auth/logout \
   -H 'Origin: http://localhost:3000' \
   -b cookies.txt
 ```
+
+## Forgot Password
+
+`POST /auth/forgot-password`
+
+Email a password reset link to an account. Always returns `204 No Content`,
+whether or not the email is registered, so the response cannot be used to
+check which accounts exist. A link is sent only to users who have already set
+a password; invited users who have not activated get nothing and need the
+admin to resend their invite. Each new link replaces the previous one and
+expires after 60 minutes.
+
+The link points to `${FRONTEND_ORIGIN}/auth/activate?token=<token>`.
+
+| Field   | Type   | Rules                       |
+| ------- | ------ | --------------------------- |
+| `email` | string | Required, valid, lowercased |
+
+```json
+{ "email": "ari@example.com" }
+```
+
+### Errors
+
+| Status                    | Message                                                                    |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `400 Bad Request`         | `Email must be valid.`                                                     |
+| `429 Too Many Requests`   | `Too many password reset requests. Please try again later.` (5 per 15 min) |
+| `503 Service Unavailable` | `Password reset is temporarily unavailable.` when Redis fails.             |
+
+## Verify Activation Token
+
+`POST /auth/activate/verify`
+
+Check a token from an invite or reset link without using it, so the page can
+show an expired link before the user types a password. Returns `200 OK` with
+the token's purpose; `POST /auth/activate` still checks the token again.
+
+| Field   | Type   | Rules                           |
+| ------- | ------ | ------------------------------- |
+| `token` | string | Required, from the emailed link |
+
+```json
+{ "purpose": "INVITE" }
+```
+
+`purpose` is `INVITE` (the account is activated on success) or `RESET`.
+
+### Errors
+
+| Status                    | Message                                                            |
+| ------------------------- | ------------------------------------------------------------------ |
+| `400 Bad Request`         | `This link is invalid or has expired.`                             |
+| `429 Too Many Requests`   | `Too many attempts. Please try again later.` (20 per 15 min)       |
+| `503 Service Unavailable` | `Account activation is temporarily unavailable.` when Redis fails. |
+
+## Activate Account
+
+`POST /auth/activate`
+
+Set a password with the token from an invite or password reset email. Returns
+`204 No Content`. An invite token also activates the account; a reset token
+only changes the password. The token works once, and using it invalidates the
+user's other tokens. Sessions created before the password change get
+`401 Unauthorized` on their next protected request. The user signs in
+afterwards with `POST /auth/login`.
+
+| Field      | Type   | Rules                                                                                      |
+| ---------- | ------ | ------------------------------------------------------------------------------------------ |
+| `token`    | string | Required, from the emailed link                                                            |
+| `password` | string | Required, 8–128 characters, with at least one uppercase letter, one number, and one symbol |
+
+```json
+{ "token": "Zx3...", "password": "Str0ng!Pass" }
+```
+
+### Errors
+
+| Status                    | Message                                                                                                                                                                                  |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `400 Bad Request`         | `This link is invalid or has expired.`, or a password rule: `Password must be at least 8 characters.`, `...contain an uppercase letter.`, `...contain a number.`, `...contain a symbol.` |
+| `429 Too Many Requests`   | `Too many attempts. Please try again later.` (10 per 15 min)                                                                                                                             |
+| `503 Service Unavailable` | `Account activation is temporarily unavailable.` when Redis fails.                                                                                                                       |
+
+## Permissions
+
+Every protected endpoint loads the signed-in user's role permissions from the
+database on each request, so role changes apply immediately. A user whose
+status is inactive gets `401 Unauthorized` on every protected request and
+`403 Forbidden` at login.
+
+| Action                                                                                           | Needs                |
+| ------------------------------------------------------------------------------------------------ | -------------------- |
+| Any `GET`, inbox mark-as-read and read-all, activity logs                                        | Any signed-in user   |
+| Create, update, and reorder content, categories, media uploads, site settings, and site contents | `write` or `publish` |
+| `DELETE` endpoints and `POST .../bulk_delete`                                                    | `delete`             |
+| `/users`, `/roles`, `/permissions`, and `/role_permissions` (reads included)                     | `manage_users`       |
+
+Without `publish`, saves of articles, FAQs, divisions, and document
+commitments are stored with `status: "DRAFT"`, whatever the body sends.
+Editing a published item therefore unpublishes it. On `PUT /site_settings`,
+existing social links keep their current status and new links start as
+`DRAFT`. Removing existing social links there needs `delete`.
+
+To keep someone able to manage users, `manage_users` users cannot delete
+themselves or their own role, change their own role or deactivate themselves,
+or remove `manage_users` from their own role. These return `400 Bad Request`.
+
+A missing permission returns `403 Forbidden` with
+`You do not have permission to perform this action.`
+
+## Public and Admin Reads
+
+Public reads return published data only, whether or not a session cookie is
+sent. The CMS reads drafts through `/admin` routes, which require login (any
+signed-in user) and return `401 Unauthorized` without a session.
+
+| Public route (published only)               | Admin route (drafts included)                      |
+| ------------------------------------------- | -------------------------------------------------- |
+| `GET /articles`, `GET /articles/:articleId` | `GET /admin/articles`, `GET /admin/articles/:id`   |
+| `GET /divisions`, `GET /divisions/:id`      | `GET /admin/divisions`, `GET /admin/divisions/:id` |
+| `GET /services`, `GET /services/:id`        | `GET /admin/services`, `GET /admin/services/:id`   |
+| `GET /faqs`, `GET /faqs/:faqId`             | `GET /admin/faqs`, `GET /admin/faqs/:faqId`        |
+| `GET /document_commitments`, `.../:id`      | `GET /admin/document_commitments`, `.../:id`       |
+| `GET /site_settings`                        | `GET /admin/site_settings`                         |
+
+Admin routes take the same query parameters and return the same shapes as their
+public routes. On public routes:
+
+- `status` is ignored; results are always `PUBLISHED`.
+- Articles and FAQs return only `PUBLISHED` contents in active languages, and
+  items without any such content are left out.
+- Services under a `DRAFT` division are left out.
+- A draft item fetched by ID returns `404 Not Found`, the same as a missing one.
 
 ## Site Contents
 
@@ -431,7 +517,9 @@ is case-insensitive and normalized to lowercase, so `ID` and `id` are the same.
 
 ## Articles
 
-Article reads are public. Creating, updating, and deleting articles require an
+Article reads are public and return published content only; the CMS reads
+drafts through `/admin/articles` (see [Public and Admin Reads](#public-and-admin-reads)).
+Creating, updating, and deleting articles require an
 authenticated session. State-changing requests must include the configured
 frontend `Origin` or `Referer` as described under [Browser Sessions](#browser-sessions).
 
@@ -451,22 +539,25 @@ save and cannot be sent in requests.
 
 Returns a page of articles with their related category and primary photo media.
 Results are sorted by `created_at` descending by default, with `id` as a stable
-tie-breaker.
+tie-breaker. `sort_by=issue_date` sorts by `issue_date`, then `updated_at`, then
+`id`, all in `sort_order`; articles without an issue date or update come last.
 
-| Query parameter       | Type   | Rules                                                                     |
-| --------------------- | ------ | ------------------------------------------------------------------------- |
-| `page`                | number | Optional, 1-based; default `1`.                                           |
-| `limit`               | number | Optional; default `20`, minimum `1`, maximum `100`.                       |
-| `search`              | string | Optional, case-insensitive substring search in a content `title`.         |
-| `article_category_id` | number | Optional positive category ID filter.                                     |
-| `language_id`         | string | Optional; only articles with content in this language, shown in it.       |
-| `status`              | string | Optional; `DRAFT` or `PUBLISHED`; matches a content row with this status. |
-| `sort_by`             | string | Optional; must be `created_at`, default `created_at`.                     |
-| `sort_order`          | string | Optional; `asc` or `desc`, default `desc`.                                |
+| Query parameter         | Type   | Rules                                                                                       |
+| ----------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| `page`                  | number | Optional, 1-based; default `1`.                                                             |
+| `limit`                 | number | Optional; default `20`, minimum `1`, maximum `100`.                                         |
+| `search`                | string | Optional, case-insensitive substring search in a content `title`.                           |
+| `article_category_id`   | number | Optional positive category ID filter.                                                       |
+| `article_category_slug` | string | Optional category slug filter, maximum 100 characters.                                      |
+| `language_id`           | string | Optional; only articles with content in this language, shown in it.                         |
+| `status`                | string | Optional; `DRAFT` or `PUBLISHED`; matches a content row with this status. Admin route only. |
+| `sort_by`               | string | Optional; `created_at` or `issue_date`, default `created_at`.                               |
+| `sort_order`            | string | Optional; `asc` or `desc`, default `desc`.                                                  |
 
 Provided filters are combined using AND. `search`, `language_id`, and `status`
 must all match the same content row. Invalid query values return `400 Bad
-Request`.
+Request`. Provide at most one of `article_category_id` and
+`article_category_slug`. An unknown category slug returns an empty page.
 
 `title`, `slug`, `summary`, `status`, `read_time`, and `language_id` on each item come from
 the `language_id` content when that query is set, otherwise from the content
@@ -517,6 +608,26 @@ language's content status, or `null` when the article has no content in it.
 }
 ```
 
+### Count articles
+
+`GET /articles/count`
+
+Requires an authenticated session. Returns the number of articles and, for
+every active language (ordered like `GET /languages`), how many of its contents
+are `DRAFT` or `PUBLISHED`. An article without content in a language does not
+count toward that language; active languages without content return `0`.
+`total` counts every article.
+
+```json
+{
+  "total": 1,
+  "languages": [
+    { "id": "id", "flag": "🇮🇩", "count": { "draft": 0, "published": 1 } },
+    { "id": "en", "flag": "🇬🇧", "count": { "draft": 1, "published": 0 } }
+  ]
+}
+```
+
 ### Get, create, update, and delete an article
 
 - `GET /articles/slug/:slug` is for the landing page and returns
@@ -524,9 +635,11 @@ language's content status, or `null` when the article has no content in it.
   `contents` holds only `PUBLISHED` content in active languages. A slug that is
   unknown, a draft, or in an inactive language returns `404 Not Found` with
   `Article was not found.`
-- `GET /articles/:articleId` returns `{ "article": ... }` with `200 OK`. The
-  article has the shared header fields and every language's content in
+- `GET /admin/articles/:articleId` returns `{ "article": ... }` with `200 OK`.
+  The article has the shared header fields and every language's content in
   `contents`, ordered by language `sort_order`, then `language_id`.
+  `GET /articles/:articleId` returns the same shape with published contents
+  only.
 - `POST /articles` creates the article header and its first language content,
   then returns `{ "article": ... }` with `201 Created`.
 - `PUT /articles/:articleId` updates the shared fields that are sent and
@@ -535,6 +648,9 @@ language's content status, or `null` when the article has no content in it.
   Send `null` for `primary_photo` to clear its media relation.
 - `DELETE /articles/:articleId` deletes an article and all of its contents and
   returns `204 No Content`.
+- `POST /articles/bulk_delete` deletes several articles and their contents. It
+  takes a JSON `ids` array of positive integers and returns
+  `{ "deleted_count": 3 }` with `200 OK`. Missing IDs are ignored.
 
 Article POST and PUT bodies use JSON. Each request writes one language.
 Bahasa Indonesia (`id`) comes first: `POST` must use `language_id` `id`, and a
@@ -640,21 +756,28 @@ if (!response.ok) throw new Error(data.message);
 
 ## Divisions and Services
 
-Division and service reads are public. Creating, updating, deleting, and
+Division and service reads are public and return published divisions only;
+the CMS reads drafts through `/admin/divisions` and `/admin/services` (see
+[Public and Admin Reads](#public-and-admin-reads)). Creating, updating, deleting, and
 reordering require an authenticated session and the configured frontend
 `Origin` or `Referer`, as described under [Browser Sessions](#browser-sessions).
-Requests use JSON. Names, abbreviations, and descriptions are stored per
-language and returned in a `contents` array ordered by the language registry's
-`sort_order` and language ID. Responses include only translations that exist;
-clients choose the language to display and handle a missing translation.
+Requests use JSON. Division names, abbreviations, and descriptions, along with
+service names, are localized in their `contents` arrays. Service media
+descriptions are localized under each media item's `contents`. These arrays
+are ordered by the language registry's `sort_order` and language ID. Responses
+include only translations that exist; clients choose the language to display
+and handle a missing translation.
 Create requests and updates to translated fields require an active
 `language_id`; unknown or inactive language IDs return `400 Bad Request`.
+Creating a division or adding a translation requires an explicit `slug`; the
+API does not derive slugs from names.
 
 ### Divisions
 
 - `GET /divisions` returns `{ "divisions": [...] }` with `200 OK`, ordered by
-  `sort_order` and then ID. The optional `status` query parameter filters the
-  results to `DRAFT` or `PUBLISHED`; omitting it returns all divisions.
+  `sort_order` and then ID. `GET /admin/divisions` also accepts an optional
+  `status` query parameter that filters the results to `DRAFT` or
+  `PUBLISHED`; omitting it returns all divisions.
 - `GET /divisions/:divisionId` returns `{ "division": ... }` with `200 OK`.
 - `POST /divisions` creates a division and returns `{ "division": ... }` with
   `201 Created`. The division is appended to the current list.
@@ -671,15 +794,24 @@ Create bodies accept these fields:
 | ------------- | -------------- | --------------------------------------------------------------------- |
 | `language_id` | string         | Required; active language code such as `id`; normalized to lowercase. |
 | `name`        | string         | Required; trimmed; 1–200 characters.                                  |
+| `slug`        | string         | Required; trimmed; 1–255 characters; unique within the language.      |
 | `abbr`        | string         | Required; trimmed; 1–50 characters.                                   |
 | `description` | string or null | Optional; no length limit; blank string becomes `null`.               |
-| `icon_svg`    | string or null | Optional.                                                             |
+| `icon_svg`    | string or null | Optional; SVG markup; up to 20,000 characters; sanitized on save.     |
 | `status`      | string         | Optional; `DRAFT` or `PUBLISHED`; defaults to `DRAFT` on create.      |
 
 Update bodies are partial. Updating `icon_svg` or `status` does not require a
-language. Updating `name`, `abbr`, or `description` requires `language_id`.
-Existing translations can be partially updated; adding a translation requires
-both `name` and `abbr`. Send `null` for `icon_svg` or `description` to clear it.
+language. Updating `name`, `slug`, `abbr`, or `description` requires
+`language_id`. Existing translations can be partially updated; adding a
+translation requires `name`, `slug`, and `abbr`. Division slugs are localized
+and unique within each language. Duplicate slugs return `409 Conflict`. Send
+`null` for `icon_svg` or `description` to clear it.
+`icon_svg` is sanitized like social icons: scripts, event handlers,
+`foreignObject`, and `javascript:` links are removed, and the stored value is
+the sanitized markup. Division reads sanitize stored values again, including
+legacy rows; malformed values are returned as `null`. Markup that is not an
+`<svg>` element after sanitizing on create or update returns `400 Bad Request`
+with `SVG file is invalid.`
 The authenticated user's name is stored in `created_by`; updates set
 `updated_by` and `updated_at` on the division.
 
@@ -689,6 +821,7 @@ Example create request:
 {
   "language_id": "en",
   "name": "Customer Services",
+  "slug": "customer-services",
   "abbr": "CS",
   "icon_svg": "<svg></svg>",
   "description": "Energy management services for organizations.",
@@ -713,6 +846,7 @@ The response shape is:
       {
         "language_id": "en",
         "name": "Customer Services",
+        "slug": "customer-services",
         "abbr": "CS",
         "description": "Energy management services for organizations."
       }
@@ -728,6 +862,7 @@ For example, add Indonesian content to the same division with
 {
   "language_id": "id",
   "name": "Layanan Pelanggan",
+  "slug": "layanan-pelanggan",
   "abbr": "LP",
   "description": "Layanan manajemen energi untuk organisasi."
 }
@@ -743,7 +878,7 @@ array succeeds only when there are no divisions. A successful reorder assigns
 { "division_ids": [4, 1, 3] }
 ```
 
-For example, `GET /divisions?status=PUBLISHED` returns only published
+For example, `GET /admin/divisions?status=DRAFT` returns only draft
 divisions. Invalid status values and unknown query parameters return
 `400 Bad Request`.
 
@@ -764,23 +899,26 @@ divisions. Invalid status values and unknown query parameters return
 
 Service create and update bodies accept these fields:
 
-| Field         | Type              | Rules                                                                        |
-| ------------- | ----------------- | ---------------------------------------------------------------------------- |
-| `language_id` | string            | Required on create; active language code.                                    |
-| `division_id` | integer           | Positive ID of an existing division; required on create.                     |
-| `name`        | string            | Required on create; trimmed; 1–200 characters.                               |
-| `description` | string or null    | Optional; no length limit; blank string becomes `null`.                      |
-| `media_ids`   | array of integers | Optional; unique positive IDs of existing `PICTURE` media, in display order. |
+| Field         | Type                              | Rules                                                                 |
+| ------------- | --------------------------------- | --------------------------------------------------------------------- |
+| `language_id` | string                            | Required on create; active language code.                             |
+| `division_id` | integer                           | Positive ID of an existing division; required on create.              |
+| `name`        | string                            | Required on create; trimmed; 1–200 characters.                        |
+| `media`       | array of media objects            | Optional; replaces gallery membership and order when sent.            |
+| `media_id`    | integer, inside each `media` item | Positive ID of an existing `PICTURE` media item; unique in the array. |
+| `description` | string or null, inside each item  | Optional localized description; blank string becomes `null`.          |
 
 Updates are partial; omitted fields remain unchanged. Updating `name` or
-`description` requires `language_id`. Existing translations can be partially
-updated; adding a translation requires `name`. On create, an omitted
-`media_ids` creates an empty gallery. On update, an omitted `media_ids` keeps
-the current gallery; sending an array replaces it, and `[]` clears it. Invalid,
-duplicate, missing, or non-picture media IDs return `400 Bad Request`. New
-services append after the division's current maximum `sort_order`. The
-authenticated user's name is stored in `created_by`; updates set `updated_by`
-and `updated_at` on the service.
+`media` requires `language_id`; adding a service translation requires `name`.
+Each media description is stored for the request's `language_id`. On create, an
+omitted `media` creates an empty gallery. On update, an omitted `media` keeps
+the current gallery; sending an array replaces it, and `[]` clears it. For
+retained media, an omitted description preserves its current translation and
+`null` clears it. New media without a description receive a `null` description
+for that language. Invalid, duplicate, missing, or non-picture media IDs return
+`400 Bad Request`. New services append after the division's current maximum
+`sort_order`. The authenticated user's name is stored in `created_by`; updates
+set `updated_by` and `updated_at` on the service.
 
 Example create request:
 
@@ -789,8 +927,16 @@ Example create request:
   "language_id": "en",
   "division_id": 1,
   "name": "Customer Support",
-  "description": "Support for energy management initiatives.",
-  "media_ids": [24, 31]
+  "media": [
+    {
+      "media_id": 24,
+      "description": "On-site support for energy management initiatives."
+    },
+    {
+      "media_id": 31,
+      "description": "Remote support and consultation."
+    }
+  ]
 }
 ```
 
@@ -809,8 +955,7 @@ For example, `GET /services/:serviceId` returns:
     "contents": [
       {
         "language_id": "en",
-        "name": "Customer Support",
-        "description": "Support for energy management initiatives."
+        "name": "Customer Support"
       }
     ],
     "media": [
@@ -823,7 +968,17 @@ For example, `GET /services/:serviceId` returns:
         "size": 245760,
         "metadata": { "width": 1600, "height": 900 },
         "created_by": "Ari Putra",
-        "created_at": "2026-10-11T10:20:00.000Z"
+        "created_at": "2026-10-11T10:20:00.000Z",
+        "contents": [
+          {
+            "language_id": "en",
+            "description": "On-site support for energy management initiatives."
+          },
+          {
+            "language_id": "id",
+            "description": "Dukungan langsung untuk inisiatif manajemen energi."
+          }
+        ]
       }
     ],
     "division": {
@@ -945,11 +1100,12 @@ list length; invalid positions return `400 Bad Request`.
 
 Requests without a photo use JSON. To upload or replace a photo, send
 `multipart/form-data` with the same fields and an optional file field named
-`photo`. Photos may be PNG, JPG, or JPEG files up to 5 MiB. The server checks
-the image content and stores the file at
-`/public/board_member/{memberId}.{extension}`. The `photo` response field
-contains this public path. Omitting `photo` during an update keeps the current
-photo.
+`photo`. Photos may be PNG, JPG, JPEG, WEBP, or SVG files up to 5 MiB. The
+server checks raster content against the extension, sanitizes SVG files, and
+stores the file in the SeaweedFS bucket under
+`board_member/{memberId}.{extension}`. The `photo` response field contains the
+public path `/public/board_member/{memberId}.{extension}`. Omitting `photo`
+during an update keeps the current photo.
 
 A member response includes every available translation:
 
@@ -1023,25 +1179,36 @@ missing or disallowed request origins return `403 Forbidden`.
 
 ## Media
 
-Media list and detail reads are public. Upload and delete requests require an
+Media list and detail reads are public. Upload, update, and delete requests require an
 authenticated session and the configured frontend `Origin` or `Referer`.
-Uploaded files are publicly available under `/public/media/`.
+Uploaded files are stored in the SeaweedFS bucket under `media/` and are
+publicly available under `/public/media/`.
 
 ### Upload media
 
 `POST /media` accepts `multipart/form-data` with a `type` field (`PICTURE` or
-`DOCUMENT`) and a file field named `file`. The original filename is preserved
-on disk and must not already exist. Its URL-encoded form is stored in `path`.
+`DOCUMENT`), a file field named `file`, and these optional fields:
 
-| Type       | Accepted extensions  | Maximum size |
-| ---------- | -------------------- | ------------ |
-| `PICTURE`  | `png`, `jpg`, `jpeg` | 2 MiB        |
-| `DOCUMENT` | `pdf`                | 5 MiB        |
+| Field      | Type   | Rules                                                                                              |
+| ---------- | ------ | -------------------------------------------------------------------------------------------------- |
+| `filename` | string | Display name, trimmed, 1–255 characters; defaults to the uploaded file's name. Need not be unique. |
+| `alt`      | string | Alternative text, trimmed, up to 255 characters; empty becomes `null`.                             |
 
-The server checks file content against the extension. Picture metadata contains
-its pixel `width` and `height`; document metadata is `null`. `size` is the file
-size rounded up to an integer number of KB (1024 bytes). `created_by` is the authenticated
-user's name.
+The file is stored as `{name}-{random}.{extension}`, where `{name}` is the
+uploaded filename lowercased with non-alphanumeric characters replaced by `-`.
+`path` is its public path and identifies the stored file; it never changes, so
+renaming media keeps existing links working.
+
+| Type       | Accepted extensions                 | Maximum size |
+| ---------- | ----------------------------------- | ------------ |
+| `PICTURE`  | `png`, `jpg`, `jpeg`, `webp`, `svg` | 5 MiB        |
+| `DOCUMENT` | `pdf`                               | 20 MiB       |
+
+The server checks raster content against the extension and sanitizes SVG files.
+Raster picture metadata contains its pixel `width` and `height`; SVG picture
+metadata is `{}`; document metadata is `null`. `size` is the stored file size
+rounded up to an integer number of KB (1024 bytes). `created_by` is the
+authenticated user's name.
 
 A successful upload returns `201 Created`:
 
@@ -1050,7 +1217,8 @@ A successful upload returns `201 Created`:
   "media": {
     "id": 18,
     "filename": "company-news.jpg",
-    "path": "/public/media/company-news.jpg",
+    "alt": "Company news event",
+    "path": "/public/media/company-news-3f9a1c7e5b2d4086.jpg",
     "extension": "jpg",
     "type": "PICTURE",
     "size": 184,
@@ -1067,6 +1235,8 @@ Example browser request:
 const formData = new FormData();
 formData.append('type', 'PICTURE');
 formData.append('file', imageFile);
+formData.append('filename', 'company-news.jpg');
+formData.append('alt', 'Company news event');
 
 const response = await fetch(`${API_BASE_URL}/media`, {
   method: 'POST',
@@ -1095,6 +1265,20 @@ boundary.
 | `sort_order`    | string | `asc` or `desc`; defaults to `desc`.            |
 
 Results use `id` as a stable tie-breaker in the selected sort direction.
+
+### Update media
+
+`PUT /media/:mediaId` accepts JSON with a required `filename` (same rules as
+upload) and `alt` (string or `null`; empty becomes `null`). It changes only the
+display name and alternative text; the stored file and `path` stay the same. It
+returns `{ "media": ... }` with `200 OK`, or `404 Not Found` for a missing ID.
+
+```json
+{
+  "filename": "Company news.jpg",
+  "alt": "Company news event"
+}
+```
 
 ### Delete media
 
@@ -1158,29 +1342,67 @@ frontend `Origin` or `Referer`, as described under [Browser Sessions](#browser-s
 ### Categories
 
 - `GET /document_commitment_categories` returns
-  `{ "documentCommitmentCategories": [...] }` with `200 OK`.
+  `{ "documentCommitmentCategories": [...] }` with `200 OK`. It accepts an
+  optional `language_id` and returns that translation; without one it uses the
+  first available language by language sort order.
 - `GET /document_commitment_categories/:categoryId` returns
-  `{ "documentCommitmentCategory": ... }` with `200 OK`.
+  `{ "documentCommitmentCategory": ... }` with every translation and `200 OK`.
 - `POST /document_commitment_categories` creates a category and returns
-  `{ "documentCommitmentCategory": ... }` with `201 Created`.
+  `{ "documentCommitmentCategory": ... }` with `201 Created`. The first
+  translation must use `language_id: "id"`.
 - `PUT /document_commitment_categories/:categoryId` partially updates a
-  category and returns `{ "documentCommitmentCategory": ... }` with `200 OK`.
+  translation and returns `{ "documentCommitmentCategory": ... }` with
+  `200 OK`. The selected translation is created or replaced; other languages
+  are unchanged.
 - `DELETE /document_commitment_categories/:categoryId` returns
   `204 No Content`. Deleting a category also deletes its document records and
   stored PDF files.
 
-Category create and update requests use JSON with a `name` field, trimmed to
-1–100 characters. The name is required on create; omitted fields remain
-unchanged on update.
+Category create and update requests use JSON with `language_id`, `name`, and
+`slug`. Names and slugs are trimmed to 1–100 characters. Both translated fields
+are required on create. A translation update requires `language_id` and at
+least one of `name` or `slug`; adding a new language requires both fields.
+Slugs are unique within a language, so the same slug can be used in another
+language. A duplicate slug in the same language returns `409 Conflict`.
 
 ```json
-{ "name": "Board Decisions" }
+{
+  "language_id": "id",
+  "name": "Keputusan Direksi",
+  "slug": "keputusan-direksi"
+}
+```
+
+Category detail responses contain all translations:
+
+```json
+{
+  "documentCommitmentCategory": {
+    "id": 2,
+    "contents": [
+      {
+        "language_id": "id",
+        "name": "Keputusan Direksi",
+        "slug": "keputusan-direksi"
+      },
+      {
+        "language_id": "en",
+        "name": "Board Decisions",
+        "slug": "board-decisions"
+      }
+    ]
+  }
+}
 ```
 
 ### Documents
 
-- `GET /document_commitments` returns
+- `GET /document_commitments` returns published documents as
   `{ "documentCommitments": [...], "pagination": ... }` with `200 OK`.
+  `GET /admin/document_commitments` and `GET /admin/document_commitments/:documentId`
+  include drafts (see [Public and Admin Reads](#public-and-admin-reads)).
+- `GET /admin/document_commitments/:documentId/file` streams the document's
+  PDF, drafts included, and requires login.
 - `GET /document_commitments/:documentId` returns
   `{ "documentCommitment": ... }` with `200 OK`.
 - `POST /document_commitments` creates a document commitment and returns
@@ -1189,38 +1411,52 @@ unchanged on update.
   returns `{ "documentCommitment": ... }` with `200 OK`.
 - `DELETE /document_commitments/:documentId` returns `204 No Content` and
   removes its stored PDF after the database deletion commits.
+- `POST /document_commitments/bulk_delete` deletes several documents in one
+  database transaction, then removes their stored PDFs. It takes a JSON `ids`
+  array of positive integers and returns `{ "deleted_count": 3 }` with
+  `200 OK`. Missing IDs are ignored.
 
 Create requests use `multipart/form-data` with a `file` field and these text
 fields:
 
-| Field                             | Type   | Rules                                                  |
-| --------------------------------- | ------ | ------------------------------------------------------ |
-| `document_commitment_category_id` | number | Required; positive ID of an existing category.         |
-| `title`                           | string | Required; trimmed; 1–200 characters.                   |
-| `status`                          | string | Optional; `DRAFT` or `PUBLISHED`; defaults to `DRAFT`. |
-| `file`                            | file   | Required; valid PDF, maximum 50 MiB.                   |
+| Field                             | Type   | Rules                                                                |
+| --------------------------------- | ------ | -------------------------------------------------------------------- |
+| `document_commitment_category_id` | number | Required; positive ID of an existing category.                       |
+| `language_id`                     | string | Required; active language code. The first translation must use `id`. |
+| `title`                           | string | Required; trimmed; 1–200 characters.                                 |
+| `status`                          | string | Optional; `DRAFT` or `PUBLISHED`; defaults to `DRAFT`.               |
+| `file`                            | file   | Required; valid PDF, maximum 20 MiB.                                 |
 
-The server stores each file at `public/document_commitment/{filename}`, using
-the original uploaded filename. `file_path` contains the URL-encoded public
-path, and `size` is rounded up to KiB (1024 bytes). Filenames must be safe
-basenames and unique across document commitments. Reusing a filename returns
-`409 Conflict`; the server never overwrites an unrelated file.
+The server stores each file in the SeaweedFS bucket under
+`document_commitment/{filename}`, where `filename` is `{name}-{random}.pdf`,
+`{name}` is the uploaded filename lowercased with non-alphanumeric characters
+replaced by `-`, and `{random}` is 16 random hexadecimal characters, so the
+same filename can be uploaded more than once. `file_path` is the URL-encoded
+public path, and `size` is rounded up to KiB (1024 bytes).
 The authenticated user's name is stored in `uploaded_by`; `uploaded_at`
 defaults to the current time.
 
-Updates are partial. Send JSON to update metadata only, or use
+`file_path` only serves `PUBLISHED` documents; a draft's file returns
+`404 Not Found`. The CMS opens any document's PDF, drafts included, through
+`GET /admin/document_commitments/:documentId/file`, which requires login,
+streams the PDF with `Cache-Control: private, no-store`, and returns
+`404 Not Found` for a missing document.
+
+Updates are partial. Include `language_id` with `title` to create or replace
+that translation; other language titles remain unchanged. `language_id` and
+`title` must be sent together. The document category, shared status, or file
+can be updated independently. Send JSON for metadata, or use
 `multipart/form-data` to replace the PDF and optionally update metadata. When
-no file is sent, the existing PDF is kept. Replacing a PDF keeps the same
-filename replaces that document's file in place. A filename used by another
-document returns `409 Conflict`. A new filename moves the document to the new
-path and removes the old file after the database update commits. Every update
-sets `updated_at` and `updated_by` to the current time and authenticated user's
-name.
+no file is sent, the existing PDF is kept. A replacement PDF gets a new stored
+filename, and the old file is removed after the database update commits. Every
+update sets `updated_at` and `updated_by` to the current time and authenticated
+user's name.
 
 ```js
 const formData = new FormData();
 formData.append('document_commitment_category_id', '2');
-formData.append('title', 'Board decision 2026-10');
+formData.append('language_id', 'id');
+formData.append('title', 'Keputusan Direksi 2026-10');
 formData.append('status', 'PUBLISHED');
 formData.append('file', pdfFile);
 
@@ -1236,27 +1472,42 @@ if (!response.ok) throw new Error(data.message);
 
 `GET /document_commitments` accepts these optional query parameters:
 
-| Query parameter                   | Type   | Rules                                                   |
-| --------------------------------- | ------ | ------------------------------------------------------- |
-| `page`                            | number | Optional, 1-based; default `1`.                         |
-| `limit`                           | number | Optional; default `20`, minimum `1`, maximum `100`.     |
-| `search`                          | string | Optional, case-insensitive substring search in `title`. |
-| `document_commitment_category_id` | number | Optional positive category ID filter.                   |
-| `status`                          | string | Optional; `DRAFT` or `PUBLISHED`.                       |
+| Query parameter                     | Type   | Rules                                                              |
+| ----------------------------------- | ------ | ------------------------------------------------------------------ |
+| `page`                              | number | Optional, 1-based; default `1`.                                    |
+| `limit`                             | number | Optional; default `20`, minimum `1`, maximum `100`.                |
+| `language_id`                       | string | Optional language code; limits results to that translation.        |
+| `search`                            | string | Optional, case-insensitive substring search in translated `title`. |
+| `document_commitment_category_id`   | number | Optional positive category ID filter.                              |
+| `document_commitment_category_slug` | string | Optional localized category slug filter, maximum 100 characters.   |
+| `status`                            | string | Optional; `DRAFT` or `PUBLISHED`. Admin route only.                |
 
-Filters are combined using AND. Results are ordered by `uploaded_at` descending
-with ID as a stable tie-breaker. Invalid query values return `400 Bad Request`.
+Filters are combined using AND. Provide at most one of
+`document_commitment_category_id` and `document_commitment_category_slug`. An
+unknown category slug returns an empty page. Slug filtering uses the requested
+`language_id`, or Indonesian (`id`) when omitted. When `language_id` is
+omitted, search matches any translation and the list displays the first
+available translation by language sort order. Public reads include published
+documents with active-language content; admin reads include drafts. Results
+are ordered by `uploaded_at` descending with ID as a stable tie-breaker.
+Invalid query values return `400 Bad Request`.
 
-A document response has this shape:
+A document list item projects the selected language's title and category name
+and slug. Detail, create, and update responses include a `contents` array.
+Public document detail contains active translations; admin reads and write
+responses include all saved translations:
 
 ```json
 {
   "documentCommitment": {
     "id": 21,
     "document_commitment_category_id": 2,
-    "title": "Board decision 2026-10",
-    "file_path": "/public/document_commitment/board-decision-2026-10.pdf",
-    "filename": "board-decision-2026-10.pdf",
+    "contents": [
+      { "language_id": "id", "title": "Keputusan Direksi 2026-10" },
+      { "language_id": "en", "title": "Board decision 2026-10" }
+    ],
+    "file_path": "/public/document_commitment/board-decision-2026-10-3f9a1c7e5b2d4086.pdf",
+    "filename": "board-decision-2026-10-3f9a1c7e5b2d4086.pdf",
     "size": 420,
     "status": "PUBLISHED",
     "uploaded_at": "2026-10-11T10:30:00.000Z",
@@ -1265,19 +1516,32 @@ A document response has this shape:
     "updated_by": null,
     "document_commitment_category": {
       "id": 2,
-      "name": "Board Decisions"
+      "contents": [
+        {
+          "language_id": "id",
+          "name": "Keputusan Direksi",
+          "slug": "keputusan-direksi"
+        },
+        {
+          "language_id": "en",
+          "name": "Board Decisions",
+          "slug": "board-decisions"
+        }
+      ]
     }
   }
 }
 ```
 
 Invalid fields, category references, or PDF files return `400 Bad Request`;
-missing document or category IDs return `404 Not Found`. Uploads over 50 MiB
+missing document or category IDs return `404 Not Found`. Uploads over 20 MiB
 return `413 Payload Too Large`.
 
 ## FAQs
 
-FAQ reads are public. Creating, updating, deleting, and reordering require an
+FAQ reads are public and return published content only; the CMS reads drafts
+through `/admin/faqs` (see [Public and Admin Reads](#public-and-admin-reads)).
+Creating, updating, deleting, and reordering require an
 authenticated session and the configured frontend `Origin` or `Referer`, as
 described under [Browser Sessions](#browser-sessions). Requests use JSON.
 
@@ -1288,10 +1552,10 @@ content must exist before any other language.
 - `GET /faqs` returns `{ "faqs": [...] }` with `200 OK`, ordered by
   `sort_order` and then ID. Optional `language_id` and `status` query
   parameters keep FAQs that have one content matching both; omitting both
-  returns all FAQs. The public site should request
-  `GET /faqs?language_id=en&status=PUBLISHED`.
-- `GET /faqs/:faqId` returns `{ "faq": ... }` with every language's content
-  and `200 OK`.
+  returns all FAQs. On the public route `status` is always `PUBLISHED`, so the
+  public site requests `GET /faqs?language_id=en`.
+- `GET /admin/faqs/:faqId` returns `{ "faq": ... }` with every language's
+  content and `200 OK`. `GET /faqs/:faqId` returns published contents only.
 - `POST /faqs` creates an FAQ with its first content and returns
   `{ "faq": ... }` with `201 Created`. The FAQ is appended to the list. The
   first content must use `language_id: "id"`; other languages return
@@ -1435,10 +1699,10 @@ logos shown in the "Klien Kami" section of the home page.
 
 Create and update requests use `multipart/form-data` with these fields:
 
-| Field  | Type   | Rules                                                                        |
-| ------ | ------ | ---------------------------------------------------------------------------- |
-| `name` | string | Required on create; trimmed; 1–200 characters.                               |
-| `logo` | file   | Required on create; PNG, JPG, JPEG, or WEBP; maximum 5 MiB; content-checked. |
+| Field  | Type   | Rules                                                                             |
+| ------ | ------ | --------------------------------------------------------------------------------- |
+| `name` | string | Required on create; trimmed; 1–200 characters.                                    |
+| `logo` | file   | Required on create; PNG, JPG, JPEG, WEBP, or SVG; maximum 5 MiB; content-checked. |
 
 On update, omitted fields remain unchanged; a request with neither `name` nor
 `logo` returns `400 Bad Request`. Uploading a new `logo` replaces the previous
@@ -1446,19 +1710,22 @@ file. The authenticated user's name is stored in `created_by`; updates set
 `updated_by` and `updated_at`.
 
 Logos are uploaded directly and are not part of the media library. The server
-stores each logo at `/public/clients/{name}-{timestamp}.{extension}`, where
+stores each logo in the SeaweedFS bucket under
+`clients/{name}-{random}.{extension}`, where
 `{name}` is the uploaded filename lowercased with non-alphanumeric characters
-replaced by `-`, and `{timestamp}` is the upload time in milliseconds. The
-response includes:
+replaced by `-`, and `{random}` is 16 random hexadecimal characters. The
+response's `logo_filepath` is the corresponding `/public/clients/...` path.
+The response also includes:
 
 - `logo_filename`: the stored filename.
 - `logo_filepath`: the public path; build the logo URL from it, as described
   under [Public Static Assets](#public-static-assets).
-- `logo_extension`: `png`, `jpg`, `jpeg`, or `webp`.
+- `logo_extension`: `png`, `jpg`, `jpeg`, `webp`, or `svg`.
 - `logo_size`: the file size rounded up to KiB (1024 bytes).
-- `logo_metadata`: the pixel `width` and `height`.
+- `logo_metadata`: the pixel `width` and `height` for raster images, or `{}` for SVG.
 
-Upload logos as transparent PNG or WEBP files.
+Raster logo content is checked against its extension. SVG logos are sanitized
+before storage.
 
 Example browser upload:
 
@@ -1487,8 +1754,8 @@ The response shape is:
   "client": {
     "id": 1,
     "name": "Accenture",
-    "logo_filename": "logo-accenture-1791913320264.png",
-    "logo_filepath": "/public/clients/logo-accenture-1791913320264.png",
+    "logo_filename": "accenture-3f9a1c7e5b2d4086.png",
+    "logo_filepath": "/public/clients/accenture-3f9a1c7e5b2d4086.png",
     "logo_extension": "png",
     "logo_size": 18,
     "logo_metadata": { "width": 400, "height": 160 },
@@ -1640,8 +1907,9 @@ language is also `null`. The CMS disables inputs whose key is `null`.
 - `GET /site_settings?language_id=id` is public and returns
   `{ "site_settings": ... }` with `200 OK`. `language_id` is optional and
   defaults to Bahasa Indonesia (`id`); an unknown or inactive language returns
-  `400 Bad Request`. Signed-in users receive every social media item; everyone
-  else receives only `PUBLISHED` items.
+  `400 Bad Request`. It returns only `PUBLISHED` social media items.
+  `GET /admin/site_settings` requires login and returns every item, drafts
+  included.
 - `PUT /site_settings` requires an authenticated session and the configured
   frontend `Origin` or `Referer`. It saves the setting values for
   `language_id`, replaces the whole social media list, and returns
@@ -1649,12 +1917,12 @@ language is also `null`. The CMS disables inputs whose key is `null`.
 
 `PUT /site_settings` uses `multipart/form-data`:
 
-| Field            | Type        | Rules                                                                                 |
-| ---------------- | ----------- | ------------------------------------------------------------------------------------- |
-| `data`           | JSON string | Required; the settings payload below.                                                 |
-| `danantara_logo` | file        | Optional; PNG, JPG, JPEG, WEBP, or SVG; maximum 2 MiB. Omit to keep the current logo. |
-| `pln_logo`       | file        | Optional; same rules as `danantara_logo`.                                             |
-| `social_icons`   | file[]      | Optional; SVG only; maximum 1 MiB each; up to 20. Each must be referenced by an item. |
+| Field            | Type        | Rules                                                                                                     |
+| ---------------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| `data`           | JSON string | Required; the settings payload below.                                                                     |
+| `danantara_logo` | file        | Optional; PNG, JPG, JPEG, WEBP, or SVG; maximum 5 MiB. Omit to keep the current logo.                     |
+| `pln_logo`       | file        | Optional; same rules as `danantara_logo`.                                                                 |
+| `social_icons`   | file[]      | Optional; PNG, JPG, JPEG, WEBP, or SVG; maximum 5 MiB each; up to 20. Each must be referenced by an item. |
 
 The `data` payload:
 
@@ -1686,14 +1954,17 @@ Each `social_medias` item:
 | `icon_index`                   | integer | Optional; index into the uploaded `social_icons` files. Omit to keep the current icon. |
 
 The list is synced to the request: existing items missing from
-`social_medias` are deleted with their icon files, and `sort_order` follows the
+`social_medias` are deleted with their icon files (this needs the `delete`
+permission, or it returns `403 Forbidden`), and `sort_order` follows the
 array position starting at 1. Replaced logos and icons are removed after the
 save succeeds.
 
 Uploaded SVG files are sanitized: scripts, event handlers, `foreignObject`, and
 `javascript:` links are removed, and a file with no valid `<svg>` left returns
-`400 Bad Request`. Logos are stored at `/public/site-logo-{name}-{timestamp}.{extension}`
-and icons at `/public/site-social-medias/site-social-media-{name}-{timestamp}.svg`.
+`400 Bad Request`. Raster content is checked against its extension. Logos are
+stored at `/public/site-logo-{name}-{random}.{extension}` and icons at
+`/public/site-social-medias/site-social-media-{name}-{random}.{extension}`. Both
+paths resolve to objects in the configured SeaweedFS bucket.
 Only the logo filepath is kept. `icon_metadata` is the pixel `width` and
 `height` for raster images and `{}` for SVG.
 
@@ -1763,7 +2034,7 @@ The response shape is:
     "company_name": "PT Energy Management Indonesia (Persero)",
     "company_short_name": "PLN EMI",
     "danantara_logo_filepath": "",
-    "pln_logo_filepath": "/public/site-logo-pln-emi-1792136400000.svg",
+    "pln_logo_filepath": "/public/site-logo-pln-emi-3f9a1c7e5b2d4086.svg",
     "company_address": "Menara Sentraya Lt. 17, Jakarta Selatan 12160",
     "company_location_lat": -6.2249,
     "company_location_long": 106.8172,
@@ -1779,8 +2050,8 @@ The response shape is:
         "id": 2,
         "platform_name": "YouTube",
         "platform_url_or_account_name": "@EnergyManagementIndonesia",
-        "icon_filename": "site-social-media-youtube-1792136400001.svg",
-        "icon_filepath": "/public/site-social-medias/site-social-media-youtube-1792136400001.svg",
+        "icon_filename": "site-social-media-youtube-3f9a1c7e5b2d4086.svg",
+        "icon_filepath": "/public/site-social-medias/site-social-media-youtube-3f9a1c7e5b2d4086.svg",
         "icon_extension": "svg",
         "icon_size": 1,
         "icon_metadata": {},
@@ -1800,37 +2071,317 @@ The response shape is:
 }
 ```
 
+The landing site URL is an [app config](#app-configs), not a site setting.
+
 Invalid fields, files, or `icon_index` references return
 `400 Bad Request`; an unknown social media `id` returns
 `404 Not Found`; files over their size limit return `413 Payload Too Large`; a
 setting key missing from the seed returns `500 Internal Server Error`.
 
+## Users and Roles
+
+All user, role, and permission endpoints require an authenticated session and
+the configured frontend `Origin` or `Referer`, as described under
+[Browser Sessions](#browser-sessions). Requests use JSON. All of them need the
+`manage_users` permission, as described under [Permissions](#permissions).
+
+### Roles
+
+- `GET /roles` returns `{ "roles": [...] }` with `200 OK`, sorted by ID.
+- `GET /roles/:roleId` returns `{ "role": ... }` with `200 OK`.
+- `POST /roles` creates a role and returns `{ "role": ... }` with
+  `201 Created`. It also creates one `role_permissions` row per permission
+  with `is_allowed: false`.
+- `PUT /roles/:roleId` partially updates a role and returns `{ "role": ... }`
+  with `200 OK`.
+- `DELETE /roles/:roleId` returns `204 No Content`. It also deletes every user
+  assigned to the role and the role's permission rows, in one transaction.
+  Deleting a role you hold returns `400 Bad Request`.
+
+Roles include `user_count`, the number of users assigned to the role.
+Bodies accept `name` (1–100 characters, unique) and `description` (up to 500
+characters, or `null`). `name` is required on create; omitted fields remain
+unchanged on update. A duplicate name returns `409 Conflict`.
+
+```json
+{ "name": "Editor", "description": "Mengelola semua konten" }
+```
+
+```json
+{
+  "role": {
+    "id": 2,
+    "name": "Editor",
+    "description": "Mengelola semua konten",
+    "user_count": 2,
+    "created_at": "2026-10-18T08:00:00.000Z",
+    "created_by": "Neni Ariyani",
+    "updated_at": null,
+    "updated_by": null
+  }
+}
+```
+
+### Permissions
+
+`GET /permissions` returns the seeded permissions with `200 OK`. Names are
+stable keys; show your own labels in the UI.
+
+```json
+{
+  "permissions": [
+    { "id": 2, "name": "write" },
+    { "id": 3, "name": "publish" },
+    { "id": 4, "name": "delete" },
+    { "id": 5, "name": "manage_users" }
+  ]
+}
+```
+
+### Role Permissions
+
+- `GET /role_permissions` returns every role and permission pair with
+  `200 OK`, sorted by `role_id` then `permission_id`.
+- `PUT /role_permissions/:roleId/:permissionId` sets `is_allowed` and returns
+  `{ "rolePermission": ... }` with `200 OK`. The body sets the value rather
+  than flipping it, so retries are safe. An unknown pair returns
+  `404 Not Found`. Removing `manage_users` from a role you hold returns
+  `400 Bad Request`.
+
+```json
+{ "is_allowed": true }
+```
+
+```json
+{
+  "rolePermissions": [
+    {
+      "role_id": 2,
+      "permission_id": 2,
+      "is_allowed": true,
+      "updated_at": "2026-10-18T08:05:00.000Z",
+      "updated_by": "Neni Ariyani"
+    }
+  ]
+}
+```
+
+### Users
+
+- `GET /users` returns `{ "users": [...], "pagination": ... }` with `200 OK`,
+  sorted by name.
+- `GET /users/count` returns the number of users, pending invites included,
+  as `{ "total": 7 }` with `200 OK`.
+- `GET /users/:userId` returns `{ "user": ... }` with `200 OK`.
+- `POST /users` invites a user and returns `{ "user": ... }` with
+  `201 Created`. When the user count (pending invites included) has reached
+  the `max_users` [app config](#app-configs), it returns `403 Forbidden` with
+  `The user limit of 10 has been reached. Delete a user before adding another.` The user starts inactive with no password (`is_pending: true`)
+  and is emailed an activation link valid for 72 hours (see
+  [Activate Account](#activate-account)). If the email cannot be sent, the
+  user is still created and the request returns `502 Bad Gateway` with
+  `The invite email could not be sent. Try resending the invite.`
+- `POST /users/:userId/invite` resends the invite with a new link and returns
+  `204 No Content`; the previous link stops working. Returns `409 Conflict`
+  with `User has already activated their account.` once the user has a
+  password, and `502 Bad Gateway` if the email cannot be sent.
+- `PUT /users/:userId` partially updates a user and returns
+  `{ "user": ... }` with `200 OK`. Changing your own `role_id` or setting your
+  own `is_active` to `false` returns `400 Bad Request`; sending your current
+  values is allowed.
+- `DELETE /users/:userId` returns `204 No Content`. Deleting your own account
+  returns `400 Bad Request`. The user's activity log entries are kept.
+
+| Query parameter | Type   | Rules                                                            |
+| --------------- | ------ | ---------------------------------------------------------------- |
+| `search`        | string | Optional, up to 200 characters; matches name or email, any case. |
+| `role_id`       | number | Optional; only users with this role.                             |
+| `page`          | number | Optional, 1-based; default `1`.                                  |
+| `limit`         | number | Optional; default `20`, minimum `1`, maximum `100`.              |
+
+```json
+{
+  "users": [],
+  "pagination": { "page": 1, "limit": 20, "totalItems": 0, "totalPages": 0 }
+}
+```
+
+Bodies accept `name` (1–100 characters), `email` (valid, lowercased, unique),
+`role_id` (an existing role id, or `null` for no role), and `is_active`
+(boolean, update only). `name`, `email`, and `role_id` are required on create;
+omitted fields remain unchanged on update. An unknown `role_id` returns
+`400 Bad Request`; a duplicate email returns `409 Conflict`.
+
+```json
+{
+  "name": "Andi Lala",
+  "email": "andi.lala@emipersero.co.id",
+  "role_id": 3
+}
+```
+
+Responses never include the password. `is_pending` is `true` until the user
+accepts the invite. `last_signed_in` is set on each successful login and is
+`null` until the first one.
+
+```json
+{
+  "user": {
+    "id": 4,
+    "name": "Andi Lala",
+    "email": "andi.lala@emipersero.co.id",
+    "role": { "id": 3, "name": "Kontributor" },
+    "is_active": false,
+    "is_pending": true,
+    "last_signed_in": null
+  }
+}
+```
+
+## App Configs
+
+Deployment-level settings stored as text in the `app_configs` table (`key`,
+`value`). They have no write endpoint; change them directly in the database.
+
+| Key                | Meaning                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `max_users`        | Maximum number of users, pending invites included. A missing or non-positive-integer value means no limit. |
+| `landing_site_url` | Public landing site URL, used by the CMS dashboard's "view site" button.                                   |
+
+`GET /app_configs` requires login (any signed-in user) and returns every
+config as a key-value object with `200 OK`:
+
+```json
+{
+  "app_configs": {
+    "landing_site_url": "https://www.example.com",
+    "max_users": "10"
+  }
+}
+```
+
+## Activity Logs
+
+`GET /activity-logs` requires login and returns
+`{ "activityLogs": [...], "pagination": ... }` with `200 OK`, newest first
+(`created_at` descending, then ID).
+
+| Query parameter | Type   | Rules                                               |
+| --------------- | ------ | --------------------------------------------------- |
+| `page`          | number | Optional, 1-based; default `1`.                     |
+| `limit`         | number | Optional; default `20`, minimum `1`, maximum `100`. |
+
+```json
+{
+  "activityLogs": [
+    {
+      "id": 1,
+      "name": "Neni A.",
+      "action": "CREATE",
+      "resource": "ARTICLE",
+      "action_result": "Kompas.com x PLN EMI",
+      "item_count": null,
+      "created_at": "2026-10-18T08:50:01.237Z"
+    },
+    {
+      "id": 2,
+      "name": "Neni A.",
+      "action": "DELETE",
+      "resource": "MEDIA",
+      "action_result": null,
+      "item_count": 3,
+      "created_at": "2026-10-18T08:52:10.004Z"
+    }
+  ],
+  "pagination": { "page": 1, "limit": 20, "totalItems": 2, "totalPages": 1 }
+}
+```
+
+`name` is the user's name at the time of the action; it is stored on the
+entry, so entries remain after the user is deleted. Entries are written by the
+server after each successful content change. Inbox and auth actions are not
+logged.
+
+`action` and `resource` are codes for the client to translate:
+
+| Field      | Values                                                                                                                                                                                                                                        |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `action`   | `CREATE`, `UPDATE`, `DELETE`, `REORDER`, `RESEND_INVITE`                                                                                                                                                                                      |
+| `resource` | `ARTICLE`, `ARTICLE_CATEGORY`, `BOARD_MEMBER`, `BOARD_MEMBER_TYPE`, `CLIENT`, `DIVISION`, `DOCUMENT_COMMITMENT`, `DOCUMENT_COMMITMENT_CATEGORY`, `FAQ`, `MEDIA`, `ROLE`, `ROLE_PERMISSION`, `SERVICE`, `SITE_CONTENT`, `SITE_SETTING`, `USER` |
+
+`action_result` is the affected item's name or title in the default language,
+shown as is; it is `null` for reorders and site settings. `item_count` is the
+number of items removed by a bulk delete, which has no `action_result`;
+otherwise it is `null`.
+
+## Search
+
+`GET /admin/search?q=kompas` requires login and returns up to 5 matches per
+group with `200 OK`. Drafts are included. Matching is a case-insensitive
+substring match across all languages; each item appears once, with the
+language of the matching content.
+
+| Query parameter | Type   | Rules                                   |
+| --------------- | ------ | --------------------------------------- |
+| `q`             | string | Required, trimmed, 2 to 100 characters. |
+
+| Group                  | Matched fields                                      |
+| ---------------------- | --------------------------------------------------- |
+| `articles`             | `title`, `summary`                                  |
+| `document_commitments` | translated `title`                                  |
+| `divisions`            | `name`, `abbr`, `description`                       |
+| `services`             | `name`; translated media `description`              |
+| `board_members`        | `name`, `company_name`, `role`, `description`       |
+| `faqs`                 | `question`, `answer`                                |
+| `users`                | `name`, `email`                                     |
+| `inboxes`              | `name`, `email`, `company`, `message`, subject name |
+
+```json
+{
+  "articles": [
+    { "id": 3, "language_id": "id", "title": "Kompas.com x PLN EMI" }
+  ],
+  "document_commitments": [
+    { "id": 2, "language_id": "id", "title": "Laporan Tahunan 2025" }
+  ],
+  "divisions": [{ "id": 1, "language_id": "id", "title": "Energi Terbarukan" }],
+  "services": [],
+  "board_members": [{ "id": 7, "title": "Budi Santoso" }],
+  "faqs": [{ "id": 4, "language_id": "en", "title": "What is PLN EMI?" }],
+  "users": [{ "id": 2, "title": "Neni A." }],
+  "inboxes": [{ "id": 9, "title": "Budi" }]
+}
+```
+
+`title` is the article/document title, division/service/board member/user/inbox sender name, or FAQ
+question. Document commitments now include the language of the matching title; board members, users, and inboxes do not.
+`users` is always empty unless the caller has the `manage_users` permission;
+user emails are matched but never returned. A missing or invalid `q`
+returns `400`.
+
 ## Public Static Assets
 
-Files in the project `public/` directory are served without authentication at
-the matching `/public/*` path and allow cross-origin reads. SVG files are
-served with `Content-Security-Policy: default-src 'none'; style-src
-'unsafe-inline'; sandbox` and `X-Content-Type-Options: nosniff`, so an SVG
-opened directly cannot run scripts. For example,
-`public/media/company-news.jpg` is available at
-`http://localhost:8000/public/media/company-news.jpg`. A document commitment
-PDF such as `public/document_commitment/board-decision-2026-10.pdf` is
-available at
-`http://localhost:8000/public/document_commitment/board-decision-2026-10.pdf`.
-A client logo such as `public/clients/logo-accenture-1791913320264.png` is
-available at
-`http://localhost:8000/public/clients/logo-accenture-1791913320264.png`.
+Uploaded files are served from the configured SeaweedFS bucket without
+authentication at their matching `/public/*` paths and allow cross-origin
+reads. The bucket key is the path after `/public/`; for example,
+`/public/media/company-news.jpg` maps to `media/company-news.jpg`.
+`GET` and `HEAD` requests support byte ranges. SVG files are served with
+`Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline';
+sandbox` and `X-Content-Type-Options: nosniff`, so an SVG opened directly
+cannot run scripts. Local files are not served or migrated; a path without a
+matching bucket object returns `404 Not Found`. S3 configuration or availability
+failures return `503 Service Unavailable`.
 
 ## Article, Category, Media, and Document Commitment Errors
 
-| Status                  | Description                                                                              |
-| ----------------------- | ---------------------------------------------------------------------------------------- |
-| `400 Bad Request`       | Invalid ID, body or query value, category, media or language reference, or uploaded PDF. |
-| `401 Unauthorized`      | A write request does not have a valid session.                                           |
-| `403 Forbidden`         | A write request has a missing or disallowed `Origin`/`Referer`.                          |
-| `404 Not Found`         | The requested article, category, media, or document commitment does not exist.           |
-| `409 Conflict`          | Article slug, category slug, media filename, or document filename is already in use.     |
-| `413 Payload Too Large` | An uploaded file exceeds the limit for its media type or document commitment.            |
+| Status                  | Description                                                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `400 Bad Request`       | Invalid ID, body or query value, category, media or language reference, or uploaded image or PDF.                            |
+| `401 Unauthorized`      | A write request does not have a valid session.                                                                               |
+| `403 Forbidden`         | A write request has a missing or disallowed `Origin`/`Referer`.                                                              |
+| `404 Not Found`         | The requested article, category, media, or document commitment does not exist.                                               |
+| `409 Conflict`          | Article/category slug, localized division or document category slug, media filename, or document filename is already in use. |
+| `413 Payload Too Large` | An uploaded image exceeds 5 MiB or a PDF exceeds 20 MiB.                                                                     |
 
 ## Health Check
 

@@ -37,13 +37,13 @@ export function ArticlesSection({ data, error }: ArticlesSectionProps) {
       {data ? (
         <div className="mt-10">
           <CategoryFilters
-            activeCategoryId={data.activeCategoryId}
+            activeCategorySlug={data.activeCategorySlug}
             allLabel={copy("All")}
             anchorId="articles"
             ariaLabel={copy("Filter articles by category")}
             categories={data.categories}
             pathname="/"
-            queryKey="homeCategory"
+            queryKey="category"
           />
         </div>
       ) : null}

@@ -1,16 +1,16 @@
 "use client";
 
+import Link from "@/i18n/navigation";
 import { ArrowLeft, ArrowRight, Layers3 } from "lucide-react";
 import Image from "next/image";
-import Link from "@/i18n/navigation";
 import * as React from "react";
 
+import { useCopy } from "@/i18n/use-copy";
 import type { ServiceDivision } from "@/module/services/content/services";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { useCopy } from "@/i18n/use-copy";
-import { useLocale } from "next-intl";
 import {
+  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -24,8 +24,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
+import { useLocale } from "next-intl";
 
 type ServiceDetailDialogProps = {
+  initialOfferingId: number | null;
   onCloseAutoFocus: React.ComponentProps<
     typeof DialogContent
   >["onCloseAutoFocus"];
@@ -33,18 +35,77 @@ type ServiceDetailDialogProps = {
 };
 
 export function ServiceDetailDialog({
+  initialOfferingId,
   onCloseAutoFocus,
   service,
 }: ServiceDetailDialogProps) {
   const copy = useCopy();
-  const [activeTagIndex, setActiveTagIndex] = React.useState(0);
+  const [activeTagIndex, setActiveTagIndex] = React.useState(() => {
+    const selectedIndex = service.offerings.findIndex(
+      (offering) => offering.id === initialOfferingId,
+    );
+
+    return selectedIndex >= 0 ? selectedIndex : 0;
+  });
+  const [carouselInstance, setCarouselInstance] = React.useState<{
+    api: CarouselApi;
+    offeringId: number;
+  } | null>(null);
+  const [selectedImage, setSelectedImage] = React.useState<{
+    index: number;
+    offeringId: number | null;
+  }>({ index: 0, offeringId: null });
   const locale = useLocale();
   const numberFormatter = new Intl.NumberFormat(
     locale === "id" ? "id-ID" : "en-US",
   );
   const activeTag = service.offerings[activeTagIndex];
-  const activeDescription = activeTag?.description ?? service.description;
+  const activeCarouselApi =
+    carouselInstance?.offeringId === activeTag?.id
+      ? carouselInstance.api
+      : null;
+  const activeImageIndex =
+    selectedImage.offeringId === activeTag?.id ? selectedImage.index : 0;
+  const activeImage = activeTag?.images[activeImageIndex];
+  const activeDescription = activeImage?.description ?? null;
   const tagCount = service.offerings.length;
+
+  const handleCarouselApi = React.useCallback(
+    (api: CarouselApi) => {
+      if (activeTag) {
+        setCarouselInstance({ api, offeringId: activeTag.id });
+      }
+    },
+    [activeTag],
+  );
+
+  React.useEffect(() => {
+    if (!activeCarouselApi || !activeTag) {
+      return;
+    }
+
+    const updateSelectedImage = () => {
+      setSelectedImage({
+        index: activeCarouselApi.selectedScrollSnap(),
+        offeringId: activeTag.id,
+      });
+    };
+
+    updateSelectedImage();
+    activeCarouselApi.on("select", updateSelectedImage);
+
+    return () => {
+      activeCarouselApi.off("select", updateSelectedImage);
+    };
+  }, [activeCarouselApi, activeTag]);
+
+  function handleOfferingChange(index: number) {
+    setActiveTagIndex(index);
+    setSelectedImage({
+      index: 0,
+      offeringId: service.offerings[index]?.id ?? null,
+    });
+  }
 
   return (
     <DialogContent
@@ -106,6 +167,7 @@ export function ServiceDetailDialog({
           className="relative min-h-0 flex-1 overflow-hidden"
           key={activeTag.id}
           opts={{ loop: false }}
+          setApi={handleCarouselApi}
         >
           <CarouselContent className="ml-0">
             {activeTag.images.map((image) => (
@@ -171,9 +233,7 @@ export function ServiceDetailDialog({
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
               disabled={tagCount === 0 || activeTagIndex === 0}
               onClick={() =>
-                setActiveTagIndex((currentIndex) =>
-                  Math.max(0, currentIndex - 1),
-                )
+                handleOfferingChange(Math.max(0, activeTagIndex - 1))
               }
               size="icon-lg"
               type="button"
@@ -186,9 +246,7 @@ export function ServiceDetailDialog({
               className="border-secondary/25 text-accent size-10 rounded-lg disabled:pointer-events-none disabled:opacity-100"
               disabled={tagCount === 0 || activeTagIndex === tagCount - 1}
               onClick={() =>
-                setActiveTagIndex((currentIndex) =>
-                  Math.min(tagCount - 1, currentIndex + 1),
-                )
+                handleOfferingChange(Math.min(tagCount - 1, activeTagIndex + 1))
               }
               size="icon-lg"
               type="button"

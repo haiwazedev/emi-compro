@@ -8,6 +8,7 @@ const phrases: Record<string, Record<Locale, string>> = {
   },
   "About Us": { en: "About Us", id: "Tentang Kami" },
   All: { en: "All", id: "Semua" },
+  "All Documents": { en: "All Documents", id: "Semua Dokumen" },
   "All News": { en: "All News", id: "Semua Berita" },
   "All Services": { en: "All Services", id: "Semua Layanan" },
   "Annual reports and disclosures highlighting our measurable commitment.": {
@@ -164,6 +165,10 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "Filter articles by category",
     id: "Filter artikel berdasarkan kategori",
   },
+  "Filter commitment documents by category": {
+    en: "Filter commitment documents by category",
+    id: "Filter dokumen komitmen berdasarkan kategori",
+  },
   "Footer navigation": { en: "Footer navigation", id: "Navigasi footer" },
   "Frequently Asked": { en: "Frequently Asked", id: "Pertanyaan yang" },
   "Frequently Asked Questions": {
@@ -253,6 +258,10 @@ const phrases: Record<string, Record<Locale, string>> = {
   "No mission found.": {
     en: "No mission found.",
     id: "Informasi misi belum tersedia.",
+  },
+  "No home highlights found.": {
+    en: "No home highlights found.",
+    id: "Belum ada sorotan di beranda.",
   },
   "No service divisions are available yet.": {
     en: "No service divisions are available yet.",
@@ -691,6 +700,15 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "No content found.",
     id: "Konten tidak ditemukan.",
   },
+  "Page not found": {
+    en: "Page not found",
+    id: "Halaman tidak ditemukan",
+  },
+  "The page you’re looking for doesn’t exist or may have moved.": {
+    en: "The page you’re looking for doesn’t exist or may have moved.",
+    id: "Halaman yang Anda cari tidak ditemukan atau mungkin telah dipindahkan.",
+  },
+  "Back to home.": { en: "Back to home.", id: "Kembali ke Beranda." },
   "No partners are available yet.": {
     en: "No partners are available yet.",
     id: "Belum ada mitra yang tersedia.",
@@ -725,6 +743,7 @@ const phrases: Record<string, Record<Locale, string>> = {
   "HEAD OFFICE": { en: "HEAD OFFICE", id: "KANTOR PUSAT" },
   "PHONE / WHATSAPP": { en: "PHONE / WHATSAPP", id: "TELEPON / WHATSAPP" },
   "OFFICE HOURS": { en: "OFFICE HOURS", id: "JAM OPERASIONAL" },
+  EMAIL: { en: "EMAIL", id: "EMAIL" },
   "EMAIL:": { en: "EMAIL:", id: "EMAIL:" },
   "TELP:": { en: "PHONE:", id: "TELEPON:" },
   "COMPANY PROFILE": { en: "COMPANY PROFILE", id: "PROFIL PERUSAHAAN" },
@@ -761,10 +780,10 @@ const phrases: Record<string, Record<Locale, string>> = {
       en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises, available for download.",
       id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang mewujudkan komitmen kami dan tersedia untuk diunduh.",
     },
-  "Certifications, corporate policies, and sustainability reports — the documents behind our promises. Uploaded and managed via CMS.":
+  "Certifications, corporate policies, and sustainability reports — the documents behind our promises.":
     {
-      en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises. Uploaded and managed via CMS.",
-      id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang menjadi bukti komitmen kami. Diunggah dan dikelola melalui CMS.",
+      en: "Certifications, corporate policies, and sustainability reports — the documents behind our promises.",
+      id: "Sertifikasi, kebijakan perusahaan, dan laporan keberlanjutan yang menjadi bukti komitmen kami.",
     },
   "Our company introduction": {
     en: "Our company introduction",
@@ -814,11 +833,6 @@ const phrases: Record<string, Record<Locale, string>> = {
     {
       en: "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth.",
       id: "Informasi tepercaya tentang perkembangan bisnis, inovasi, dan kontribusi kami bagi ketahanan energi dan pertumbuhan berkelanjutan.",
-    },
-  "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth. Managed via CMS.":
-    {
-      en: "Trusted updates on business developments, innovation, and our contribution to energy resilience and sustainable growth. Managed via CMS.",
-      id: "Informasi tepercaya tentang perkembangan bisnis, inovasi, dan kontribusi kami bagi ketahanan energi dan pertumbuhan berkelanjutan. Dikelola melalui CMS.",
     },
   "See All News": { en: "See All News", id: "Lihat Semua Berita" },
   "MEDIA & INFORMATION": { en: "MEDIA & INFORMATION", id: "MEDIA & INFORMASI" },
@@ -872,7 +886,7 @@ const phrases: Record<string, Record<Locale, string>> = {
     en: "Please try again later.",
     id: "Silakan coba lagi beberapa saat.",
   },
-  "+62 ...": { en: "+62 ...", id: "+62 ..." },
+  "6281234567890": { en: "6281234567890", id: "6281234567890" },
   "PT Energy Management Indonesia (Persero)": {
     en: "PT Energy Management Indonesia (Persero)",
     id: "PT Energy Management Indonesia (Persero)",
