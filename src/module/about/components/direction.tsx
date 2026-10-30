@@ -1,8 +1,8 @@
-import { aboutPageContent } from "@/module/about/content/about-page";
+import { useCopy } from "@/i18n/use-copy";
 import type { AboutMissionItem } from "@/module/about/content/about-page";
+import { aboutPageContent } from "@/module/about/content/about-page";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
-import { useCopy } from "@/i18n/use-copy";
 
 type DirectionProps = {
   error: boolean;
@@ -77,6 +77,7 @@ export function Direction({ error, mission, vision }: DirectionProps) {
                 {mission.map((item) => (
                   <li key={item.id}>
                     <span className="font-semibold">{item.title}</span>
+                    <br />
                     <span> {item.description}</span>
                   </li>
                 ))}
