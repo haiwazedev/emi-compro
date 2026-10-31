@@ -30,11 +30,13 @@ export function HeroContent({
     >
       <div className="max-w-4xl">
         <Badge
-          className="border-background/20 bg-background/10 text-primary h-auto rounded-full px-4 py-2 text-[0.68rem] font-bold tracking-[0.18em] uppercase backdrop-blur-md"
+          className="border-background/20 bg-background/10 text-primary h-auto max-w-full rounded-full px-4 py-2 text-[0.68rem] font-bold tracking-[0.18em] whitespace-normal uppercase backdrop-blur-md"
           variant="outline"
         >
-          <span className="animate-home-badge-pulse bg-accent-2 mr-1 size-2 rounded-full" />
-          {copy("Powering Indonesia Sustainable Future")}
+          <span className="animate-home-badge-pulse bg-accent-2 mr-1 size-2 shrink-0 rounded-full" />
+          <span className="min-w-0">
+            {copy("Powering Indonesia Sustainable Future")}
+          </span>
         </Badge>
 
         <div aria-live="polite" className="mt-8">
