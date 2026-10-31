@@ -6,10 +6,10 @@ import Image from "next/image";
 import * as React from "react";
 
 import { usePathname } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 import { useCopy } from "@/i18n/use-copy";
 import type { Article } from "@/module/articles/content/articles";
 import { navLinks } from "@/module/layout/content/navigation";
-import type { Locale } from "@/i18n/routing";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import LanguageSwitcher from "./language-switcher";
@@ -103,18 +103,40 @@ export function NavbarClient({
         {danantaraLogoUrl ? (
           <Link
             aria-label={copy("Danantara Indonesia home")}
-            className="min-w-0 shrink-0 justify-self-start"
+            className="hidden min-w-0 shrink-0 justify-self-start lg:block"
             href="/"
           >
             <Image
               alt={copy("Danantara Indonesia")}
-              className="drop-shadow-foreground/25 h-7 w-auto drop-shadow-md transition-[filter] duration-500 group-hover/nav:drop-shadow-none sm:h-8"
+              className="drop-shadow-foreground/25 h-8 w-auto drop-shadow-md transition-[filter] duration-500 group-hover/nav:drop-shadow-none"
               height={1073}
               priority
               sizes="10rem"
               src={danantaraLogoUrl}
               width={4090}
             />
+          </Link>
+        ) : null}
+
+        {plnLogoUrl ? (
+          <Link
+            aria-label={copy("PLN Energy Management Indonesia home")}
+            className={cn(
+              "shrink-0 px-4 lg:hidden",
+              isLightNavbar && "bg-accent rounded-full",
+            )}
+            href="/"
+          >
+            <div className="relative aspect-video h-16">
+              <Image
+                alt={copy("PLN Energy Management Indonesia")}
+                className="object-contain"
+                fill
+                priority
+                sizes="8rem"
+                src={plnLogoUrl}
+              />
+            </div>
           </Link>
         ) : null}
 
