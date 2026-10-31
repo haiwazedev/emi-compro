@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         hostname: apiUrl.hostname,

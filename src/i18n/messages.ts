@@ -24,8 +24,25 @@ const phrases: Record<string, Record<Locale, string>> = {
       en: "Board member information is temporarily unavailable. Please try again later.",
       id: "Informasi anggota dewan untuk sementara tidak tersedia. Silakan coba lagi nanti.",
     },
+  "Commitment category information is currently unavailable. Please try again later.":
+    {
+      en: "Commitment category information is currently unavailable. Please try again later.",
+      id: "Informasi kategori dokumen komitmen sedang tidak tersedia. Silakan coba lagi nanti.",
+    },
+  "Commitment categories are temporarily unavailable.": {
+    en: "Commitment categories are temporarily unavailable.",
+    id: "Kategori dokumen komitmen sedang tidak tersedia.",
+  },
+  "Commitment categories will appear here.": {
+    en: "Commitment categories will appear here.",
+    id: "Kategori dokumen komitmen akan ditampilkan di sini.",
+  },
+  "No commitment categories are available yet.": {
+    en: "No commitment categories are available yet.",
+    id: "Belum ada kategori dokumen komitmen yang tersedia.",
+  },
   "Browse articles": { en: "Browse articles", id: "Telusuri artikel" },
-  "Browse documents": { en: "Browse documents", id: "Telusuri dokumen" },
+  "Browse documents": { en: "Browse documents", id: "Lihat dokumen" },
   "By submitting, you agree to be contacted by EMI regarding your inquiry. Your data is handled in our privacy policy.":
     {
       en: "By submitting, you agree to be contacted by EMI regarding your inquiry. Your data is handled in our privacy policy.",

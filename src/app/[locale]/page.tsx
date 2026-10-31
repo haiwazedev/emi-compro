@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AboutUsSection } from "@/module/about/components/about-us-section";
 import { ArticlesSection } from "@/module/articles/components/articles-section";
 import { getHomeArticleData } from "@/module/articles/lib/articles-api";
+import { getCommitmentCategories } from "@/module/commitment/lib/commitments-api";
 import { CommitmentSection } from "@/module/commitment/components/commitment-section";
 import { ContactUsSection } from "@/module/contact/components/contact-us-section";
 import { getPublicSiteSettings } from "@/module/contact/lib/contact-api";
@@ -40,12 +41,14 @@ export default async function Home({ params, searchParams }: HomeProps) {
     homeResult,
     articleResult,
     servicesResult,
+    commitmentCategoriesResult,
     partnersResult,
     settingsResult,
   ] = await Promise.allSettled([
     getHomeSiteContentData(locale),
     getHomeArticleData(locale, categorySlug),
     getServiceDirectoryData(locale),
+    getCommitmentCategories(locale),
     getPartners(),
     getPublicSiteSettings(locale),
   ]);
@@ -57,6 +60,12 @@ export default async function Home({ params, searchParams }: HomeProps) {
   const servicesData =
     servicesResult.status === "fulfilled" ? servicesResult.value : null;
   const servicesError = servicesResult.status === "rejected";
+  const commitmentCategories =
+    commitmentCategoriesResult.status === "fulfilled"
+      ? commitmentCategoriesResult.value
+      : null;
+  const commitmentCategoriesError =
+    commitmentCategoriesResult.status === "rejected";
   const partnersData =
     partnersResult.status === "fulfilled" ? partnersResult.value : null;
   const partnersError = partnersResult.status === "rejected";
@@ -73,7 +82,10 @@ export default async function Home({ params, searchParams }: HomeProps) {
         <ServicesSection data={servicesData} error={servicesError} />
         <PartnersSection data={partnersData} error={partnersError} />
         <ArticlesSection data={articleData} error={articlesError} />
-        <CommitmentSection data={servicesData} error={servicesError} />
+        <CommitmentSection
+          data={commitmentCategories}
+          error={commitmentCategoriesError}
+        />
         <ContactUsSection settings={siteSettings} />
       </main>
 

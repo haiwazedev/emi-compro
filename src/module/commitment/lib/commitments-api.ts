@@ -16,6 +16,7 @@ const mediaTones = Object.keys(
 ) as CommitmentDocumentMediaTone[];
 
 export type CommitmentCategory = {
+  description: string | null;
   id: number;
   name: string;
   slug: string;

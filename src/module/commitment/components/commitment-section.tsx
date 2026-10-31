@@ -1,12 +1,12 @@
 import { CommitmentCard } from "@/module/commitment/components/commitment-card";
-import type { ServiceDivision } from "@/module/services/content/services";
+import type { CommitmentCategory } from "@/module/commitment/lib/commitments-api";
 import { ContentStatus } from "@/shared/components/content-status";
 import { SectionContainer } from "@/shared/components/section-container";
 import { SectionIntro } from "@/shared/components/section-intro";
 import { useCopy } from "@/i18n/use-copy";
 
 type CommitmentSectionProps = {
-  data: ServiceDivision[] | null;
+  data: CommitmentCategory[] | null;
   error: boolean;
 };
 
@@ -16,7 +16,7 @@ export function CommitmentSection({ data, error }: CommitmentSectionProps) {
   return (
     <SectionContainer
       aria-labelledby="commitment-heading"
-      className="py-16 sm:py-20 lg:py-24"
+      className="py-16 lg:py-24"
       id="commitment"
       variant="default"
     >
@@ -35,17 +35,17 @@ export function CommitmentSection({ data, error }: CommitmentSectionProps) {
       {error ? (
         <ContentStatus
           description={copy(
-            "Service information is currently unavailable. Please try again later.",
+            "Commitment category information is currently unavailable. Please try again later.",
           )}
-          title={copy("Our service divisions are temporarily unavailable.")}
+          title={copy("Commitment categories are temporarily unavailable.")}
           variant="error"
         />
       ) : null}
 
       {!error && data?.length === 0 ? (
         <ContentStatus
-          description={copy("Published service divisions will appear here.")}
-          title={copy("No service divisions are available yet.")}
+          description={copy("Commitment categories will appear here.")}
+          title={copy("No commitment categories are available yet.")}
           variant="empty"
         />
       ) : null}
@@ -55,9 +55,9 @@ export function CommitmentSection({ data, error }: CommitmentSectionProps) {
           aria-label={copy("PLN EMI commitment resources")}
           className="-m-2 mt-10 flex flex-wrap lg:mt-12"
         >
-          {data.slice(0, 3).map((service) => (
-            <li className="flex w-full p-2 lg:w-1/3" key={service.id}>
-              <CommitmentCard service={service} />
+          {data.slice(0, 3).map((category, index) => (
+            <li className="flex w-full p-2 lg:w-1/3" key={category.id}>
+              <CommitmentCard category={category} index={index} />
             </li>
           ))}
         </ul>
