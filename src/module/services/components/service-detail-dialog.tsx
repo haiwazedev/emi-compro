@@ -173,7 +173,7 @@ export function ServiceDetailDialog({
         {activeDescription ? (
           <DialogDescription
             aria-live="polite"
-            className="text-secondary text-justify text-xs leading-6 lg:text-base"
+            className="text-secondary text-justify text-xs leading-6 whitespace-pre-line lg:text-base"
             id="service-dialog-description"
           >
             {activeDescription}
